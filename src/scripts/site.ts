@@ -5,6 +5,18 @@ gsap.registerPlugin(ScrollTrigger);
 
 const REDUCED_MOTION = "(prefers-reduced-motion: reduce)";
 const LOADER_KEY = "shafri-portfolio-loader-seen";
+const SCROLL_FOCUS_SELECTOR = [
+  ".hero-section",
+  ".portfolio-section",
+  ".project-feature",
+  ".contact-section",
+  ".archive-hero",
+  ".archive-section",
+  ".case-hero",
+  ".case-image",
+  ".case-body",
+  ".next-case",
+].join(",");
 
 let pageCleanup: Array<() => void> = [];
 let fullLoaderPromise: Promise<void> | null = null;
@@ -160,6 +172,135 @@ function initNavigation() {
   pageCleanup.push(() => observer.disconnect());
 }
 
+function initScrollResistance() {
+  if (window.matchMedia(REDUCED_MOTION).matches) return;
+
+  const targets = [...document.querySelectorAll<HTMLElement>(SCROLL_FOCUS_SELECTOR)];
+  if (!targets.length) return;
+
+  const releasedTargets = new Set<HTMLElement>();
+  let gateTarget: HTMLElement | null = null;
+  let gateStartedAt = 0;
+  let wheelPressure = 0;
+  let touchTarget: HTMLElement | null = null;
+  let touchStartY = 0;
+
+  const topInset = () => parseFloat(getComputedStyle(document.documentElement).scrollPaddingTop) || 0;
+
+  const clearExitedTargets = () => {
+    releasedTargets.forEach((target) => {
+      const rect = target.getBoundingClientRect();
+      if (rect.bottom <= 0 || rect.top >= window.innerHeight) releasedTargets.delete(target);
+    });
+  };
+
+  const getFocusedTarget = () => {
+    const inset = topInset();
+    const availableHeight = Math.max(1, window.innerHeight - inset);
+    const candidates = targets
+      .map((target) => {
+        const rect = target.getBoundingClientRect();
+        const visible = Math.max(0, Math.min(rect.bottom, window.innerHeight) - Math.max(rect.top, inset));
+        return { target, height: rect.height, visible };
+      })
+      .filter(({ height, visible }) => height >= availableHeight * 0.72 && visible >= availableHeight * 0.78)
+      .sort((a, b) => a.height - b.height);
+
+    return candidates[0]?.target ?? null;
+  };
+
+  const canScrollNestedElement = (origin: EventTarget | null, delta: number) => {
+    let element = origin instanceof Element ? origin : null;
+    while (element && element !== document.body) {
+      const style = getComputedStyle(element);
+      if (/(auto|scroll)/.test(style.overflowY) && element.scrollHeight > element.clientHeight + 1) {
+        const canMoveDown = delta > 0 && element.scrollTop + element.clientHeight < element.scrollHeight - 1;
+        const canMoveUp = delta < 0 && element.scrollTop > 1;
+        if (canMoveDown || canMoveUp) return true;
+      }
+      element = element.parentElement;
+    }
+    return false;
+  };
+
+  const resetWheelGate = (target: HTMLElement | null) => {
+    gateTarget = target;
+    gateStartedAt = performance.now();
+    wheelPressure = 0;
+  };
+
+  const onWheel = (event: WheelEvent) => {
+    if (
+      event.ctrlKey ||
+      Math.abs(event.deltaY) <= Math.abs(event.deltaX) ||
+      document.body.classList.contains("is-loading") ||
+      document.body.classList.contains("menu-open") ||
+      canScrollNestedElement(event.target, event.deltaY)
+    ) return;
+
+    clearExitedTargets();
+    const target = getFocusedTarget();
+    if (!target || releasedTargets.has(target)) {
+      if (gateTarget !== target) resetWheelGate(target);
+      return;
+    }
+
+    if (gateTarget !== target) resetWheelGate(target);
+
+    const deltaScale = event.deltaMode === WheelEvent.DOM_DELTA_LINE
+      ? 16
+      : event.deltaMode === WheelEvent.DOM_DELTA_PAGE
+        ? window.innerHeight
+        : 1;
+    wheelPressure += Math.min(Math.abs(event.deltaY * deltaScale), 120);
+
+    const heldLongEnough = performance.now() - gateStartedAt >= 340;
+    if (heldLongEnough && wheelPressure >= 180) {
+      releasedTargets.add(target);
+      resetWheelGate(null);
+      return;
+    }
+
+    event.preventDefault();
+  };
+
+  const onTouchStart = (event: TouchEvent) => {
+    if (event.touches.length !== 1 || document.body.classList.contains("menu-open")) return;
+    clearExitedTargets();
+    const target = getFocusedTarget();
+    touchTarget = target && !releasedTargets.has(target) ? target : null;
+    touchStartY = event.touches[0].clientY;
+  };
+
+  const onTouchMove = (event: TouchEvent) => {
+    if (!touchTarget || event.touches.length !== 1) return;
+    const distance = Math.abs(event.touches[0].clientY - touchStartY);
+    event.preventDefault();
+    if (distance >= 72) {
+      releasedTargets.add(touchTarget);
+      touchTarget = null;
+    }
+  };
+
+  const onTouchEnd = () => {
+    touchTarget = null;
+  };
+
+  window.addEventListener("wheel", onWheel, { passive: false, capture: true });
+  window.addEventListener("touchstart", onTouchStart, { passive: true });
+  window.addEventListener("touchmove", onTouchMove, { passive: false });
+  window.addEventListener("touchend", onTouchEnd, { passive: true });
+  window.addEventListener("touchcancel", onTouchEnd, { passive: true });
+
+  pageCleanup.push(() => {
+    window.removeEventListener("wheel", onWheel, { capture: true });
+    window.removeEventListener("touchstart", onTouchStart);
+    window.removeEventListener("touchmove", onTouchMove);
+    window.removeEventListener("touchend", onTouchEnd);
+    window.removeEventListener("touchcancel", onTouchEnd);
+  });
+}
+
 function initMotion() {
   const reduceMotion = window.matchMedia(REDUCED_MOTION).matches;
   ScrollTrigger.getAll().forEach((trigger) => trigger.kill());
@@ -258,6 +399,7 @@ async function bootstrap() {
   pageInitialized = true;
   await runFullLoader();
   initNavigation();
+  initScrollResistance();
   initMotion();
   if (routeTransition) {
     routeTransition = false;

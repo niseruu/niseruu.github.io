@@ -29,7 +29,6 @@
 
 html {
   scroll-behavior: smooth;
-  scroll-snap-type: y mandatory;
   scroll-padding-top: 0;
   background: var(--canvas);
   color-scheme: light;
@@ -608,20 +607,6 @@ p {
   padding-block: clamp(6rem, 12vw, 11rem);
 }
 
-.hero-section,
-.portfolio-section,
-.contact-section,
-.archive-hero,
-.archive-section,
-.case-hero,
-.case-image,
-.case-metrics,
-.case-body,
-.next-case {
-  scroll-snap-align: start;
-  scroll-snap-stop: always;
-}
-
 .section-heading {
   position: relative;
   z-index: 2;
@@ -992,7 +977,7 @@ p {
 /* Projects */
 .projects-section { background: var(--paper); }
 .project-list { display: flex; flex-direction: column; gap: clamp(6rem, 12vw, 13rem); }
-.project-feature { display: grid; min-height: 100svh; grid-template-columns: minmax(0, 1.35fr) minmax(18rem, 0.65fr); align-items: center; gap: clamp(2rem, 6vw, 7rem); scroll-snap-align: start; scroll-snap-stop: always; }
+.project-feature { display: grid; min-height: 100svh; grid-template-columns: minmax(0, 1.35fr) minmax(18rem, 0.65fr); align-items: center; gap: clamp(2rem, 6vw, 7rem); }
 .project-feature--reverse { grid-template-columns: minmax(18rem, 0.65fr) minmax(0, 1.35fr); }
 .project-feature--reverse .project-media { order: 2; }
 .project-feature--reverse .project-copy { order: 1; }
@@ -1308,7 +1293,7 @@ p {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  html { scroll-behavior: auto; scroll-snap-type: y proximity; }
+  html { scroll-behavior: auto; }
   *,*::before,*::after { animation-duration: .001ms !important; animation-iteration-count: 1 !important; scroll-behavior: auto !important; transition-duration: .001ms !important; }
   .site-loader { display: none !important; }
   .hero-image-scan { display: none; }
