@@ -15,8 +15,8 @@ import { publications } from "../data/publications";
     />
 
     <div class="grid gap-6 md:grid-cols-2">
-      {publications.map((pub) => (
-        <div data-reveal>
+      {publications.map((pub, index) => (
+        <div data-scrub={index % 2 === 0 ? "left" : "right"}>
           <TiltCard client:visible maxTilt={5} className="glass-panel glow-ring flex h-full flex-col overflow-hidden rounded-3xl">
             <img src={pub.image} alt={pub.title} class="aspect-[16/10] w-full rounded-none object-cover" />
             <div class="flex flex-1 flex-col gap-3 p-7">
