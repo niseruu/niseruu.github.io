@@ -1,10 +1,12 @@
 ---
 import SectionHeading from "./SectionHeading.astro";
+import SectionGlow from "./SectionGlow.astro";
 import { journey } from "../data/journey";
 ---
 
 <section id="journey" class="relative py-28">
-  <div class="container-shell">
+  <SectionGlow colorA="bg-accent-3/20" colorB="bg-accent/25" />
+  <div class="container-shell relative z-10">
     <SectionHeading eyebrow="Journey" title="From game dev to applied machine learning research." />
 
     <ol class="relative border-l border-white/10 pl-8">

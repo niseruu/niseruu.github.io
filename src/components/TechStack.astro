@@ -1,10 +1,12 @@
 ---
 import SectionHeading from "./SectionHeading.astro";
+import SectionGlow from "./SectionGlow.astro";
 import { techStack } from "../data/techStack";
 ---
 
 <section id="tech-stack" class="relative py-28">
-  <div class="container-shell">
+  <SectionGlow colorA="bg-accent/20" colorB="bg-accent-2/25" flip />
+  <div class="container-shell relative z-10">
     <SectionHeading eyebrow="Stack" title="Tools I rely on to ship computer vision and NLP products." />
 
     <div class="grid gap-6 md:grid-cols-2">

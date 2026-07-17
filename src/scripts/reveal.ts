@@ -16,16 +16,18 @@ function initReveals() {
   }
 
   if (revealEls.length) {
-    gsap.set(revealEls, { opacity: 0, y: 46 });
+    gsap.set(revealEls, { opacity: 0, y: 64, scale: 0.92, filter: "blur(6px)" });
     ScrollTrigger.batch(revealEls, {
-      start: "top 85%",
+      start: "top 88%",
       once: true,
       onEnter: (batch) =>
         gsap.to(batch, {
           opacity: 1,
           y: 0,
-          duration: 0.9,
-          ease: "power3.out",
+          scale: 1,
+          filter: "blur(0px)",
+          duration: 1.1,
+          ease: "expo.out",
           stagger: 0.12,
         }),
     });

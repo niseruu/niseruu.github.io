@@ -76,6 +76,13 @@
     background: var(--color-surface);
     border: 1px solid var(--color-border);
     backdrop-filter: blur(20px);
+    transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.4s ease, border-color 0.4s ease;
+  }
+
+  .glass-panel:hover {
+    transform: translateY(-6px);
+    border-color: rgba(148, 163, 184, 0.32);
+    box-shadow: 0 30px 90px rgba(56, 189, 248, 0.2), 0 14px 36px rgba(139, 92, 246, 0.16);
   }
 
   .text-gradient {
@@ -102,10 +109,10 @@
   .glow-ring::before {
     content: "";
     position: absolute;
-    inset: -1px;
+    inset: -1.5px;
     border-radius: inherit;
-    padding: 1px;
-    background: linear-gradient(120deg, rgba(56, 189, 248, 0.6), rgba(139, 92, 246, 0.6));
+    padding: 1.5px;
+    background: linear-gradient(120deg, var(--color-accent), var(--color-accent-2), var(--color-accent-3));
     -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
     -webkit-mask-composite: xor;
     mask-composite: exclude;
@@ -116,6 +123,16 @@
 
   .glow-ring:hover::before {
     opacity: 1;
+  }
+
+  .glow-ring--always::before {
+    opacity: 0.6;
+    animation: var(--animate-pulse-glow);
+  }
+
+  .glow-ring--always:hover::before {
+    opacity: 1;
+    animation: none;
   }
 
   .prose-case {
@@ -157,7 +174,7 @@
   z-index: 2;
   opacity: 0;
   transition: opacity 0.4s ease;
-  background: radial-gradient(600px circle at var(--x, 50%) var(--y, 50%), rgba(56, 189, 248, 0.08), transparent 40%);
+  background: radial-gradient(720px circle at var(--x, 50%) var(--y, 50%), rgba(56, 189, 248, 0.16), rgba(139, 92, 246, 0.06) 35%, transparent 55%);
 }
 
 #cursor-glow.active {

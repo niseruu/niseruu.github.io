@@ -2,6 +2,7 @@
 import { getCollection } from "astro:content";
 import { Image } from "astro:assets";
 import SectionHeading from "./SectionHeading.astro";
+import SectionGlow from "./SectionGlow.astro";
 import TiltCard from "./TiltCard.tsx";
 
 const allProjects = await getCollection("projects");
@@ -11,7 +12,8 @@ const projects = allProjects
 ---
 
 <section id="projects" class="relative py-28">
-  <div class="container-shell">
+  <SectionGlow colorA="bg-accent/25" colorB="bg-accent-2/20" />
+  <div class="container-shell relative z-10">
     <SectionHeading
       eyebrow="Case Studies"
       title="Computer vision and NLP work that delivers measurable impact."

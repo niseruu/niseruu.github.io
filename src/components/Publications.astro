@@ -1,11 +1,13 @@
 ---
 import SectionHeading from "./SectionHeading.astro";
+import SectionGlow from "./SectionGlow.astro";
 import TiltCard from "./TiltCard.tsx";
 import { publications } from "../data/publications";
 ---
 
 <section id="publications" class="relative py-28">
-  <div class="container-shell">
+  <SectionGlow colorA="bg-accent-2/25" colorB="bg-accent-3/20" flip />
+  <div class="container-shell relative z-10">
     <SectionHeading
       eyebrow="Publications & Recognition"
       title="Research translated into talks, proceedings, and IP."
