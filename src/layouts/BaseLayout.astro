@@ -34,10 +34,12 @@ const { title, description } = Astro.props;
     <div id="cursor-glow" aria-hidden="true"></div>
 
     <Nav />
-    <main class="relative z-10">
-      <slot />
-    </main>
-    <Footer />
+    <div class="relative z-10 md:pl-24">
+      <main>
+        <slot />
+      </main>
+      <Footer />
+    </div>
 
     <script>
       import "../scripts/reveal";

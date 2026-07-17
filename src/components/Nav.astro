@@ -1,58 +1,101 @@
 ---
 const links = [
-  { href: "/", label: "Home" },
-  { href: "/projects", label: "Case Studies" },
-  { href: "/#publications", label: "Publications" },
-  { href: "/#journey", label: "Journey" },
-  { href: "/#tech-stack", label: "Stack" },
+  {
+    href: "/",
+    label: "Home",
+    icon: '<path d="M3 12l9-9 9 9"/><path d="M9 21V12h6v9"/><path d="M5 10v11h14V10"/>',
+  },
+  {
+    href: "/projects",
+    label: "Case Studies",
+    icon: '<rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/>',
+  },
+  {
+    href: "/#publications",
+    label: "Publications",
+    icon: '<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/>',
+  },
+  {
+    href: "/#journey",
+    label: "Journey",
+    icon: '<path d="M9 20l-6-3V4l6 3 6-3 6 3v13l-6-3-6 3z"/><path d="M9 4v13"/><path d="M15 7v13"/>',
+  },
+  {
+    href: "/#tech-stack",
+    label: "Stack",
+    icon: '<path d="M12 2 2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/>',
+  },
 ];
+
+const resumeIcon = '<path d="M12 3v12"/><path d="M7 10l5 5 5-5"/><path d="M5 21h14"/>';
 ---
 
-<header class="site-header sticky top-0 z-50 border-b border-white/10 bg-bg/70 backdrop-blur-xl">
-  <div class="container-shell flex items-center justify-between py-5">
-    <a
-      href="/"
-      class="font-display text-sm font-semibold uppercase tracking-[0.28em] text-ink transition-colors hover:text-accent"
-    >
-      M Shafri Syamsuddin
-    </a>
+<aside
+  id="sidebar"
+  class="fixed inset-y-0 left-0 z-50 hidden w-24 flex-col items-center justify-between border-r-2 border-white/10 bg-bg/85 py-8 backdrop-blur-xl md:flex"
+>
+  <a href="/" aria-label="Home" class="font-display text-lg font-bold text-ink transition-colors hover:text-accent">M</a>
 
-    <button
-      id="menu-toggle"
-      class="inline-flex items-center rounded-lg p-2 text-ink md:hidden"
-      aria-expanded="false"
-      aria-controls="primary-nav"
-    >
-      <span class="sr-only">Toggle navigation</span>
-      <svg viewBox="0 0 24 24" class="h-6 w-6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
-        <path d="M4 6h16M4 12h16M4 18h16"></path>
-      </svg>
-    </button>
-
-    <nav
-      id="primary-nav"
-      data-open="false"
-      class="nav-list font-display absolute inset-x-4 top-[70px] flex flex-col gap-4 border-2 border-white/10 bg-bg-deep/95 p-6 text-sm opacity-0 shadow-2xl transition-all duration-300 data-[open=true]:pointer-events-auto data-[open=true]:translate-y-0 data-[open=true]:opacity-100 md:static md:flex-row md:items-center md:gap-8 md:border-0 md:bg-transparent md:p-0 md:opacity-100 md:shadow-none pointer-events-none -translate-y-2 md:pointer-events-auto md:translate-y-0"
-    >
-      {links.map((link) => (
-        <a
-          href={link.href}
-          class="text-muted transition-colors hover:text-ink"
-        >
-          {link.label}
-        </a>
-      ))}
+  <nav class="flex flex-1 flex-col items-center justify-center gap-8">
+    {links.map((link) => (
       <a
-        href="/docs/m-shafri-syamsuddin-cv.pdf"
-        target="_blank"
-        rel="noopener"
-        class="border-2 border-border bg-accent/10 px-4 py-2 text-center font-bold text-ink transition hover:border-accent hover:bg-accent/20"
+        href={link.href}
+        aria-label={link.label}
+        class="group relative flex flex-col items-center text-muted transition-colors hover:text-accent"
       >
-        Resume
+        <svg viewBox="0 0 24 24" class="h-6 w-6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" set:html={link.icon} />
+        <span class="pointer-events-none absolute left-full ml-4 whitespace-nowrap border-2 border-border bg-bg-deep px-3 py-1.5 font-display text-xs font-bold uppercase tracking-wider text-ink opacity-0 transition-opacity duration-200 group-hover:opacity-100">
+          {link.label}
+        </span>
       </a>
-    </nav>
-  </div>
-</header>
+    ))}
+  </nav>
+
+  <a
+    href="/docs/m-shafri-syamsuddin-cv.pdf"
+    target="_blank"
+    rel="noopener"
+    aria-label="Resume"
+    class="group relative flex flex-col items-center border-2 border-border p-2.5 text-ink transition-colors hover:border-accent hover:text-accent"
+  >
+    <svg viewBox="0 0 24 24" class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" set:html={resumeIcon} />
+    <span class="pointer-events-none absolute left-full ml-4 whitespace-nowrap border-2 border-border bg-bg-deep px-3 py-1.5 font-display text-xs font-bold uppercase tracking-wider text-ink opacity-0 transition-opacity duration-200 group-hover:opacity-100">
+      Resume
+    </span>
+  </a>
+</aside>
+
+<button
+  id="menu-toggle"
+  aria-label="Toggle navigation"
+  aria-expanded="false"
+  aria-controls="primary-nav"
+  class="fixed left-4 top-4 z-50 flex h-11 w-11 items-center justify-center border-2 border-white/10 bg-bg/85 text-ink backdrop-blur-xl md:hidden"
+>
+  <svg viewBox="0 0 24 24" class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+    <path d="M4 6h16M4 12h16M4 18h16"></path>
+  </svg>
+</button>
+
+<nav
+  id="primary-nav"
+  data-open="false"
+  class="font-display fixed inset-0 z-40 flex flex-col items-center justify-center gap-8 bg-bg-deep/98 text-lg opacity-0 backdrop-blur-xl transition-opacity duration-300 data-[open=true]:pointer-events-auto data-[open=true]:opacity-100 pointer-events-none md:hidden"
+>
+  {links.map((link) => (
+    <a href={link.href} class="text-muted transition-colors hover:text-ink">
+      {link.label}
+    </a>
+  ))}
+  <a
+    href="/docs/m-shafri-syamsuddin-cv.pdf"
+    target="_blank"
+    rel="noopener"
+    class="border-2 border-border bg-accent/10 px-5 py-2.5 text-center font-bold text-ink transition hover:border-accent hover:bg-accent/20"
+  >
+    Resume
+  </a>
+</nav>
 
 <script>
   function initNav() {
