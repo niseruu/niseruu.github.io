@@ -1,10 +1,12 @@
 ---
 import ContactForm from "./ContactForm.tsx";
+import SectionGlow from "./SectionGlow.astro";
 import { socials, email } from "../data/socials";
 ---
 
 <section id="contact" class="relative py-28">
-  <div class="container-shell">
+  <SectionGlow colorA="bg-accent/30" colorB="bg-accent-2/30" flip />
+  <div class="container-shell relative z-10">
     <div class="glass-panel glow-ring grid gap-12 rounded-[32px] p-10 md:grid-cols-2 md:p-14" data-reveal>
       <div>
         <p class="eyebrow mb-4">Contact</p>
