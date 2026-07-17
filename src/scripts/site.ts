@@ -37,6 +37,14 @@ function setLoaderProgress(value: number) {
   if (bar) bar.style.transform = `scaleX(${safeValue / 100})`;
 }
 
+function setLoaderStatus(loaded: number, total: number) {
+  const status = getLoader()?.querySelector<HTMLElement>("[data-loader-status]");
+  if (!status) return;
+  status.textContent = total > 0
+    ? `LOADING IMAGES ${Math.min(loaded, total)} / ${total}`
+    : "LOADING INTERFACE";
+}
+
 function showLoader(mode: "full" | "route") {
   const loader = getLoader();
   if (!loader) return;
@@ -60,57 +68,101 @@ function hideLoader() {
   }, 720);
 }
 
-function waitForHero() {
-  const image = document.querySelector<HTMLImageElement>("[data-loader-hero]");
-  if (!image || image.complete) return Promise.resolve();
-  return image.decode?.().catch(() => undefined) ?? Promise.resolve();
+function waitForImage(image: HTMLImageElement) {
+  return new Promise<void>((resolve) => {
+    const decode = () => {
+      if (typeof image.decode === "function") image.decode().catch(() => undefined).then(() => resolve());
+      else resolve();
+    };
+
+    if (image.complete) {
+      decode();
+      return;
+    }
+
+    const finish = () => {
+      image.removeEventListener("load", finish);
+      image.removeEventListener("error", finish);
+      decode();
+    };
+    image.addEventListener("load", finish, { once: true });
+    image.addEventListener("error", finish, { once: true });
+  });
+}
+
+function trackPageAssets(start: number, end: number) {
+  const images = [...document.querySelectorAll<HTMLImageElement>("main [data-loader-image]")];
+  const progress = { value: start };
+  let loaded = 0;
+  let active = true;
+
+  setLoaderProgress(start);
+  setLoaderStatus(loaded, images.length);
+
+  const updateProgress = () => {
+    if (!active) return;
+    loaded += 1;
+    setLoaderStatus(loaded, images.length);
+    const target = images.length > 0 ? start + (loaded / images.length) * (end - start) : end;
+    gsap.to(progress, {
+      value: target,
+      duration: 0.24,
+      ease: "power2.out",
+      overwrite: true,
+      onUpdate: () => setLoaderProgress(progress.value),
+    });
+  };
+
+  const imageTasks = images.map((image) => waitForImage(image).then(updateProgress));
+  const fontsReady = (document.fonts?.ready ?? Promise.resolve()).then(() => {
+    if (!images.length && active) {
+      progress.value = end;
+      setLoaderProgress(end);
+    }
+  });
+
+  return {
+    ready: Promise.allSettled([fontsReady, ...imageTasks]),
+    stop: () => {
+      active = false;
+      gsap.killTweensOf(progress);
+    },
+  };
+}
+
+async function waitForPageAssets(options: { minimum: number; maximum: number; start: number; end: number }) {
+  const startedAt = performance.now();
+  const tracker = trackPageAssets(options.start, options.end);
+  const hardCap = new Promise<void>((resolve) => window.setTimeout(resolve, options.maximum));
+  await Promise.race([tracker.ready, hardCap]);
+  const remaining = Math.max(0, options.minimum - (performance.now() - startedAt));
+  if (remaining) await new Promise((resolve) => window.setTimeout(resolve, remaining));
+  tracker.stop();
+  setLoaderProgress(100);
+  const status = getLoader()?.querySelector<HTMLElement>("[data-loader-status]");
+  if (status) status.textContent = "ASSETS READY";
 }
 
 function runFullLoader() {
   if (fullLoaderPromise) return fullLoaderPromise;
-  fullLoaderPromise = new Promise<void>((resolve) => {
+  fullLoaderPromise = (async () => {
     const seen = sessionStorage.getItem(LOADER_KEY) === "1";
-    if (seen) {
-      const loader = getLoader();
-      loader?.classList.add("is-hidden");
-      document.body.classList.remove("is-loading");
-      resolve();
-      return;
-    }
-
-    showLoader("full");
-    const startedAt = performance.now();
-    const progress = { value: 0 };
-    const tween = gsap.to(progress, {
-      value: 88,
-      duration: 1.25,
-      ease: "power2.out",
-      onUpdate: () => setLoaderProgress(progress.value),
+    showLoader(seen ? "route" : "full");
+    await waitForPageAssets({
+      minimum: seen ? 400 : 1200,
+      maximum: 3000,
+      start: seen ? 28 : 4,
+      end: 94,
     });
-
-    const fontsReady = document.fonts?.ready ?? Promise.resolve();
-    const assetsReady = Promise.allSettled([fontsReady, waitForHero()]);
-    const hardCap = new Promise((done) => window.setTimeout(done, 3000));
-
-    Promise.race([assetsReady, hardCap]).then(() => {
-      const remaining = Math.max(0, 1200 - (performance.now() - startedAt));
-      window.setTimeout(() => {
-        tween.kill();
-        gsap.to(progress, {
-          value: 100,
-          duration: 0.22,
-          ease: "power2.inOut",
-          onUpdate: () => setLoaderProgress(progress.value),
-          onComplete: () => {
-            sessionStorage.setItem(LOADER_KEY, "1");
-            hideLoader();
-            window.setTimeout(resolve, 650);
-          },
-        });
-      }, remaining);
-    });
-  });
+    sessionStorage.setItem(LOADER_KEY, "1");
+    hideLoader();
+    await new Promise((resolve) => window.setTimeout(resolve, seen ? 540 : 650));
+  })();
   return fullLoaderPromise;
+}
+
+function runRouteLoader() {
+  return waitForPageAssets({ minimum: 400, maximum: 3000, start: 28, end: 94 });
 }
 
 function closeMobileMenu() {
@@ -347,9 +399,10 @@ function initMotion() {
   });
 
   document.querySelectorAll<HTMLElement>("[data-image-reveal]").forEach((el) => {
-    gsap.from(el, {
-      clipPath: "inset(0 100% 0 0)",
-      scale: 1.08,
+    const image = el.matches("img") ? el : el.querySelector<HTMLElement>("img");
+    if (!image) return;
+    gsap.from(image, {
+      scale: 1.035,
       duration: 1.15,
       ease: "expo.out",
       scrollTrigger: { trigger: el, start: "top 86%", once: true },
@@ -398,10 +451,12 @@ async function bootstrap() {
   if (pageInitialized) return;
   pageInitialized = true;
   await runFullLoader();
+  const completingRoute = routeTransition;
+  if (completingRoute) await runRouteLoader();
   initNavigation();
   initScrollResistance();
   initMotion();
-  if (routeTransition) {
+  if (completingRoute) {
     routeTransition = false;
     window.setTimeout(hideLoader, 120);
   }

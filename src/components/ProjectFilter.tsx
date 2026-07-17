@@ -50,7 +50,7 @@ export default function ProjectFilter({ projects }: { projects: ProjectCard[] })
                 className="archive-card"
               >
                 <div className="archive-card-image">
-                  <img src={project.imageSrc} alt={project.imageAlt} />
+                  <img src={project.imageSrc} alt={project.imageAlt} loading="eager" data-loader-image />
                   <strong>{String(index + 1).padStart(2, "0")}</strong>
                   <span>↗</span>
                 </div>

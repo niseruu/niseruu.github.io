@@ -22,7 +22,7 @@ import KineticMarquee from "./KineticMarquee.astro";
     </h1>
   </div>
 
-  <div class="hero-image-zone" data-hero-reveal>
+  <div class="hero-image-zone">
     <div class="hero-image-yellow" aria-hidden="true"></div>
     <div class="hero-image-frame">
       <Image
@@ -30,6 +30,8 @@ import KineticMarquee from "./KineticMarquee.astro";
         alt="Portrait of M Shafri Syamsuddin"
         width={800}
         loading="eager"
+        fetchpriority="high"
+        data-loader-image
         data-loader-hero
       />
       <div class="hero-image-scan" aria-hidden="true"></div>

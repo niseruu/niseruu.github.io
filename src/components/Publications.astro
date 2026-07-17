@@ -16,7 +16,7 @@ import { publications } from "../data/publications";
       {publications.map((publication, index) => (
         <article class="publication-card" data-reveal>
           <a href={publication.linkHref} target="_blank" rel="noopener" class="publication-image" data-image-reveal>
-            <img src={publication.image} alt={publication.title} loading="lazy" />
+            <img src={publication.image} alt={publication.title} loading="eager" decoding="async" data-loader-image />
             <span>0{index + 1}</span>
           </a>
           <div class="publication-meta"><span>OUTPUT / 0{index + 1}</span><span>2025</span></div>

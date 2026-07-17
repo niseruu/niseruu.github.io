@@ -27,6 +27,8 @@ const projects = (await getCollection("projects"))
               alt={project.data.heroImageAlt}
               width={1200}
               class="project-image"
+              loading="eager"
+              data-loader-image
             />
             <span class="project-media-index">0{index + 1}</span>
             <span class="project-media-arrow">↗</span>
