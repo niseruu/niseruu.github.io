@@ -604,7 +604,7 @@ p {
 
 .portfolio-section {
   position: relative;
-  overflow: hidden;
+  overflow: clip;
   padding-block: clamp(6rem, 12vw, 11rem);
 }
 
