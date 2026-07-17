@@ -5,18 +5,7 @@ gsap.registerPlugin(ScrollTrigger);
 
 const REDUCED_MOTION = "(prefers-reduced-motion: reduce)";
 const LOADER_KEY = "shafri-portfolio-loader-seen";
-const SCROLL_FOCUS_SELECTOR = [
-  ".hero-section",
-  ".portfolio-section",
-  ".project-feature",
-  ".contact-section",
-  ".archive-hero",
-  ".archive-section",
-  ".case-hero",
-  ".case-image",
-  ".case-body",
-  ".next-case",
-].join(",");
+const SCROLL_FOCUS_SELECTOR = ".hero-section";
 
 let pageCleanup: Array<() => void> = [];
 let fullLoaderPromise: Promise<void> | null = null;
