@@ -24,7 +24,7 @@ const projects = allProjects
       {projects.map((project, index) => (
         <a
           href={`/projects/${project.id}`}
-          data-reveal
+          data-scrub={index === 0 ? "rotate" : index % 2 === 1 ? "right" : "left"}
           class={`block ${index === 0 ? "md:col-span-2" : ""}`}
         >
           <TiltCard client:visible maxTilt={4} className="glass-panel glow-ring h-full overflow-hidden rounded-3xl">

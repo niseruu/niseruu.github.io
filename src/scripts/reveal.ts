@@ -33,6 +33,39 @@ function initReveals() {
     });
   }
 
+  const scrubEls = document.querySelectorAll<HTMLElement>("[data-scrub]");
+  if (reduceMotion) {
+    scrubEls.forEach((el) => {
+      el.style.opacity = "1";
+      el.style.transform = "none";
+    });
+  } else {
+    scrubEls.forEach((el) => {
+      const preset = el.dataset.scrub;
+      const from: gsap.TweenVars = { opacity: 0, transformPerspective: 900 };
+      if (preset === "left") Object.assign(from, { x: -160, rotateY: -26, scale: 0.88 });
+      else if (preset === "right") Object.assign(from, { x: 160, rotateY: 26, scale: 0.88 });
+      else Object.assign(from, { y: 120, rotateX: 18, scale: 0.88 });
+
+      gsap.set(el, from);
+      gsap.to(el, {
+        x: 0,
+        y: 0,
+        rotateX: 0,
+        rotateY: 0,
+        scale: 1,
+        opacity: 1,
+        ease: "none",
+        scrollTrigger: {
+          trigger: el,
+          start: "top 95%",
+          end: "top 40%",
+          scrub: 0.6,
+        },
+      });
+    });
+  }
+
   document.querySelectorAll<HTMLElement>("[data-parallax]").forEach((el) => {
     const strength = Number(el.dataset.parallax) || 40;
     gsap.to(el, {
