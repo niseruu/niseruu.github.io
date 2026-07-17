@@ -1,0 +1,23 @@
+---
+interface Props {
+  text: string;
+  reverse?: boolean;
+  dark?: boolean;
+}
+
+const { text, reverse = false, dark = false } = Astro.props;
+const repeats = Array.from({ length: 5 });
+---
+
+<div class:list={["kinetic-marquee", reverse && "is-reverse", dark && "is-dark"]} aria-hidden="true">
+  <div class="kinetic-marquee-track">
+    {repeats.map(() => (
+      <span>{text}<i>+</i></span>
+    ))}
+  </div>
+  <div class="kinetic-marquee-track" aria-hidden="true">
+    {repeats.map(() => (
+      <span>{text}<i>+</i></span>
+    ))}
+  </div>
+</div>

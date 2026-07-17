@@ -3,14 +3,19 @@ interface Props {
   eyebrow: string;
   title: string;
   description?: string;
+  index?: string;
+  align?: "left" | "right";
 }
 
-const { eyebrow, title, description } = Astro.props;
+const { eyebrow, title, description, index = "00", align = "left" } = Astro.props;
 ---
 
-<div class="mb-16 max-w-2xl" data-reveal>
-  <span class="stripe-accent mb-4"></span>
-  <p class="eyebrow mb-4 mt-4">{eyebrow}</p>
-  <h2 class="mb-4 font-display text-4xl leading-[0.95] font-bold text-ink md:text-5xl">{title}</h2>
-  {description && <p class="text-lg text-muted">{description}</p>}
-</div>
+<header class:list={["section-heading", align === "right" && "section-heading--right"]} data-reveal>
+  <div class="section-heading-meta">
+    <span class="section-index">[{index}]</span>
+    <span class="section-eyebrow">{eyebrow}</span>
+    <span class="section-signal" aria-hidden="true"></span>
+  </div>
+  <h2 data-kinetic>{title}</h2>
+  {description && <p class="section-description">{description}</p>}
+</header>

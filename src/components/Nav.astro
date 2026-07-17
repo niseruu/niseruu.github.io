@@ -1,124 +1,104 @@
 ---
 const links = [
   {
-    href: "/",
+    href: "/#hero",
+    section: "hero",
     label: "Home",
-    icon: '<path d="M3 12l9-9 9 9"/><path d="M9 21V12h6v9"/><path d="M5 10v11h14V10"/>',
+    code: "00",
+    icon: '<path d="M4 11.5 12 4l8 7.5"/><path d="M6.5 10.5V20h11v-9.5"/><path d="M10 20v-5h4v5"/>',
   },
   {
-    href: "/projects",
+    href: "/#projects",
+    section: "projects",
     label: "Case Studies",
-    icon: '<rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/>',
+    code: "01",
+    icon: '<path d="M4 5h16v14H4z"/><path d="M4 9h16M9 9v10"/>',
   },
   {
     href: "/#publications",
-    label: "Publications",
-    icon: '<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/>',
+    section: "publications",
+    label: "Research",
+    code: "02",
+    icon: '<path d="M6 3h9l3 3v15H6z"/><path d="M14 3v4h4M9 12h6M9 16h6"/>',
   },
   {
     href: "/#journey",
+    section: "journey",
     label: "Journey",
-    icon: '<path d="M9 20l-6-3V4l6 3 6-3 6 3v13l-6-3-6 3z"/><path d="M9 4v13"/><path d="M15 7v13"/>',
+    code: "03",
+    icon: '<path d="M5 4v16M19 4v16M5 7h14M5 17h14"/><path d="m10 10 4 2-4 2z"/>',
   },
   {
     href: "/#tech-stack",
-    label: "Stack",
-    icon: '<path d="M12 2 2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/>',
+    section: "tech-stack",
+    label: "Capabilities",
+    code: "04",
+    icon: '<path d="m12 3 8 4.5-8 4.5-8-4.5z"/><path d="m4 12 8 4.5 8-4.5M4 16.5l8 4.5 8-4.5"/>',
+  },
+  {
+    href: "/#contact",
+    section: "contact",
+    label: "Contact",
+    code: "06",
+    icon: '<path d="M3 5h18v14H3z"/><path d="m4 6 8 7 8-7"/>',
   },
 ];
-
-const resumeIcon = '<path d="M12 3v12"/><path d="M7 10l5 5 5-5"/><path d="M5 21h14"/>';
 ---
 
-<aside
-  id="sidebar"
-  class="fixed inset-y-0 left-0 z-50 hidden w-24 flex-col items-center justify-between border-r-2 border-white/10 bg-bg/85 py-8 backdrop-blur-xl md:flex"
->
-  <a href="/" aria-label="Home" class="font-display text-lg font-bold text-ink transition-colors hover:text-accent">M</a>
+<aside id="sidebar" class="desktop-rail" transition:persist="desktop-rail">
+  <div class="rail-surface">
+    <a href="/#hero" class="rail-logo" aria-label="M Shafri Syamsuddin — Home">
+      <span>M</span><span>S</span><small>PORTFOLIO</small>
+    </a>
 
-  <nav class="flex flex-1 flex-col items-center justify-center gap-8">
-    {links.map((link) => (
-      <a
-        href={link.href}
-        aria-label={link.label}
-        class="group relative flex flex-col items-center text-muted transition-colors hover:text-accent"
-      >
-        <svg viewBox="0 0 24 24" class="h-6 w-6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" set:html={link.icon} />
-        <span class="pointer-events-none absolute left-full ml-4 whitespace-nowrap border-2 border-border bg-bg-deep px-3 py-1.5 font-display text-xs font-bold uppercase tracking-wider text-ink opacity-0 transition-opacity duration-200 group-hover:opacity-100">
-          {link.label}
-        </span>
+    <nav class="rail-nav" aria-label="Primary navigation">
+      {links.map((link) => (
+        <a href={link.href} class="rail-link" data-nav-section={link.section}>
+          <span class="rail-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="square" stroke-linejoin="miter" set:html={link.icon} />
+          </span>
+          <span class="rail-label"><small>{link.code}</small>{link.label}</span>
+        </a>
+      ))}
+    </nav>
+
+    <div class="rail-utilities">
+      <div class="rail-socials" aria-label="Social links">
+        <a href="https://github.com/Shafriii" target="_blank" rel="noopener" aria-label="GitHub">GH</a>
+        <a href="https://www.linkedin.com/in/shafrisyamsuddin/" target="_blank" rel="noopener" aria-label="LinkedIn">IN</a>
+        <a href="https://medium.com/@shafrisyamsuddin" target="_blank" rel="noopener" aria-label="Medium">MD</a>
+      </div>
+      <a href="/docs/m-shafri-syamsuddin-cv.pdf" target="_blank" rel="noopener" class="rail-resume">
+        <span class="rail-resume-mark">↗</span>
+        <span class="rail-resume-label">Open résumé</span>
       </a>
-    ))}
-  </nav>
-
-  <a
-    href="/docs/m-shafri-syamsuddin-cv.pdf"
-    target="_blank"
-    rel="noopener"
-    aria-label="Resume"
-    class="group relative flex flex-col items-center border-2 border-border p-2.5 text-ink transition-colors hover:border-accent hover:text-accent"
-  >
-    <svg viewBox="0 0 24 24" class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" set:html={resumeIcon} />
-    <span class="pointer-events-none absolute left-full ml-4 whitespace-nowrap border-2 border-border bg-bg-deep px-3 py-1.5 font-display text-xs font-bold uppercase tracking-wider text-ink opacity-0 transition-opacity duration-200 group-hover:opacity-100">
-      Resume
-    </span>
-  </a>
+    </div>
+  </div>
 </aside>
 
-<button
-  id="menu-toggle"
-  aria-label="Toggle navigation"
-  aria-expanded="false"
-  aria-controls="primary-nav"
-  class="fixed left-4 top-4 z-50 flex h-11 w-11 items-center justify-center border-2 border-white/10 bg-bg/85 text-ink backdrop-blur-xl md:hidden"
->
-  <svg viewBox="0 0 24 24" class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
-    <path d="M4 6h16M4 12h16M4 18h16"></path>
-  </svg>
-</button>
+<header class="mobile-header" transition:persist="mobile-header">
+  <a href="/#hero" class="mobile-logo" aria-label="Home"><strong>MS</strong><span>PORTFOLIO</span></a>
+  <div class="mobile-header-actions">
+    <a href="/docs/m-shafri-syamsuddin-cv.pdf" target="_blank" rel="noopener" class="mobile-resume">CV ↗</a>
+    <button id="menu-toggle" class="menu-toggle" aria-label="Open navigation" aria-expanded="false" aria-controls="mobile-menu">
+      <span></span><span></span>
+    </button>
+  </div>
+</header>
 
-<nav
-  id="primary-nav"
-  data-open="false"
-  class="font-display fixed inset-0 z-40 flex flex-col items-center justify-center gap-8 bg-bg-deep/98 text-lg opacity-0 backdrop-blur-xl transition-opacity duration-300 data-[open=true]:pointer-events-auto data-[open=true]:opacity-100 pointer-events-none md:hidden"
->
-  {links.map((link) => (
-    <a href={link.href} class="text-muted transition-colors hover:text-ink">
-      {link.label}
-    </a>
-  ))}
-  <a
-    href="/docs/m-shafri-syamsuddin-cv.pdf"
-    target="_blank"
-    rel="noopener"
-    class="border-2 border-border bg-accent/10 px-5 py-2.5 text-center font-bold text-ink transition hover:border-accent hover:bg-accent/20"
-  >
-    Resume
-  </a>
+<nav id="mobile-menu" class="mobile-menu" data-open="false" aria-label="Mobile navigation" transition:persist="mobile-menu">
+  <div class="mobile-menu-grid" aria-hidden="true"></div>
+  <p class="mobile-menu-kicker">SELECT DESTINATION // 00—06</p>
+  <div class="mobile-menu-links">
+    {links.map((link) => (
+      <a href={link.href} data-nav-section={link.section}>
+        <small>{link.code}</small><span>{link.label}</span><i>↗</i>
+      </a>
+    ))}
+  </div>
+  <div class="mobile-menu-foot">
+    <a href="mailto:shafrisyamsuddin@gmail.com">EMAIL</a>
+    <a href="https://github.com/Shafriii" target="_blank" rel="noopener">GITHUB</a>
+    <a href="https://www.linkedin.com/in/shafrisyamsuddin/" target="_blank" rel="noopener">LINKEDIN</a>
+  </div>
 </nav>
-
-<script>
-  function initNav() {
-    const nav = document.getElementById("primary-nav");
-    const toggle = document.getElementById("menu-toggle");
-    if (!nav || !toggle) return;
-
-    const closeMenu = () => {
-      nav.dataset.open = "false";
-      toggle.setAttribute("aria-expanded", "false");
-    };
-
-    toggle.addEventListener("click", () => {
-      const isOpen = nav.dataset.open === "true";
-      nav.dataset.open = String(!isOpen);
-      toggle.setAttribute("aria-expanded", String(!isOpen));
-    });
-
-    nav.querySelectorAll("a").forEach((link) => link.addEventListener("click", closeMenu));
-    document.addEventListener("keydown", (event) => {
-      if (event.key === "Escape") closeMenu();
-    });
-  }
-
-  document.addEventListener("astro:page-load", initNav);
-</script>

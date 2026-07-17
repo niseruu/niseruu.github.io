@@ -1,24 +1,15 @@
 ---
 import { socials } from "../data/socials";
-
 const year = new Date().getFullYear();
 ---
 
-<footer class="relative z-10 border-t border-white/10 py-12">
-  <div class="container-shell flex flex-col items-center gap-6 text-sm text-muted md:flex-row md:justify-between">
-    <p>&copy; {year} M Shafri Syamsuddin. Computer Vision &amp; NLP Engineer.</p>
-    <div class="flex flex-wrap items-center gap-6 font-display">
-      {socials.map((social) => (
-        <a
-          href={social.href}
-          target="_blank"
-          rel="noopener"
-          class="transition-colors hover:text-accent"
-        >
-          {social.label}
-        </a>
-      ))}
-      <a href="#hero" class="transition-colors hover:text-accent">Back to top</a>
-    </div>
+<footer class="site-footer">
+  <div class="footer-mark"><strong>MS</strong><span>M SHAFRI SYAMSUDDIN</span></div>
+  <p>© {year} / COMPUTER VISION & NLP ENGINEER</p>
+  <div class="footer-links">
+    {socials.map((social) => (
+      <a href={social.href} target="_blank" rel="noopener">{social.label} ↗</a>
+    ))}
+    <a href="#hero">TOP ↑</a>
   </div>
 </footer>

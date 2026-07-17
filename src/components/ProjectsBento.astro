@@ -2,77 +2,65 @@
 import { getCollection } from "astro:content";
 import { Image } from "astro:assets";
 import SectionHeading from "./SectionHeading.astro";
-import SectionGlow from "./SectionGlow.astro";
+import KineticMarquee from "./KineticMarquee.astro";
 
-const allProjects = await getCollection("projects");
-const projects = allProjects
-  .filter((p) => p.data.featured)
+const projects = (await getCollection("projects"))
+  .filter((project) => project.data.featured)
   .sort((a, b) => a.data.order - b.data.order);
 ---
 
-<section id="projects" class="relative py-32">
-  <SectionGlow colorA="bg-accent/25" colorB="bg-accent-2/20" />
-  <div class="container-shell relative z-10">
+<section id="projects" class="portfolio-section projects-section">
+  <div class="section-shell">
     <SectionHeading
-      eyebrow="Case Studies"
-      title="Computer vision and NLP work that delivers measurable impact."
-      description="Each project pairs research-backed methods with deployment thinking — whether that means ONNX runtimes for clinics or containerised APIs for product teams."
+      index="01"
+      eyebrow="Selected Case Studies"
+      title="Research engineered for the real world."
+      description="Applied machine-learning systems built with deployment, reproducibility, and measurable outcomes in mind."
     />
 
-    <div class="flex flex-col gap-28 md:gap-36">
-      {projects.map((project, index) => {
-        const reverse = index % 2 === 1;
-        return (
-          <article class="grid items-center gap-10 md:grid-cols-2 md:gap-16">
-            <a
-              href={`/projects/${project.id}`}
-              data-scrub={reverse ? "photo-right" : "photo-left"}
-              class={`photo-frame block ${reverse ? "md:order-2" : ""}`}
-            >
-              <Image
-                src={project.data.heroImage}
-                alt={project.data.heroImageAlt}
-                width={960}
-                class="aspect-[4/3] w-full object-cover"
-              />
-            </a>
-            <div class={reverse ? "md:order-1" : ""} data-reveal>
-              <span class="stripe-accent mb-4"></span>
-              <p class="eyebrow mb-3 mt-4">{project.data.eyebrow}</p>
-              <h3 class="mb-4 font-display text-4xl font-bold text-ink md:text-5xl">{project.data.title}</h3>
-              <p class="mb-8 max-w-md text-lg text-muted">{project.data.summary}</p>
+    <div class="project-list">
+      {projects.map((project, index) => (
+        <article class:list={["project-feature", index % 2 === 1 && "project-feature--reverse"]}>
+          <a href={`/projects/${project.id}`} class="project-media" data-image-reveal>
+            <Image
+              src={project.data.heroImage}
+              alt={project.data.heroImageAlt}
+              width={1200}
+              class="project-image"
+            />
+            <span class="project-media-index">0{index + 1}</span>
+            <span class="project-media-arrow">↗</span>
+            <span class="project-media-grid" aria-hidden="true"></span>
+          </a>
 
-              <div class="mb-8 flex flex-wrap gap-x-10 gap-y-5">
-                {project.data.metrics.map((metric) => (
-                  <div class="max-w-[11rem]">
-                    <p class="font-display text-3xl font-bold text-gradient">{metric.value}</p>
-                    <p class="text-sm text-muted">{metric.label}</p>
-                  </div>
-                ))}
-              </div>
-
-              <a
-                href={`/projects/${project.id}`}
-                class="inline-flex items-center gap-2 border-b-4 border-accent pb-1 font-display text-lg font-bold text-ink transition-colors hover:border-accent-2"
-              >
-                View case study
-                <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-                  <path d="M5 12h14M13 6l6 6-6 6" stroke-linecap="round" stroke-linejoin="round" />
-                </svg>
-              </a>
+          <div class="project-copy" data-reveal>
+            <div class="project-kicker">
+              <span>CASE // 0{index + 1}</span>
+              <span>{project.data.eyebrow}</span>
             </div>
-          </article>
-        );
-      })}
+            <h3><a href={`/projects/${project.id}`}>{project.data.title}</a></h3>
+            <p>{project.data.summary}</p>
+
+            <div class="project-metrics">
+              {project.data.metrics.map((metric) => (
+                <div>
+                  <strong>{metric.value}</strong>
+                  <span>{metric.label}</span>
+                </div>
+              ))}
+            </div>
+
+            <a href={`/projects/${project.id}`} class="inline-link"><span>Open case study</span><b>↗</b></a>
+          </div>
+        </article>
+      ))}
     </div>
 
-    <div class="mt-20 flex justify-center" data-reveal>
-      <a
-        href="/projects"
-        class="border-2 border-border px-7 py-3 font-display font-bold text-ink transition hover:border-accent hover:bg-accent/10"
-      >
-        View all case studies
-      </a>
+    <div class="section-end-action" data-reveal>
+      <span>03 PROJECTS / FULL ARCHIVE</span>
+      <a href="/projects" class="action-button action-button--yellow"><span>View all case studies</span><b>↗</b></a>
     </div>
   </div>
 </section>
+
+<KineticMarquee text="RESEARCH / SYSTEMS / IMPACT" reverse dark />

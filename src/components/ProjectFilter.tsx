@@ -12,54 +12,52 @@ type ProjectCard = {
 };
 
 export default function ProjectFilter({ projects }: { projects: ProjectCard[] }) {
-  const categories = useMemo(() => ["All", ...new Set(projects.map((p) => p.category))], [projects]);
+  const categories = useMemo(() => ["All", ...new Set(projects.map((project) => project.category))], [projects]);
   const [active, setActive] = useState("All");
-
-  const visible = active === "All" ? projects : projects.filter((p) => p.category === active);
+  const visible = active === "All" ? projects : projects.filter((project) => project.category === active);
 
   return (
-    <div>
-      <div className="mb-12 flex flex-wrap gap-3">
-        {categories.map((category) => (
-          <button
-            key={category}
-            onClick={() => setActive(category)}
-            className={`border-2 px-5 py-2 font-display text-sm font-bold transition-colors ${
-              active === category
-                ? "border-accent/60 bg-accent/15 text-ink"
-                : "border-border text-muted hover:text-ink"
-            }`}
-          >
-            {category}
-          </button>
-        ))}
+    <div className="project-archive">
+      <div className="archive-filter" role="group" aria-label="Filter case studies">
+        <span>FILTER // DISCIPLINE</span>
+        <div>
+          {categories.map((category, index) => (
+            <button
+              key={category}
+              type="button"
+              aria-pressed={active === category}
+              onClick={() => setActive(category)}
+              className={active === category ? "is-active" : ""}
+            >
+              <small>{String(index).padStart(2, "0")}</small>{category}
+            </button>
+          ))}
+        </div>
       </div>
 
       <LayoutGroup>
-        <motion.div layout className="grid gap-6 md:grid-cols-2">
+        <motion.div layout className="archive-grid">
           <AnimatePresence mode="popLayout">
-            {visible.map((project) => (
+            {visible.map((project, index) => (
               <motion.a
                 key={project.id}
                 layout
                 href={`/projects/${project.id}`}
-                initial={{ opacity: 0, y: 24 }}
+                initial={{ opacity: 0, y: 28 }}
                 animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, scale: 0.96 }}
-                transition={{ duration: 0.35, ease: "easeOut" }}
-                className="glass-panel group block overflow-hidden"
+                exit={{ opacity: 0, scale: 0.97 }}
+                transition={{ duration: 0.38, ease: [0.22, 1, 0.36, 1] }}
+                className="archive-card"
               >
-                <div className="aspect-[16/10] overflow-hidden">
-                  <img
-                    src={project.imageSrc}
-                    alt={project.imageAlt}
-                    className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
-                  />
+                <div className="archive-card-image">
+                  <img src={project.imageSrc} alt={project.imageAlt} />
+                  <strong>{String(index + 1).padStart(2, "0")}</strong>
+                  <span>↗</span>
                 </div>
-                <div className="flex flex-col gap-3 p-7">
-                  <p className="text-xs font-bold uppercase tracking-[0.2em] text-accent">{project.eyebrow}</p>
-                  <h3 className="font-display text-xl font-bold text-ink">{project.title}</h3>
-                  <p className="text-muted">{project.summary}</p>
+                <div className="archive-card-copy">
+                  <p>{project.eyebrow}</p>
+                  <h2>{project.title}</h2>
+                  <div><span>{project.summary}</span><b>OPEN CASE ↗</b></div>
                 </div>
               </motion.a>
             ))}

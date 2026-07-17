@@ -2,7 +2,7 @@
 import { ClientRouter } from "astro:transitions";
 import Nav from "../components/Nav.astro";
 import Footer from "../components/Footer.astro";
-import ParticleField from "../components/ParticleField.tsx";
+import LoadingScreen from "../components/LoadingScreen.astro";
 import "../styles/global.css";
 
 interface Props {
@@ -19,22 +19,22 @@ const { title, description } = Astro.props;
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="description" content={description} />
+    <meta name="theme-color" content="#f2f2f2" />
     <title>{title}</title>
     <link rel="icon" type="image/svg+xml" href="/icons/favicon.svg" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Anybody:ital,wdth,wght@0,50..150,100..900;1,50..150,100..900&family=Space+Grotesk:wght@400;500;600;700&display=swap"
       rel="stylesheet"
     />
+    <script is:inline>document.documentElement.classList.add("has-js");</script>
     <ClientRouter fallback="swap" />
   </head>
-  <body class="relative">
-    <ParticleField client:load />
-    <div id="cursor-glow" aria-hidden="true"></div>
-
+  <body>
+    <LoadingScreen />
     <Nav />
-    <div class="relative z-10 md:pl-24">
+    <div class="page-shell">
       <main>
         <slot />
       </main>
@@ -42,8 +42,7 @@ const { title, description } = Astro.props;
     </div>
 
     <script>
-      import "../scripts/reveal";
-      import "../scripts/cursor-glow";
+      import "../scripts/site";
     </script>
   </body>
 </html>

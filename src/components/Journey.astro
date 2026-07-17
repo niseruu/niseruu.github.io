@@ -1,25 +1,32 @@
 ---
 import SectionHeading from "./SectionHeading.astro";
-import SectionGlow from "./SectionGlow.astro";
+import KineticMarquee from "./KineticMarquee.astro";
 import { journey } from "../data/journey";
 ---
 
-<section id="journey" class="relative py-28">
-  <SectionGlow colorA="bg-accent-3/20" colorB="bg-accent/25" />
-  <div class="container-shell relative z-10">
-    <SectionHeading eyebrow="Journey" title="From game dev to applied machine learning research." />
+<section id="journey" class="portfolio-section journey-section">
+  <div class="section-shell">
+    <SectionHeading
+      index="03"
+      eyebrow="Experience & Education"
+      title="A path through code, research, and product."
+      description="From game development and product leadership to graduate research and applied machine learning."
+    />
 
-    <ol class="relative border-l border-white/10 pl-8">
-      {journey.map((entry) => (
-        <li class="relative mb-10 last:mb-0" data-reveal>
-          <span class="absolute -left-[calc(2rem+5px)] top-1.5 h-2.5 w-2.5 bg-accent shadow-[0_0_12px_rgba(56,189,248,0.8)]"></span>
-          <p class="font-display mb-2 text-sm font-bold uppercase tracking-[0.1em] text-accent">{entry.period}</p>
-          <div class="glass-panel p-6">
-            <h3 class="mb-2 font-display text-lg text-ink">{entry.title}</h3>
-            <p class="text-muted">{entry.description}</p>
+    <ol class="journey-list">
+      {journey.map((entry, index) => (
+        <li data-reveal>
+          <span class="journey-number">{String(index + 1).padStart(2, "0")}</span>
+          <p class="journey-period">{entry.period}</p>
+          <div class="journey-content">
+            <h3>{entry.title}</h3>
+            <p>{entry.description}</p>
           </div>
+          <span class="journey-symbol" aria-hidden="true">+</span>
         </li>
       ))}
     </ol>
   </div>
 </section>
+
+<KineticMarquee text="LEARN / BUILD / ITERATE" reverse />

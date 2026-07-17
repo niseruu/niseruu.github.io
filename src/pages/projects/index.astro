@@ -2,14 +2,13 @@
 import { getCollection } from "astro:content";
 import { getImage } from "astro:assets";
 import BaseLayout from "../../layouts/BaseLayout.astro";
-import SectionHeading from "../../components/SectionHeading.astro";
 import ProjectFilter from "../../components/ProjectFilter.tsx";
+import KineticMarquee from "../../components/KineticMarquee.astro";
 
 const allProjects = (await getCollection("projects")).sort((a, b) => a.data.order - b.data.order);
-
 const projects = await Promise.all(
   allProjects.map(async (project) => {
-    const optimized = await getImage({ src: project.data.heroImage, width: 640 });
+    const optimized = await getImage({ src: project.data.heroImage, width: 960 });
     return {
       id: project.id,
       title: project.data.title,
@@ -27,14 +26,17 @@ const projects = await Promise.all(
   title="Case Studies | M Shafri Syamsuddin"
   description="Computer vision and NLP case studies by M Shafri Syamsuddin, covering diagnostic imaging, MLOps deployment, and NLP analytics pipelines."
 >
-  <section class="relative py-28 pt-40 md:pt-48">
-    <div class="container-shell">
-      <SectionHeading
-        eyebrow="All Case Studies"
-        title="Every project, end to end."
-        description="Filter by discipline to see how research methods turn into deployed, production-aware systems."
-      />
-      <ProjectFilter client:load projects={projects} />
+  <section id="projects" class="archive-hero">
+    <div class="archive-hero-grid" aria-hidden="true"></div>
+    <div class="archive-hero-meta"><span>[01] CASE STUDY ARCHIVE</span><span>{String(projects.length).padStart(2, "0")} RECORDS</span></div>
+    <h1 data-kinetic>PROJECTS</h1>
+    <div class="archive-hero-bottom">
+      <p>Research methods translated into deployed, production-aware systems.</p>
+      <span>SCROLL TO FILTER ↓</span>
     </div>
+  </section>
+  <KineticMarquee text="COMPUTER VISION / NLP / MLOPS" dark />
+  <section class="archive-section">
+    <ProjectFilter client:load projects={projects} />
   </section>
 </BaseLayout>

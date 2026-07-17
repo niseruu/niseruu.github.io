@@ -1,35 +1,32 @@
 ---
 import ContactForm from "./ContactForm.tsx";
-import SectionGlow from "./SectionGlow.astro";
 import { socials, email } from "../data/socials";
 ---
 
-<section id="contact" class="relative py-28">
-  <SectionGlow colorA="bg-accent/30" colorB="bg-accent-2/30" flip />
-  <div class="container-shell relative z-10">
-    <div class="glass-panel grid gap-12 p-10 md:grid-cols-2 md:p-14" data-reveal>
-      <div>
-        <span class="stripe-accent mb-4"></span>
-        <p class="eyebrow mb-4 mt-4">Contact</p>
-        <h2 class="mb-4 font-display text-3xl text-ink md:text-4xl">
-          Let's collaborate on applied machine learning.
-        </h2>
-        <p class="mb-8 text-lg text-muted">
-          I'm open to roles, research collaborations, and advisory work around computer vision, NLP, and MLOps. Let
-          me know what you're building.
-        </p>
-        <a href={`mailto:${email}`} class="mb-6 inline-flex font-display text-lg font-bold text-accent">
-          {email}
-        </a>
-        <div class="flex flex-wrap gap-6 font-display font-bold">
-          {socials.map((social) => (
-            <a href={social.href} target="_blank" rel="noopener" class="text-ink transition-colors hover:text-accent">
-              {social.label}
-            </a>
-          ))}
-        </div>
-      </div>
+<section id="contact" class="contact-section">
+  <div class="contact-grid" aria-hidden="true"></div>
+  <div class="contact-header" data-reveal>
+    <span>[06] CONTACT CHANNEL</span>
+    <span>STATUS // OPEN</span>
+  </div>
 
+  <div class="contact-layout">
+    <div class="contact-intro">
+      <p class="contact-kicker">LET'S BUILD SOMETHING USEFUL.</p>
+      <h2 data-kinetic>START A<br />CONVERSATION.</h2>
+      <p>
+        Open to engineering roles, research collaborations, and projects across computer vision, NLP, and MLOps.
+      </p>
+      <a href={`mailto:${email}`} class="contact-email">{email}<span>↗</span></a>
+      <div class="contact-socials">
+        {socials.map((social, index) => (
+          <a href={social.href} target="_blank" rel="noopener"><small>0{index + 1}</small>{social.label}<span>↗</span></a>
+        ))}
+      </div>
+    </div>
+
+    <div class="contact-form-shell" data-reveal>
+      <div class="contact-form-head"><span>SECURE MESSAGE FORM</span><span>ENCRYPTION // TLS</span></div>
       <ContactForm client:visible />
     </div>
   </div>

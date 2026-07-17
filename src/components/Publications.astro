@@ -1,39 +1,33 @@
 ---
 import SectionHeading from "./SectionHeading.astro";
-import SectionGlow from "./SectionGlow.astro";
 import { publications } from "../data/publications";
 ---
 
-<section id="publications" class="relative py-32">
-  <SectionGlow colorA="bg-accent-2/25" colorB="bg-accent-3/20" flip />
-  <div class="container-shell relative z-10">
+<section id="publications" class="portfolio-section publication-section">
+  <div class="section-shell">
     <SectionHeading
+      index="02"
       eyebrow="Publications & Recognition"
-      title="Research translated into talks, proceedings, and IP."
-      description="Conference contributions and documentation that highlight how laboratory research turns into real-world tooling."
+      title="Knowledge made visible."
+      description="Conference contributions and documentation showing how experimental work becomes credible, shareable research."
     />
 
-    <div class="grid gap-16 md:grid-cols-2">
-      {publications.map((pub, index) => (
-        <div>
-          <a
-            href={pub.linkHref}
-            target="_blank"
-            rel="noopener"
-            data-scrub={index % 2 === 0 ? "photo-left" : "photo-right"}
-            class="photo-frame mb-6 block"
-          >
-            <img src={pub.image} alt={pub.title} class="aspect-[4/3] w-full object-cover" />
+    <div class="publication-grid">
+      {publications.map((publication, index) => (
+        <article class="publication-card" data-reveal>
+          <a href={publication.linkHref} target="_blank" rel="noopener" class="publication-image" data-image-reveal>
+            <img src={publication.image} alt={publication.title} loading="lazy" />
+            <span>0{index + 1}</span>
           </a>
-          <div data-reveal>
-            <h3 class="mb-2 font-display text-xl font-bold text-ink">{pub.title}</h3>
-            <p class="mb-3 text-muted">{pub.description}</p>
-            <a href={pub.linkHref} target="_blank" rel="noopener" class="border-b-2 border-accent pb-0.5 font-display font-bold text-accent">
-              {pub.linkLabel} &rarr;
-            </a>
-          </div>
-        </div>
+          <div class="publication-meta"><span>OUTPUT / 0{index + 1}</span><span>2025</span></div>
+          <h3>{publication.title}</h3>
+          <p>{publication.description}</p>
+          <a href={publication.linkHref} target="_blank" rel="noopener" class="inline-link">
+            <span>{publication.linkLabel}</span><b>↗</b>
+          </a>
+        </article>
       ))}
     </div>
   </div>
+  <div class="publication-watermark" aria-hidden="true" data-parallax="-5">RESEARCH</div>
 </section>
