@@ -1,0 +1,43 @@
+---
+title: "Malaria Parasite Stage Detection"
+eyebrow: "Computer Vision · Healthcare AI"
+summary: "YOLOv8 and Faster R-CNN ensembles with LAB color-space augmentation, exported to ONNX for lightweight deployment in diagnostic workflows."
+heroImage: "../../assets/images/malaria-detect.png"
+heroImageAlt: "Screenshot of malaria parasite detection bounding boxes"
+featured: true
+order: 1
+metrics:
+  - value: "+8pp"
+    label: "mAP50 improvement (0.61 → 0.69) via LAB color-space feature insertion"
+  - value: "4"
+    label: "Plasmodium species and life stages detected"
+  - value: "ONNX"
+    label: "Lightweight CPU deployment, no GPU required"
+links:
+  - label: "View GitHub"
+    href: "https://github.com/Shafriii/Deteksi-Parasit-Malaria"
+  - label: "Publication (IEEE)"
+    href: "https://ieeexplore.ieee.org/document/11159455"
+  - label: "Conference Gallery"
+    href: "/publications/amlds-doc-2.jpg"
+---
+
+## Problem
+
+Manual microscopy for malaria diagnosis is slow, requires trained lab technicians, and results vary between readers. Clinics without a resident parasitologist often wait days for a confirmed species and life-stage read — time that matters for treatment decisions. The goal of this thesis project was to build an assistive detection tool accurate enough to support (not replace) a lab technician's read, while staying light enough to run on the hardware most labs already have.
+
+## Approach
+
+The core challenge was distinguishing *Plasmodium falciparum*, *vivax*, *malariae*, and *ovale* across their different life stages inside stained blood smear images — a fine-grained detection problem where species look nearly identical under standard RGB preprocessing.
+
+- Trained and benchmarked **YOLOv8** and **Faster R-CNN** as parallel candidates, comparing precision/recall trade-offs across species classes.
+- Introduced a **LAB color-space feature insertion** step ahead of the detection backbone, which made subtle staining differences between species more separable than in raw RGB.
+- Iterated on augmentation (rotation, color jitter, mosaic) specifically tuned for microscopy imagery rather than natural-image defaults.
+
+## Architecture
+
+The trained ensemble is exported to **ONNX** so inference doesn't depend on a Python environment or GPU. The final tool packages into a standalone executable, so a lab can drop it onto a workstation without installing PyTorch, CUDA, or any Python tooling at all — a deliberate choice given the actual deployment environment is a clinical lab, not a data science workstation.
+
+## Result
+
+The LAB color-space feature insertion lifted mAP50 from **0.61 to 0.69**, a meaningful jump for a fine-grained, four-class detection task. The work was presented at **AMLDS 2025 in Tokyo** and published in IEEE proceedings, with the underlying methodology now feeding into further research-assistant work on medical image enhancement.

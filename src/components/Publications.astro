@@ -1,0 +1,32 @@
+---
+import SectionHeading from "./SectionHeading.astro";
+import TiltCard from "./TiltCard.tsx";
+import { publications } from "../data/publications";
+---
+
+<section id="publications" class="relative py-28">
+  <div class="container-shell">
+    <SectionHeading
+      eyebrow="Publications & Recognition"
+      title="Research translated into talks, proceedings, and IP."
+      description="Conference contributions and documentation that highlight how laboratory research turns into real-world tooling."
+    />
+
+    <div class="grid gap-6 md:grid-cols-2">
+      {publications.map((pub) => (
+        <div data-reveal>
+          <TiltCard client:visible maxTilt={5} className="glass-panel glow-ring flex h-full flex-col overflow-hidden rounded-3xl">
+            <img src={pub.image} alt={pub.title} class="aspect-[16/10] w-full rounded-none object-cover" />
+            <div class="flex flex-1 flex-col gap-3 p-7">
+              <h3 class="font-display text-xl font-semibold text-ink">{pub.title}</h3>
+              <p class="flex-1 text-muted">{pub.description}</p>
+              <a href={pub.linkHref} target="_blank" rel="noopener" class="font-display font-semibold text-accent">
+                {pub.linkLabel} &rarr;
+              </a>
+            </div>
+          </TiltCard>
+        </div>
+      ))}
+    </div>
+  </div>
+</section>

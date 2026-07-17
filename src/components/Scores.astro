@@ -1,0 +1,30 @@
+---
+import SectionHeading from "./SectionHeading.astro";
+import { scores } from "../data/scores";
+---
+
+<section id="scores" class="relative py-28">
+  <div class="container-shell">
+    <SectionHeading eyebrow="Scores" title="Language and cognitive benchmarks." />
+
+    <div class="grid gap-6 sm:grid-cols-2">
+      {scores.map((score) => (
+        <div data-reveal class="glass-panel glow-ring rounded-3xl p-8">
+          <h3 class="mb-2 font-display text-lg font-semibold text-ink">{score.name}</h3>
+          <p class="font-display mb-2 text-5xl font-semibold text-gradient">
+            <span data-count={score.numericValue}>0</span>
+          </p>
+          <p class="mb-6 text-muted">{score.meta}</p>
+          <a
+            href={score.reportHref}
+            target="_blank"
+            rel="noopener"
+            class="inline-flex rounded-full border border-border px-5 py-2.5 font-display text-sm font-semibold text-ink transition hover:border-accent/60 hover:bg-accent/10"
+          >
+            View report
+          </a>
+        </div>
+      ))}
+    </div>
+  </div>
+</section>

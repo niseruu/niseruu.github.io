@@ -1,0 +1,40 @@
+---
+import { getCollection } from "astro:content";
+import { getImage } from "astro:assets";
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import SectionHeading from "../../components/SectionHeading.astro";
+import ProjectFilter from "../../components/ProjectFilter.tsx";
+
+const allProjects = (await getCollection("projects")).sort((a, b) => a.data.order - b.data.order);
+
+const projects = await Promise.all(
+  allProjects.map(async (project) => {
+    const optimized = await getImage({ src: project.data.heroImage, width: 640 });
+    return {
+      id: project.id,
+      title: project.data.title,
+      eyebrow: project.data.eyebrow,
+      category: project.data.eyebrow.split("·")[0].trim(),
+      summary: project.data.summary,
+      imageSrc: optimized.src,
+      imageAlt: project.data.heroImageAlt,
+    };
+  })
+);
+---
+
+<BaseLayout
+  title="Case Studies | M Shafri Syamsuddin"
+  description="Computer vision and NLP case studies by M Shafri Syamsuddin, covering diagnostic imaging, MLOps deployment, and NLP analytics pipelines."
+>
+  <section class="relative py-28 pt-40 md:pt-48">
+    <div class="container-shell">
+      <SectionHeading
+        eyebrow="All Case Studies"
+        title="Every project, end to end."
+        description="Filter by discipline to see how research methods turn into deployed, production-aware systems."
+      />
+      <ProjectFilter client:load projects={projects} />
+    </div>
+  </section>
+</BaseLayout>

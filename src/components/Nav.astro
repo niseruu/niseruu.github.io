@@ -1,0 +1,81 @@
+---
+const links = [
+  { href: "/", label: "Home" },
+  { href: "/projects", label: "Case Studies" },
+  { href: "/#publications", label: "Publications" },
+  { href: "/#journey", label: "Journey" },
+  { href: "/#tech-stack", label: "Stack" },
+];
+---
+
+<header class="site-header sticky top-0 z-50 border-b border-white/10 bg-bg/70 backdrop-blur-xl">
+  <div class="container-shell flex items-center justify-between py-5">
+    <a
+      href="/"
+      class="font-display text-sm font-semibold uppercase tracking-[0.28em] text-ink transition-colors hover:text-accent"
+    >
+      M Shafri Syamsuddin
+    </a>
+
+    <button
+      id="menu-toggle"
+      class="inline-flex items-center rounded-lg p-2 text-ink md:hidden"
+      aria-expanded="false"
+      aria-controls="primary-nav"
+    >
+      <span class="sr-only">Toggle navigation</span>
+      <svg viewBox="0 0 24 24" class="h-6 w-6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+        <path d="M4 6h16M4 12h16M4 18h16"></path>
+      </svg>
+    </button>
+
+    <nav
+      id="primary-nav"
+      data-open="false"
+      class="nav-list font-display absolute inset-x-4 top-[70px] flex flex-col gap-4 rounded-2xl border border-white/10 bg-bg-deep/95 p-6 text-sm opacity-0 shadow-2xl transition-all duration-300 data-[open=true]:pointer-events-auto data-[open=true]:translate-y-0 data-[open=true]:opacity-100 md:static md:flex-row md:items-center md:gap-8 md:border-0 md:bg-transparent md:p-0 md:opacity-100 md:shadow-none pointer-events-none -translate-y-2 md:pointer-events-auto md:translate-y-0"
+    >
+      {links.map((link) => (
+        <a
+          href={link.href}
+          class="text-muted transition-colors hover:text-ink"
+        >
+          {link.label}
+        </a>
+      ))}
+      <a
+        href="/docs/m-shafri-syamsuddin-cv.pdf"
+        target="_blank"
+        rel="noopener"
+        class="rounded-full border border-border bg-accent/10 px-4 py-2 text-center text-ink transition hover:border-accent/60 hover:bg-accent/20"
+      >
+        Resume
+      </a>
+    </nav>
+  </div>
+</header>
+
+<script>
+  function initNav() {
+    const nav = document.getElementById("primary-nav");
+    const toggle = document.getElementById("menu-toggle");
+    if (!nav || !toggle) return;
+
+    const closeMenu = () => {
+      nav.dataset.open = "false";
+      toggle.setAttribute("aria-expanded", "false");
+    };
+
+    toggle.addEventListener("click", () => {
+      const isOpen = nav.dataset.open === "true";
+      nav.dataset.open = String(!isOpen);
+      toggle.setAttribute("aria-expanded", String(!isOpen));
+    });
+
+    nav.querySelectorAll("a").forEach((link) => link.addEventListener("click", closeMenu));
+    document.addEventListener("keydown", (event) => {
+      if (event.key === "Escape") closeMenu();
+    });
+  }
+
+  document.addEventListener("astro:page-load", initNav);
+</script>
