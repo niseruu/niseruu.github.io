@@ -402,17 +402,24 @@ p {
 
 .rail-socials a {
   display: grid;
-  width: 1.5rem;
-  height: 1.5rem;
+  width: 1.15rem;
+  height: 1.65rem;
   place-items: center;
-  border: 1px solid var(--line);
-  font-size: 0.5rem;
-  font-weight: 700;
+  color: var(--ink);
+  transition: background 0.2s ease, transform 0.2s ease;
 }
 
-.rail-socials a:hover {
-  border-color: var(--ink);
+.rail-socials svg {
+  width: 0.95rem;
+  height: 0.95rem;
+  overflow: visible;
+  fill: currentColor;
+}
+
+.rail-socials a:hover,
+.rail-socials a:focus-visible {
   background: var(--signal);
+  transform: translateY(-2px);
 }
 
 .rail-resume {
