@@ -1,0 +1,64 @@
+---
+import { getCollection } from "astro:content";
+import { Image } from "astro:assets";
+import SectionHeading from "./SectionHeading.astro";
+import TiltCard from "./TiltCard.tsx";
+
+const allProjects = await getCollection("projects");
+const projects = allProjects
+  .filter((p) => p.data.featured)
+  .sort((a, b) => a.data.order - b.data.order);
+---
+
+<section id="projects" class="relative py-28">
+  <div class="container-shell">
+    <SectionHeading
+      eyebrow="Case Studies"
+      title="Computer vision and NLP work that delivers measurable impact."
+      description="Each project pairs research-backed methods with deployment thinking — whether that means ONNX runtimes for clinics or containerised APIs for product teams."
+    />
+
+    <div class="grid gap-6 md:grid-cols-2">
+      {projects.map((project, index) => (
+        <a
+          href={`/projects/${project.id}`}
+          data-reveal
+          class={`block ${index === 0 ? "md:col-span-2" : ""}`}
+        >
+          <TiltCard client:visible maxTilt={4} className="glass-panel glow-ring h-full overflow-hidden rounded-3xl">
+            <div class={`grid h-full ${index === 0 ? "md:grid-cols-2" : ""}`}>
+              <div class="aspect-[16/10] overflow-hidden md:aspect-auto">
+                <Image
+                  src={project.data.heroImage}
+                  alt={project.data.heroImageAlt}
+                  width={index === 0 ? 760 : 520}
+                  class="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                />
+              </div>
+              <div class="flex flex-col justify-center gap-3 p-8">
+                <p class="text-xs font-semibold uppercase tracking-[0.2em] text-accent">{project.data.eyebrow}</p>
+                <h3 class="font-display text-2xl font-semibold text-ink">{project.data.title}</h3>
+                <p class="text-muted">{project.data.summary}</p>
+                <span class="mt-2 inline-flex items-center gap-2 font-display text-sm font-semibold text-ink">
+                  View case study
+                  <svg class="h-4 w-4 transition-transform group-hover:translate-x-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M5 12h14M13 6l6 6-6 6" stroke-linecap="round" stroke-linejoin="round" />
+                  </svg>
+                </span>
+              </div>
+            </div>
+          </TiltCard>
+        </a>
+      ))}
+    </div>
+
+    <div class="mt-10 flex justify-center" data-reveal>
+      <a
+        href="/projects"
+        class="rounded-full border border-border px-6 py-3 font-display font-semibold text-ink transition hover:border-accent/60 hover:bg-accent/10"
+      >
+        View all case studies
+      </a>
+    </div>
+  </div>
+</section>

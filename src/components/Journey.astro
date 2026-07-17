@@ -1,0 +1,23 @@
+---
+import SectionHeading from "./SectionHeading.astro";
+import { journey } from "../data/journey";
+---
+
+<section id="journey" class="relative py-28">
+  <div class="container-shell">
+    <SectionHeading eyebrow="Journey" title="From game dev to applied machine learning research." />
+
+    <ol class="relative border-l border-white/10 pl-8">
+      {journey.map((entry) => (
+        <li class="relative mb-10 last:mb-0" data-reveal>
+          <span class="absolute -left-[calc(2rem+5px)] top-1.5 h-2.5 w-2.5 rounded-full bg-accent shadow-[0_0_12px_rgba(56,189,248,0.8)]"></span>
+          <p class="font-display mb-2 text-sm font-semibold uppercase tracking-[0.1em] text-accent">{entry.period}</p>
+          <div class="glass-panel rounded-2xl p-6">
+            <h3 class="mb-2 font-display text-lg font-semibold text-ink">{entry.title}</h3>
+            <p class="text-muted">{entry.description}</p>
+          </div>
+        </li>
+      ))}
+    </ol>
+  </div>
+</section>

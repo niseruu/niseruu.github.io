@@ -1,0 +1,41 @@
+---
+title: "Zero-shot Sentiment Intelligence Pipeline"
+eyebrow: "NLP · Analytics"
+summary: "Config-driven NLP orchestration built on facebook/bart-large-mnli to classify public feedback without fine-tuning, complete with trend reporting and dashboard-ready exports."
+heroImage: "../../assets/images/sentiment-trend.png"
+heroImageAlt: "Zero-shot sentiment trend visualisation"
+featured: true
+order: 3
+metrics:
+  - value: "Zero-shot"
+    label: "Classifies feedback with no fine-tuning or labeled training set"
+  - value: "bart-large-mnli"
+    label: "Backbone model powering label inference"
+  - value: "Config"
+    label: "Driven pipeline, extendable to new domains or languages"
+links:
+  - label: "View GitHub"
+    href: "https://github.com/Shafriii/Zeroshot-Tweet-Pipeline"
+  - label: "View Snapshot"
+    href: "/publications/daily-sentiment-counts.png"
+---
+
+## Problem
+
+Teams that want sentiment signal on public feedback usually face a choice: label a training set and fine-tune a classifier, or accept whatever a generic off-the-shelf sentiment model gives them. Both are slow to start and awkward to adapt when the domain or label set changes. This pipeline was built to skip that trade-off entirely for exploratory and monitoring use cases.
+
+## Approach
+
+The pipeline is built around **`facebook/bart-large-mnli`** used in zero-shot classification mode — candidate labels are passed at inference time instead of baked into a fine-tuned head, so the same pipeline can classify against a new label set without retraining anything.
+
+- Config-driven design: swapping the input source, candidate labels, or reporting cadence is a config change, not a code change.
+- Generates sentiment time-series, label share, and confidence diagnostics automatically from each run.
+- Structured for rapid extension into a scheduled batch job or a lightweight API, without redesigning the core classification logic.
+
+## Architecture
+
+Because the model runs zero-shot, there's no training loop or labeled dataset to maintain — the orchestration layer focuses instead on batching inputs, tracking confidence, and exporting dashboard-ready artifacts (daily counts, trend charts) that a non-technical stakeholder can read directly.
+
+## Result
+
+The pipeline turns raw public feedback into a daily sentiment trend and label-share breakdown with no fine-tuning step, and the config-driven structure means it's already set up to be pointed at a different domain or a multilingual dataset without a rebuild.

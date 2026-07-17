@@ -1,0 +1,39 @@
+---
+title: "VisionServe: CIFAR-10 Inference API"
+eyebrow: "MLOps · API Deployment"
+summary: "A Dockerised FastAPI service demonstrating production-aware model serving with reproducible training, artifact tracking, and confidence-calibrated predictions."
+heroImage: "../../assets/images/cifar-confusion.png"
+heroImageAlt: "Confusion matrix from CIFAR-10 inference API"
+featured: true
+order: 2
+metrics:
+  - value: "10"
+    label: "CIFAR-10 classes served behind a single inference endpoint"
+  - value: "1"
+    label: "CLI command spans preprocessing, training, metrics, and artifact export"
+  - value: "CPU"
+    label: "Container ships CPU-friendly PyTorch wheels for easy portability"
+links:
+  - label: "View GitHub"
+    href: "https://github.com/Shafriii/Cifar-10-Inference-API-Docker"
+---
+
+## Problem
+
+Most image-classification tutorials stop at a trained model in a notebook. Shipping that model as something another service can actually call — with reproducible training, versioned artifacts, and a container that runs the same way on a laptop as it does in CI — is a different problem, and the one this project was built to demonstrate end-to-end.
+
+## Approach
+
+VisionServe wraps a CIFAR-10 classifier in a **FastAPI** service, with the surrounding tooling treated as first-class rather than an afterthought:
+
+- A single CLI handles the full lifecycle: preprocessing, training, metrics export, and artifact versioning, so a run is reproducible from one command instead of a chain of ad-hoc scripts.
+- Predictions are confidence-calibrated rather than raw softmax outputs, so downstream consumers get a more honest signal about how much to trust a given classification.
+- A confusion matrix and metrics summary are generated automatically per run, giving a fast QA check before anything ships.
+
+## Architecture
+
+The service is packaged as a **Docker** image built on CPU-friendly PyTorch wheels — deliberately avoiding a CUDA base image so the container stays portable across environments that don't have a GPU available, which is the common case for lightweight inference services.
+
+## Result
+
+The result is a template for production-aware model serving: train reproducibly, version the artifact, containerize it, and expose it over a documented API — the same shape of work needed to take any classifier from notebook to service.

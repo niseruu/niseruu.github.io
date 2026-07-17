@@ -1,0 +1,33 @@
+---
+import ContactForm from "./ContactForm.tsx";
+import { socials, email } from "../data/socials";
+---
+
+<section id="contact" class="relative py-28">
+  <div class="container-shell">
+    <div class="glass-panel glow-ring grid gap-12 rounded-[32px] p-10 md:grid-cols-2 md:p-14" data-reveal>
+      <div>
+        <p class="eyebrow mb-4">Contact</p>
+        <h2 class="mb-4 font-display text-3xl font-semibold text-ink md:text-4xl">
+          Let's collaborate on applied machine learning.
+        </h2>
+        <p class="mb-8 text-lg text-muted">
+          I'm open to roles, research collaborations, and advisory work around computer vision, NLP, and MLOps. Let
+          me know what you're building.
+        </p>
+        <a href={`mailto:${email}`} class="mb-6 inline-flex font-display text-lg font-semibold text-accent">
+          {email}
+        </a>
+        <div class="flex flex-wrap gap-6 font-display font-semibold">
+          {socials.map((social) => (
+            <a href={social.href} target="_blank" rel="noopener" class="text-ink transition-colors hover:text-accent">
+              {social.label}
+            </a>
+          ))}
+        </div>
+      </div>
+
+      <ContactForm client:visible />
+    </div>
+  </div>
+</section>

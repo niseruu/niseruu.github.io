@@ -1,0 +1,26 @@
+---
+import SectionHeading from "./SectionHeading.astro";
+import { techStack } from "../data/techStack";
+---
+
+<section id="tech-stack" class="relative py-28">
+  <div class="container-shell">
+    <SectionHeading eyebrow="Stack" title="Tools I rely on to ship computer vision and NLP products." />
+
+    <div class="grid gap-6 md:grid-cols-2">
+      {techStack.map((category) => (
+        <div data-reveal class="glass-panel rounded-3xl p-8">
+          <h3 class="mb-5 font-display text-lg font-semibold text-ink">{category.title}</h3>
+          <div class="flex flex-wrap gap-3">
+            {category.items.map((item) => (
+              <span class="inline-flex items-center gap-2 rounded-full border border-border bg-surface px-4 py-2 text-sm font-medium text-muted transition-colors hover:border-accent/50 hover:text-ink">
+                <img src={`/icons/${item.icon}`} alt="" width="20" height="20" class="rounded-none" />
+                {item.name}
+              </span>
+            ))}
+          </div>
+        </div>
+      ))}
+    </div>
+  </div>
+</section>

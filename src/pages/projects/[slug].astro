@@ -1,0 +1,87 @@
+---
+import { getCollection, render } from "astro:content";
+import { Image } from "astro:assets";
+import BaseLayout from "../../layouts/BaseLayout.astro";
+
+export async function getStaticPaths() {
+  const projects = await getCollection("projects");
+  return projects.map((project) => ({
+    params: { slug: project.id },
+    props: { project, allProjects: projects },
+  }));
+}
+
+const { project, allProjects } = Astro.props;
+const { Content } = await render(project);
+
+const sorted = [...allProjects].sort((a, b) => a.data.order - b.data.order);
+const currentIndex = sorted.findIndex((p) => p.id === project.id);
+const nextProject = sorted[(currentIndex + 1) % sorted.length];
+---
+
+<BaseLayout
+  title={`${project.data.title} | M Shafri Syamsuddin`}
+  description={project.data.summary}
+>
+  <article class="relative pb-28 pt-40 md:pt-48">
+    <div class="container-shell max-w-3xl">
+      <a href="/projects" class="mb-8 inline-flex items-center gap-2 text-sm font-medium text-muted transition-colors hover:text-accent" data-reveal>
+        &larr; All case studies
+      </a>
+      <p class="eyebrow mb-4" data-reveal>{project.data.eyebrow}</p>
+      <h1 class="mb-6 font-display text-4xl font-semibold text-ink md:text-5xl" data-reveal>
+        {project.data.title}
+      </h1>
+      <p class="mb-10 text-xl text-muted" data-reveal>{project.data.summary}</p>
+
+      <div class="mb-12 overflow-hidden rounded-3xl" data-reveal>
+        <Image
+          src={project.data.heroImage}
+          alt={project.data.heroImageAlt}
+          width={1200}
+          class="w-full object-cover"
+        />
+      </div>
+
+      <div class="mb-14 grid gap-4 sm:grid-cols-3" data-reveal>
+        {project.data.metrics.map((metric) => (
+          <div class="glass-panel rounded-2xl p-6 text-center">
+            <p class="font-display mb-1 text-3xl font-semibold text-gradient">{metric.value}</p>
+            <p class="text-sm text-muted">{metric.label}</p>
+          </div>
+        ))}
+      </div>
+
+      <div class="prose prose-case mb-14" data-reveal>
+        <Content />
+      </div>
+
+      <div class="mb-16 flex flex-wrap gap-4" data-reveal>
+        {project.data.links.map((link) => (
+          <a
+            href={link.href}
+            target="_blank"
+            rel="noopener"
+            class="rounded-full border border-border px-6 py-3 font-display font-semibold text-ink transition hover:border-accent/60 hover:bg-accent/10"
+          >
+            {link.label}
+          </a>
+        ))}
+      </div>
+
+      <a
+        href={`/projects/${nextProject.id}`}
+        class="glass-panel glow-ring group block rounded-3xl p-8"
+        data-reveal
+      >
+        <p class="eyebrow mb-2">Next case study</p>
+        <p class="font-display flex items-center gap-2 text-2xl font-semibold text-ink">
+          {nextProject.data.title}
+          <svg class="h-5 w-5 transition-transform group-hover:translate-x-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M5 12h14M13 6l6 6-6 6" stroke-linecap="round" stroke-linejoin="round" />
+          </svg>
+        </p>
+      </a>
+    </div>
+  </article>
+</BaseLayout>

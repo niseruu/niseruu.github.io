@@ -1,0 +1,47 @@
+---
+import { ClientRouter } from "astro:transitions";
+import Nav from "../components/Nav.astro";
+import Footer from "../components/Footer.astro";
+import ParticleField from "../components/ParticleField.tsx";
+import "../styles/global.css";
+
+interface Props {
+  title: string;
+  description: string;
+}
+
+const { title, description } = Astro.props;
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content={description} />
+    <title>{title}</title>
+    <link rel="icon" type="image/svg+xml" href="/icons/favicon.svg" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <ClientRouter fallback="swap" />
+  </head>
+  <body class="relative">
+    <ParticleField client:load />
+    <div id="cursor-glow" aria-hidden="true"></div>
+
+    <Nav />
+    <main class="relative z-10">
+      <slot />
+    </main>
+    <Footer />
+
+    <script>
+      import "../scripts/reveal";
+      import "../scripts/cursor-glow";
+    </script>
+  </body>
+</html>

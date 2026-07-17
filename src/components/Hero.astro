@@ -1,0 +1,104 @@
+---
+import { Image } from "astro:assets";
+import portrait from "../assets/images/portrait-pic.jpg";
+import TiltCard from "./TiltCard.tsx";
+import MagneticLink from "./MagneticLink.tsx";
+
+const tags = ["YOLO", "LLMs", "ONNX Deployment", "Hugging Face", "Dockerised APIs"];
+---
+
+<section id="hero" class="relative overflow-hidden pb-24 pt-40 md:pt-48">
+  <div
+    aria-hidden="true"
+    class="animate-drift pointer-events-none absolute -top-40 left-1/4 z-0 h-[36rem] w-[36rem] rounded-full bg-accent/20 blur-[120px]"
+  >
+  </div>
+  <div
+    aria-hidden="true"
+    class="animate-drift pointer-events-none absolute -top-20 right-0 z-0 h-[30rem] w-[30rem] rounded-full bg-accent-2/20 blur-[120px]"
+    style="animation-delay: -8s;"
+  >
+  </div>
+
+  <div class="container-shell relative z-10 grid items-center gap-16 lg:grid-cols-[1.1fr_0.9fr]">
+    <div>
+      <p class="eyebrow mb-6" data-reveal>Computer Vision &middot; NLP &middot; Applied AI</p>
+      <h1 class="mb-6 font-display text-[clamp(2.6rem,5.5vw,4.6rem)] font-semibold text-ink" data-reveal>
+        I turn computer vision and NLP research into <span class="text-gradient">reliable, deployable</span> products.
+      </h1>
+      <p class="mb-8 max-w-xl text-lg text-muted" data-reveal>
+        I specialise in diagnostic computer vision and decision-support NLP pipelines. Recent work spans YOLO-based
+        malaria parasite detection, zero-shot sentiment analytics, and Docker-first inference APIs ready for
+        production.
+      </p>
+      <ul class="mb-10 grid gap-3" data-reveal>
+        <li class="relative pl-6 text-muted">
+          <span class="absolute left-0 top-2 h-2.5 w-2.5 rounded-full bg-accent"></span>
+          Computer vision diagnostics deployed with ONNX + YOLO.
+        </li>
+        <li class="relative pl-6 text-muted">
+          <span class="absolute left-0 top-2 h-2.5 w-2.5 rounded-full bg-accent"></span>
+          NLP orchestration for zero-shot sentiment monitoring and automated reporting.
+        </li>
+      </ul>
+      <div class="flex flex-wrap gap-3" data-reveal>
+        <MagneticLink
+          client:visible
+          href="/docs/m-shafri-syamsuddin-cv.pdf"
+          target="_blank"
+          rel="noopener"
+          className="inline-flex items-center justify-center rounded-full border border-transparent bg-gradient-to-br from-accent to-accent-2 px-7 py-3 font-display font-semibold text-bg-deep shadow-[0_18px_48px_rgba(56,189,248,0.25)]"
+        >
+          Download CV
+        </MagneticLink>
+        <MagneticLink
+          client:visible
+          href="mailto:shafrisyamsuddin@gmail.com"
+          className="inline-flex items-center justify-center rounded-full border border-border bg-accent/8 px-7 py-3 font-display font-semibold text-ink transition-colors hover:border-white/30"
+        >
+          Email Me
+        </MagneticLink>
+        <MagneticLink
+          client:visible
+          href="https://www.linkedin.com/in/shafrisyamsuddin/"
+          target="_blank"
+          rel="noopener"
+          className="inline-flex items-center justify-center rounded-full border border-border px-7 py-3 font-display font-semibold text-ink transition-colors hover:border-white/30"
+        >
+          LinkedIn
+        </MagneticLink>
+      </div>
+    </div>
+
+    <div class="flex justify-center" data-reveal>
+      <TiltCard client:visible className="w-full max-w-sm rounded-[28px] glass-panel glow-ring p-6 shadow-2xl">
+        <Image
+          src={portrait}
+          alt="Portrait of M Shafri Syamsuddin"
+          width={420}
+          height={420}
+          class="mb-6 w-full rounded-2xl object-cover"
+        />
+        <div class="flex flex-wrap gap-2">
+          {tags.map((tag, i) => (
+            <span
+              class="rounded-full bg-accent/12 px-3 py-1.5 text-sm font-medium text-accent"
+              style={`animation: pulse-glow 4s ease-in-out ${i * 0.4}s infinite;`}
+            >
+              {tag}
+            </span>
+          ))}
+        </div>
+      </TiltCard>
+    </div>
+  </div>
+
+  <div class="relative z-10 mt-20 flex justify-center">
+    <a href="#projects" class="flex flex-col items-center gap-2 text-xs uppercase tracking-[0.3em] text-muted transition-colors hover:text-accent">
+      Scroll
+      <svg class="h-5 w-5 animate-bounce" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M12 4v14M6 12l6 6 6-6" stroke-linecap="round" stroke-linejoin="round" />
+      </svg>
+    </a>
+  </div>
+</section>
