@@ -4,6 +4,7 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 gsap.registerPlugin(ScrollTrigger);
 
 const REDUCED_MOTION = "(prefers-reduced-motion: reduce)";
+const MOBILE_LAYOUT = "(max-width: 767px)";
 const LOADER_KEY = "shafri-portfolio-loader-seen";
 const SCROLL_FOCUS_SELECTOR = ".hero-section";
 
@@ -344,6 +345,7 @@ function initScrollResistance() {
 
 function initMotion() {
   const reduceMotion = window.matchMedia(REDUCED_MOTION).matches;
+  const mobileLayout = window.matchMedia(MOBILE_LAYOUT).matches;
   ScrollTrigger.getAll().forEach((trigger) => trigger.kill());
 
   if (reduceMotion) {
@@ -367,15 +369,34 @@ function initMotion() {
 
   document.querySelectorAll<HTMLElement>("[data-reveal]").forEach((el) => {
     gsap.from(el, {
-      y: 54,
+      y: mobileLayout ? 28 : 54,
       opacity: 0,
-      duration: 0.9,
+      duration: mobileLayout ? 0.72 : 0.9,
       ease: "power3.out",
       scrollTrigger: { trigger: el, start: "top 88%", once: true },
     });
   });
 
   document.querySelectorAll<HTMLElement>("[data-kinetic]").forEach((el) => {
+    if (mobileLayout) {
+      const finalSettings = getComputedStyle(el).fontVariationSettings;
+      const compactSettings = finalSettings.replace(/"wdth"\s+[-\d.]+/, '"wdth" 72');
+      gsap.fromTo(
+        el,
+        { fontVariationSettings: compactSettings, y: 18, opacity: 0.76 },
+        {
+          fontVariationSettings: finalSettings,
+          y: 0,
+          opacity: 1,
+          duration: 0.8,
+          ease: "power3.out",
+          clearProps: "fontVariationSettings,transform,opacity",
+          scrollTrigger: { trigger: el, start: "top 90%", once: true },
+        }
+      );
+      return;
+    }
+
     gsap.fromTo(
       el,
       { fontVariationSettings: '"wdth" 68, "wght" 800' },
@@ -395,14 +416,14 @@ function initMotion() {
     });
     timeline
       .from(el, {
-        y: 30,
-        duration: 0.9,
+        y: mobileLayout ? 20 : 30,
+        duration: mobileLayout ? 0.72 : 0.9,
         ease: "expo.out",
         clearProps: "transform",
       })
       .from(image, {
-        scale: 1.055,
-        duration: 1.15,
+        scale: mobileLayout ? 1.025 : 1.055,
+        duration: mobileLayout ? 0.9 : 1.15,
         ease: "expo.out",
         clearProps: "transform",
       }, 0);
