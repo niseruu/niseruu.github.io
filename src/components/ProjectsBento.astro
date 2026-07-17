@@ -40,7 +40,15 @@ const projects = (await getCollection("projects"))
               <span>CASE // 0{index + 1}</span>
               <span>{project.data.eyebrow}</span>
             </div>
-            <h3><a href={`/projects/${project.id}`}>{project.data.title}</a></h3>
+            <h3>
+              <a
+                href={`/projects/${project.id}`}
+                class="project-title-link"
+                data-title={project.data.title}
+              >
+                <span>{project.data.title}</span>
+              </a>
+            </h3>
             <p>{project.data.summary}</p>
 
             <div class="project-metrics">

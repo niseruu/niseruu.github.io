@@ -18,17 +18,20 @@ npm run preview   # preview the production build
 - `src/assets/images/` — photos/screenshots optimized via `astro:assets`.
 - `public/` — static files served as-is (icons, PDFs, favicon).
 
-## Deployment (Cloudflare Pages)
+## Deployment (GitHub Pages)
 
-This project is set up for [Cloudflare Pages](https://developers.cloudflare.com/pages/):
+The workflow in `.github/workflows/deploy-pages.yml` builds `dist/` and deploys it to GitHub Pages.
+In the repository settings, set **Pages → Build and deployment → Source** to **GitHub Actions** so GitHub does not also launch its legacy Jekyll build.
 
-1. In the Cloudflare dashboard, create a Pages project connected to this GitHub repo.
-2. Build command: `npm run build` — Output directory: `dist`.
-3. Cloudflare auto-detects the `functions/` directory for the contact form's serverless endpoint (`functions/api/contact.js`).
-4. Set these environment variables/secrets on the Pages project for the contact form to actually send email (via [Resend](https://resend.com)):
-   - `RESEND_API_KEY` — your Resend API key.
-   - `CONTACT_TO_EMAIL` — where messages are delivered (defaults to shafrisyamsuddin@gmail.com).
-   - `CONTACT_FROM_EMAIL` — verified sender address (defaults to Resend's sandbox sender).
-5. Point your custom domain at the Cloudflare Pages project (or use the `*.pages.dev` URL) — this replaces GitHub Pages as the host.
+## Contact form
 
-Without `RESEND_API_KEY` set, the contact form shows a friendly error and visitors can still reach out via the mailto link.
+The production form uses FormSubmit because GitHub Pages cannot run `/api/contact` or other server functions:
+
+- JavaScript submissions use FormSubmit's cross-origin AJAX endpoint.
+- The form action uses the regular FormSubmit endpoint when JavaScript is unavailable.
+- A prefilled `mailto:` link preserves the visitor's message if the relay cannot confirm delivery.
+- The hidden `_honey` field provides basic bot filtering; FormSubmit provides its own spam controls.
+
+After deploying, submit the form once and confirm the activation email sent to `shafrisyamsuddin@gmail.com`. FormSubmit retains submissions made before confirmation and delivers them after activation.
+
+The existing `functions/api/contact.js` remains available as an optional Resend-based alternative if the site is moved to Cloudflare Pages later.

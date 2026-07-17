@@ -401,12 +401,22 @@ function initMotion() {
   document.querySelectorAll<HTMLElement>("[data-image-reveal]").forEach((el) => {
     const image = el.matches("img") ? el : el.querySelector<HTMLElement>("img");
     if (!image) return;
-    gsap.from(image, {
-      scale: 1.035,
-      duration: 1.15,
-      ease: "expo.out",
+    const timeline = gsap.timeline({
       scrollTrigger: { trigger: el, start: "top 86%", once: true },
     });
+    timeline
+      .from(el, {
+        y: 30,
+        duration: 0.9,
+        ease: "expo.out",
+        clearProps: "transform",
+      })
+      .from(image, {
+        scale: 1.055,
+        duration: 1.15,
+        ease: "expo.out",
+        clearProps: "transform",
+      }, 0);
   });
 
   document.querySelectorAll<HTMLElement>("[data-parallax]").forEach((el) => {
