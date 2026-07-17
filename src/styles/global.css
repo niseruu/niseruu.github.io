@@ -881,7 +881,7 @@ p {
   height: 100%;
   object-fit: contain;
   object-position: center bottom;
-  filter: grayscale(1) contrast(1.13) brightness(1.03);
+  filter: grayscale(0) contrast(1.06) brightness(1.03);
   transition: filter 0.45s ease, transform 0.75s cubic-bezier(0.22,1,0.36,1);
 }
 
@@ -997,7 +997,7 @@ p {
 .project-media { position: relative; display: block; min-height: clamp(22rem, 42vw, 39rem); overflow: hidden; background: #deded8; clip-path: polygon(0 0, calc(100% - 2.2rem) 0, 100% 2.2rem, 100% 100%, 0 100%); }
 .project-media::after { position: absolute; inset: 0; background: linear-gradient(135deg, transparent 60%, rgba(255,250,0,0.28)); content: ""; opacity: 0; transition: opacity 0.35s ease; }
 .project-media:hover::after { opacity: 1; }
-.project-image { width: 100%; height: 100%; min-height: inherit; object-fit: cover; filter: grayscale(1) contrast(1.08); transition: transform 0.75s cubic-bezier(0.22,1,0.36,1), filter 0.45s ease; }
+.project-image { width: 100%; height: 100%; min-height: inherit; object-fit: cover; filter: grayscale(0) contrast(1.04); transition: transform 0.75s cubic-bezier(0.22,1,0.36,1), filter 0.45s ease; }
 .project-media:hover .project-image,
 .project-media:focus-visible .project-image { transform: scale(1.035); filter: grayscale(0) contrast(1.05); }
 .project-media-index { position: absolute; z-index: 2; top: 0; left: 0; background: var(--signal); padding: 0.55rem 0.8rem; font-family: var(--font-display); font-size: 1.35rem; font-variation-settings: "wdth" 130, "wght" 850; }
@@ -1025,7 +1025,7 @@ p {
 .publication-card:nth-child(2) { margin-top: 8rem; }
 .publication-image { position: relative; display: block; height: clamp(21rem,36vw,36rem); overflow: hidden; background: #deded8; }
 .publication-image::after { position: absolute; inset: 0; border: 1px solid rgba(25,25,25,0.18); content: ""; }
-.publication-image img { width: 100%; height: 100%; object-fit: cover; filter: grayscale(1) contrast(1.08); transition: filter 0.35s, transform 0.6s cubic-bezier(.22,1,.36,1); }
+.publication-image img { width: 100%; height: 100%; object-fit: cover; filter: grayscale(0) contrast(1.02); transition: filter 0.35s, transform 0.6s cubic-bezier(.22,1,.36,1); }
 .publication-image:hover img,
 .publication-image:focus-visible img { filter: grayscale(0); transform: scale(1.025); }
 .publication-image > span { position: absolute; z-index: 2; top: 0; left: 0; background: var(--signal); padding: 0.5rem 0.8rem; font-family: var(--font-display); font-size: 1.2rem; font-variation-settings: "wdth" 130,"wght" 850; }
@@ -1054,7 +1054,7 @@ p {
 .stack-ticker { width: 100%; margin-bottom: clamp(6rem,12vw,11rem); overflow: hidden; border-block: 1px solid var(--line); background: var(--paper); }
 .stack-ticker-track { display: flex; width: max-content; animation: tool-marquee 38s linear infinite; }
 .stack-ticker span { display: flex; align-items: center; gap: .7rem; padding: .8rem 1.2rem; border-right: 1px solid var(--line); white-space: nowrap; font-size: .7rem; font-weight: 700; }
-.stack-ticker img { width: 1.35rem; height: 1.35rem; filter: grayscale(1); }
+.stack-ticker img { width: 1.35rem; height: 1.35rem; filter: none; }
 .stack-ticker i { margin-left: .5rem; font-style: normal; }
 @keyframes tool-marquee { to { transform: translateX(-50%); } }
 .stack-grid { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); border-top: 2px solid var(--ink); border-left: 1px solid var(--line); }
@@ -1065,7 +1065,7 @@ p {
 .stack-category h3 { max-width: 12ch; margin: 0; font-family: var(--font-display); font-size: clamp(1.8rem,3vw,3.4rem); font-variation-settings: "wdth" 105,"wght" 800; letter-spacing: -.055em; line-height: .9; text-align: right; text-transform: uppercase; }
 .stack-items { display: flex; flex-wrap: wrap; gap: .5rem; margin-top: 2rem; }
 .stack-item { display: inline-flex; align-items: center; gap: .6rem; border: 1px solid var(--line); background: var(--canvas); padding: .55rem .7rem; font-size: .68rem; }
-.stack-item img { width: 1.2rem; height: 1.2rem; filter: grayscale(1); }
+.stack-item img { width: 1.2rem; height: 1.2rem; filter: none; }
 
 /* Scores */
 .scores-section { background: var(--signal); }
@@ -1147,7 +1147,7 @@ p {
 .archive-card { display: block; }
 .archive-card:nth-child(even) { margin-top: 7rem; }
 .archive-card-image { position: relative; height: clamp(19rem,35vw,34rem); overflow: hidden; background: #deded8; }
-.archive-card-image img { width: 100%; height: 100%; object-fit: cover; filter: grayscale(1) contrast(1.08); transition: transform .7s cubic-bezier(.22,1,.36,1),filter .45s; }
+.archive-card-image img { width: 100%; height: 100%; object-fit: cover; filter: grayscale(0) contrast(1.03); transition: transform .7s cubic-bezier(.22,1,.36,1),filter .45s; }
 .archive-card:hover .archive-card-image img,
 .archive-card:focus-visible .archive-card-image img { transform: scale(1.03); filter: grayscale(0); }
 .archive-card-image strong { position: absolute; top: 0; left: 0; background: var(--signal); padding: .5rem .75rem; font-family: var(--font-display); font-size: 1.2rem; font-variation-settings: "wdth" 140,"wght" 850; }
@@ -1170,7 +1170,7 @@ p {
 .case-summary span { font-size: .58rem; font-weight: 700; }
 .case-summary p { margin: 0; font-size: clamp(.95rem,1.4vw,1.2rem); }
 .case-image { position: relative; width: calc(100% - clamp(2rem,8vw,10rem)); height: min(70vw,58rem); margin: clamp(3rem,7vw,7rem) auto; overflow: hidden; background: #ddd; }
-.case-image img { width: 100%; height: 100%; object-fit: cover; filter: grayscale(1) contrast(1.08); transition: transform .75s cubic-bezier(.22,1,.36,1),filter .45s; }
+.case-image img { width: 100%; height: 100%; object-fit: cover; filter: grayscale(0) contrast(1.03); transition: transform .75s cubic-bezier(.22,1,.36,1),filter .45s; }
 .case-image:hover img { transform: scale(1.025); filter: grayscale(0) contrast(1.04); }
 .case-image-code { position: absolute; right: 0; bottom: 0; background: var(--signal); padding: .6rem .85rem; font-size: .58rem; font-weight: 700; letter-spacing: .08em; }
 .case-metrics { display: grid; width: calc(100% - clamp(2rem,8vw,10rem)); margin: 0 auto clamp(5rem,10vw,10rem); grid-template-columns: repeat(3,minmax(0,1fr)); border-top: 2px solid var(--ink); border-left: 1px solid var(--line); }
