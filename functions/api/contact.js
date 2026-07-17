@@ -7,6 +7,25 @@ function jsonResponse(body, status = 200) {
   });
 }
 
+function classifyResendError(status, responseBody) {
+  const error = responseBody.toLowerCase();
+
+  if (status === 401 || error.includes("invalid_api_key") || error.includes("api key is invalid")) {
+    return "resend_api_key_rejected";
+  }
+  if (error.includes("own email address") || error.includes("testing emails")) {
+    return "resend_recipient_restricted";
+  }
+  if (error.includes("domain is not verified") || error.includes("verify a domain")) {
+    return "resend_sender_unverified";
+  }
+  if (error.includes("user-agent") || error.includes("error code 1010")) {
+    return "resend_user_agent_rejected";
+  }
+
+  return `resend_rejected_${status}`;
+}
+
 export async function onRequestPost({ request, env }) {
   let payload;
   try {
@@ -62,7 +81,13 @@ export async function onRequestPost({ request, env }) {
   if (!resendResponse.ok) {
     const resendError = await resendResponse.text();
     console.error(`Resend rejected contact email (${resendResponse.status})`, resendError);
-    return jsonResponse({ error: "Message could not be sent right now. Please try again later." }, 502);
+    return jsonResponse(
+      {
+        error: "Message could not be sent right now. Please try again later.",
+        code: classifyResendError(resendResponse.status, resendError),
+      },
+      502
+    );
   }
 
   return jsonResponse({ ok: true });
