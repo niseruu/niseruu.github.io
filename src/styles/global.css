@@ -1000,11 +1000,10 @@ p {
 .project-copy { position: relative; min-width: 0; }
 .project-kicker { display: flex; justify-content: space-between; gap: 1rem; margin-bottom: 1.4rem; border-block: 1px solid var(--line); padding-block: 0.55rem; color: var(--muted); font-size: 0.58rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; }
 .project-copy h3 { margin: 0 0 1.35rem; font-family: var(--font-display); font-size: clamp(2.8rem, 5.4vw, 6.5rem); font-variation-settings: "wdth" 92, "wght" 820; letter-spacing: -0.07em; line-height: 0.88; text-transform: uppercase; }
-.project-title-link { position: relative; display: block; width: 100%; max-width: 100%; min-width: 0; overflow-wrap: anywhere; }
-.project-title-link::before { display: block; width: 100%; max-width: 100%; visibility: hidden; content: attr(data-title); overflow-wrap: anywhere; font-variation-settings: "wdth" 92, "wght" 820; }
-.project-title-link > span { position: absolute; inset: 0; display: block; width: 100%; max-width: 100%; overflow-wrap: anywhere; font-variation-settings: "wdth" 92, "wght" 820; transition: font-variation-settings 0.28s ease; }
+.project-title-link { display: block; width: 100%; max-width: 100%; min-width: 0; overflow-wrap: anywhere; }
+.project-title-link > span { display: block; width: 100%; max-width: 100%; overflow-wrap: anywhere; paint-order: stroke fill; -webkit-text-stroke: 0 transparent; font-variation-settings: "wdth" 92, "wght" 820; transition: font-variation-settings 0.28s ease, -webkit-text-stroke 0.28s ease; }
 .project-title-link:hover > span,
-.project-title-link:focus-visible > span { font-variation-settings: "wdth" 122, "wght" 820; }
+.project-title-link:focus-visible > span { -webkit-text-stroke: .018em var(--signal); font-variation-settings: "wdth" 122, "wght" 820; }
 .project-copy > p { color: #50514d; font-size: 1rem; line-height: 1.65; }
 .project-metrics { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); margin-block: 2rem; border-block: 1px solid var(--line); }
 .project-metrics > div { padding: 1rem 0; }
