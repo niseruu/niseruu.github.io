@@ -69,8 +69,10 @@
 
 @layer components {
   .container-shell {
-    width: min(1180px, 92vw);
+    width: 100%;
+    max-width: 1920px;
     margin-inline: auto;
+    padding-inline: clamp(1.25rem, 4vw, 4rem);
   }
 
   .glass-panel {
