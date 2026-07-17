@@ -37,22 +37,31 @@ export async function onRequestPost({ request, env }) {
 
   const toAddress = env.CONTACT_TO_EMAIL || "shafrisyamsuddin@gmail.com";
 
-  const resendResponse = await fetch("https://api.resend.com/emails", {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${env.RESEND_API_KEY}`,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      from: env.CONTACT_FROM_EMAIL || "Portfolio Contact <onboarding@resend.dev>",
-      to: [toAddress],
-      reply_to: email,
-      subject: `Portfolio contact from ${name}`,
-      text: `From: ${name} <${email}>\n\n${message}`,
-    }),
-  });
+  let resendResponse;
+  try {
+    resendResponse = await fetch("https://api.resend.com/emails", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${env.RESEND_API_KEY}`,
+        "Content-Type": "application/json",
+        "User-Agent": "shafri-portfolio-contact/1.0",
+      },
+      body: JSON.stringify({
+        from: env.CONTACT_FROM_EMAIL || "Portfolio Contact <onboarding@resend.dev>",
+        to: [toAddress],
+        reply_to: email,
+        subject: `Portfolio contact from ${name}`,
+        text: `From: ${name} <${email}>\n\n${message}`,
+      }),
+    });
+  } catch (error) {
+    console.error("Resend request failed before receiving a response", error);
+    return jsonResponse({ error: "Message could not be sent right now. Please try again later." }, 502);
+  }
 
   if (!resendResponse.ok) {
+    const resendError = await resendResponse.text();
+    console.error(`Resend rejected contact email (${resendResponse.status})`, resendError);
     return jsonResponse({ error: "Message could not be sent right now. Please try again later." }, 502);
   }
 
