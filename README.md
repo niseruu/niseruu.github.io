@@ -18,20 +18,30 @@ npm run preview   # preview the production build
 - `src/assets/images/` — photos/screenshots optimized via `astro:assets`.
 - `public/` — static files served as-is (icons, PDFs, favicon).
 
-## Deployment (GitHub Pages)
+## Deployment (Cloudflare Pages)
 
-The workflow in `.github/workflows/deploy-pages.yml` builds `dist/` and deploys it to GitHub Pages.
-In the repository settings, set **Pages → Build and deployment → Source** to **GitHub Actions** so GitHub does not also launch its legacy Jekyll build.
+Connect the repository through **Workers & Pages → Create application → Pages → Import an existing Git repository** with:
+
+- Production branch: `main`
+- Build command: `npm run build`
+- Build output directory: `dist`
+- Root directory: leave blank
+
+Cloudflare automatically deploys the root `functions/` directory as Pages Functions alongside the static Astro build.
 
 ## Contact form
 
-The production form uses FormSubmit because GitHub Pages cannot run `/api/contact` or other server functions:
+The production form uses three progressively safer delivery paths:
 
-- JavaScript submissions use FormSubmit's cross-origin AJAX endpoint.
-- The form action uses the regular FormSubmit endpoint when JavaScript is unavailable.
-- A prefilled `mailto:` link preserves the visitor's message if the relay cannot confirm delivery.
-- The hidden `_honey` field provides basic bot filtering; FormSubmit provides its own spam controls.
+- Primary: the Cloudflare Pages Function at `/api/contact`, which sends through Resend.
+- Automatic fallback: FormSubmit's cross-origin AJAX endpoint.
+- Final fallback: a prefilled `mailto:` link that preserves the visitor's message.
+- Without JavaScript, the form's native action submits directly to FormSubmit.
 
-After deploying, submit the form once and confirm the activation email sent to `shafrisyamsuddin@gmail.com`. FormSubmit retains submissions made before confirmation and delivers them after activation.
+Configure these variables under **Cloudflare Pages → Settings → Variables and Secrets**:
 
-The existing `functions/api/contact.js` remains available as an optional Resend-based alternative if the site is moved to Cloudflare Pages later.
+- `RESEND_API_KEY` — required secret from Resend.
+- `CONTACT_TO_EMAIL` — optional; defaults to `shafrisyamsuddin@gmail.com`.
+- `CONTACT_FROM_EMAIL` — optional; defaults to `Portfolio Contact <onboarding@resend.dev>`. Use a verified sender domain for normal production delivery.
+
+Also submit the deployed form once and confirm FormSubmit's activation email so the backup relay is ready if the Cloudflare API is unavailable.

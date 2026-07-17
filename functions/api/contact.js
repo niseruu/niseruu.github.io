@@ -18,7 +18,7 @@ export async function onRequestPost({ request, env }) {
   const name = String(payload.name ?? "").trim();
   const email = String(payload.email ?? "").trim();
   const message = String(payload.message ?? "").trim();
-  const honeypot = String(payload.company ?? "").trim();
+  const honeypot = String(payload.company ?? payload._honey ?? "").trim();
 
   if (honeypot) {
     return jsonResponse({ ok: true });

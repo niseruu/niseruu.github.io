@@ -4,6 +4,8 @@ import { motion, AnimatePresence } from "framer-motion";
 
 type Status = "idle" | "sending" | "success" | "error";
 type RelayResponse = { success?: boolean | string; message?: string };
+type ApiResponse = { ok?: boolean; error?: string };
+type DeliveryChannel = "api" | "relay";
 
 const CONTACT_EMAIL = "shafrisyamsuddin@gmail.com";
 const FORM_ACTION = `https://formsubmit.co/${CONTACT_EMAIL}`;
@@ -17,10 +19,31 @@ function createMailto(name = "", email = "", message = "") {
   return `mailto:${CONTACT_EMAIL}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
 }
 
+async function postJson(url: string, payload: Record<string, string>) {
+  const controller = new AbortController();
+  const timeout = window.setTimeout(() => controller.abort(), 10000);
+  try {
+    const response = await fetch(url, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Accept: "application/json",
+      },
+      body: JSON.stringify(payload),
+      signal: controller.signal,
+    });
+    const body = await response.json().catch(() => null) as ApiResponse | RelayResponse | null;
+    return { response, body };
+  } finally {
+    window.clearTimeout(timeout);
+  }
+}
+
 export default function ContactForm() {
   const [status, setStatus] = useState<Status>("idle");
   const [errorMessage, setErrorMessage] = useState("");
   const [fallbackHref, setFallbackHref] = useState(createMailto());
+  const [deliveryChannel, setDeliveryChannel] = useState<DeliveryChannel | null>(null);
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -41,39 +64,37 @@ export default function ContactForm() {
 
     setStatus("sending");
     setErrorMessage("");
+    setDeliveryChannel(null);
 
-    const controller = new AbortController();
-    const timeout = window.setTimeout(() => controller.abort(), 12000);
+    const contactPayload = { name, email, message, company: honeypot };
 
     try {
-      const response = await fetch(FORM_AJAX_ENDPOINT, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Accept: "application/json",
-        },
-        body: JSON.stringify({
+      let deliveredBy: DeliveryChannel = "api";
+      const apiResult = await postJson("/api/contact", contactPayload).catch(() => null);
+
+      if (!apiResult?.response.ok || !(apiResult.body as ApiResponse | null)?.ok) {
+        deliveredBy = "relay";
+        const relayResult = await postJson(FORM_AJAX_ENDPOINT, {
           name,
           email,
           message,
           _subject: `Portfolio contact from ${name}`,
           _template: "table",
           _honey: "",
-          _url: "https://niseruu.github.io/#contact",
-        }),
-        signal: controller.signal,
-      });
-      const body = await response.json().catch(() => null) as RelayResponse | null;
-      const rejected = body?.success === false || body?.success === "false";
-      if (!response.ok || rejected) throw new Error(body?.message ?? "The email relay could not confirm delivery.");
+          _url: window.location.href,
+        });
+        const relayBody = relayResult.body as RelayResponse | null;
+        const rejected = relayBody?.success === false || relayBody?.success === "false";
+        if (!relayResult.response.ok || rejected) throw new Error("No delivery channel confirmed the message.");
+      }
+
+      setDeliveryChannel(deliveredBy);
       setStatus("success");
       form.reset();
       setFallbackHref(createMailto());
     } catch {
       setStatus("error");
-      setErrorMessage("THE EMAIL RELAY COULDN'T CONFIRM DELIVERY. YOUR MESSAGE IS STILL HERE—USE THE DIRECT EMAIL LINK BELOW.");
-    } finally {
-      window.clearTimeout(timeout);
+      setErrorMessage("THE API AND BACKUP RELAY COULDN'T CONFIRM DELIVERY. YOUR MESSAGE IS STILL HERE—USE THE DIRECT EMAIL LINK BELOW.");
     }
   };
 
@@ -93,8 +114,6 @@ export default function ContactForm() {
     >
       <input type="hidden" name="_subject" value="New portfolio contact" />
       <input type="hidden" name="_template" value="table" />
-      <input type="hidden" name="_next" value="https://niseruu.github.io/#contact" />
-      <input type="hidden" name="_url" value="https://niseruu.github.io/#contact" />
 
       <div className="honeypot" aria-hidden="true">
         <label htmlFor="contact-company">Company</label>
@@ -118,7 +137,7 @@ export default function ContactForm() {
       </div>
 
       <AnimatePresence mode="wait">
-        {status === "success" && <motion.p key="success" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} role="status" className="form-message form-message--success">MESSAGE RECEIVED. I'LL GET BACK TO YOU SOON.</motion.p>}
+        {status === "success" && <motion.p key="success" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} role="status" className="form-message form-message--success">MESSAGE DELIVERED VIA {deliveryChannel === "api" ? "CLOUDFLARE API" : "BACKUP RELAY"}. I'LL GET BACK TO YOU SOON.</motion.p>}
         {status === "error" && <motion.p key="error" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} role="alert" className="form-message form-message--error">{errorMessage}</motion.p>}
       </AnimatePresence>
 
