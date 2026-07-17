@@ -60,7 +60,7 @@ export default function ContactForm() {
             type="text"
             required
             maxLength={120}
-            className="w-full rounded-xl border border-border bg-surface px-4 py-3 text-ink outline-none transition-colors focus:border-accent/60"
+            className="w-full border-2 border-border bg-surface px-4 py-3 text-ink outline-none transition-colors focus:border-accent/60"
           />
         </div>
         <div>
@@ -73,7 +73,7 @@ export default function ContactForm() {
             type="email"
             required
             maxLength={160}
-            className="w-full rounded-xl border border-border bg-surface px-4 py-3 text-ink outline-none transition-colors focus:border-accent/60"
+            className="w-full border-2 border-border bg-surface px-4 py-3 text-ink outline-none transition-colors focus:border-accent/60"
           />
         </div>
       </div>
@@ -88,7 +88,7 @@ export default function ContactForm() {
           required
           rows={5}
           maxLength={4000}
-          className="w-full resize-none rounded-xl border border-border bg-surface px-4 py-3 text-ink outline-none transition-colors focus:border-accent/60"
+          className="w-full resize-none border-2 border-border bg-surface px-4 py-3 text-ink outline-none transition-colors focus:border-accent/60"
         />
       </div>
 
@@ -96,7 +96,7 @@ export default function ContactForm() {
         whileTap={{ scale: 0.97 }}
         type="submit"
         disabled={status === "sending"}
-        className="inline-flex w-fit items-center justify-center rounded-full bg-gradient-to-br from-accent to-accent-2 px-7 py-3 font-display font-semibold text-bg-deep shadow-[0_18px_48px_rgba(56,189,248,0.25)] disabled:opacity-60"
+        className="inline-flex w-fit items-center justify-center bg-gradient-to-br from-accent to-accent-2 px-7 py-3 font-display font-bold text-bg-deep shadow-[0_18px_48px_rgba(56,189,248,0.25)] disabled:opacity-60"
       >
         {status === "sending" ? "Sending..." : "Send message"}
       </motion.button>
