@@ -1,11 +1,10 @@
 ---
 import SectionHeading from "./SectionHeading.astro";
 import SectionGlow from "./SectionGlow.astro";
-import TiltCard from "./TiltCard.tsx";
 import { publications } from "../data/publications";
 ---
 
-<section id="publications" class="relative py-28">
+<section id="publications" class="relative py-32">
   <SectionGlow colorA="bg-accent-2/25" colorB="bg-accent-3/20" flip />
   <div class="container-shell relative z-10">
     <SectionHeading
@@ -14,19 +13,25 @@ import { publications } from "../data/publications";
       description="Conference contributions and documentation that highlight how laboratory research turns into real-world tooling."
     />
 
-    <div class="grid gap-6 md:grid-cols-2">
+    <div class="grid gap-16 md:grid-cols-2">
       {publications.map((pub, index) => (
-        <div data-scrub={index % 2 === 0 ? "left" : "right"}>
-          <TiltCard client:visible maxTilt={5} className="glass-panel glow-ring flex h-full flex-col overflow-hidden rounded-3xl">
-            <img src={pub.image} alt={pub.title} class="aspect-[16/10] w-full rounded-none object-cover" />
-            <div class="flex flex-1 flex-col gap-3 p-7">
-              <h3 class="font-display text-xl font-semibold text-ink">{pub.title}</h3>
-              <p class="flex-1 text-muted">{pub.description}</p>
-              <a href={pub.linkHref} target="_blank" rel="noopener" class="font-display font-semibold text-accent">
-                {pub.linkLabel} &rarr;
-              </a>
-            </div>
-          </TiltCard>
+        <div>
+          <a
+            href={pub.linkHref}
+            target="_blank"
+            rel="noopener"
+            data-scrub={index % 2 === 0 ? "photo-left" : "photo-right"}
+            class="photo-frame mb-6 block"
+          >
+            <img src={pub.image} alt={pub.title} class="aspect-[4/3] w-full object-cover" />
+          </a>
+          <div data-reveal>
+            <h3 class="mb-2 font-display text-xl font-bold text-ink">{pub.title}</h3>
+            <p class="mb-3 text-muted">{pub.description}</p>
+            <a href={pub.linkHref} target="_blank" rel="noopener" class="border-b-2 border-accent pb-0.5 font-display font-bold text-accent">
+              {pub.linkLabel} &rarr;
+            </a>
+          </div>
         </div>
       ))}
     </div>

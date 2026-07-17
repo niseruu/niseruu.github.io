@@ -1,7 +1,6 @@
 ---
 import { Image } from "astro:assets";
 import portrait from "../assets/images/portrait-pic.jpg";
-import TiltCard from "./TiltCard.tsx";
 import MagneticLink from "./MagneticLink.tsx";
 
 const tags = ["YOLO", "LLMs", "ONNX Deployment", "Hugging Face", "Dockerised APIs"];
@@ -28,8 +27,9 @@ const tags = ["YOLO", "LLMs", "ONNX Deployment", "Hugging Face", "Dockerised API
 
   <div class="container-shell relative z-10 grid items-center gap-16 lg:grid-cols-[1.1fr_0.9fr]">
     <div>
-      <p class="eyebrow mb-6" data-reveal>Computer Vision &middot; NLP &middot; Applied AI</p>
-      <h1 class="mb-6 font-display text-[clamp(2.6rem,5.5vw,4.6rem)] font-semibold text-ink" data-reveal>
+      <span class="stripe-accent mb-5" data-reveal></span>
+      <p class="eyebrow mb-6 mt-5" data-reveal>Computer Vision &middot; NLP &middot; Applied AI</p>
+      <h1 class="mb-6 font-display text-[clamp(2.8rem,6.5vw,5.6rem)] text-ink" data-reveal>
         I turn computer vision and NLP research into <span class="text-gradient">reliable, deployable</span> products.
       </h1>
       <p class="mb-8 max-w-xl text-lg text-muted" data-reveal>
@@ -39,11 +39,11 @@ const tags = ["YOLO", "LLMs", "ONNX Deployment", "Hugging Face", "Dockerised API
       </p>
       <ul class="mb-10 grid gap-3" data-reveal>
         <li class="relative pl-6 text-muted">
-          <span class="absolute left-0 top-2 h-2.5 w-2.5 rounded-full bg-accent"></span>
+          <span class="absolute left-0 top-2 h-2.5 w-2.5 bg-accent"></span>
           Computer vision diagnostics deployed with ONNX + YOLO.
         </li>
         <li class="relative pl-6 text-muted">
-          <span class="absolute left-0 top-2 h-2.5 w-2.5 rounded-full bg-accent"></span>
+          <span class="absolute left-0 top-2 h-2.5 w-2.5 bg-accent"></span>
           NLP orchestration for zero-shot sentiment monitoring and automated reporting.
         </li>
       </ul>
@@ -53,14 +53,14 @@ const tags = ["YOLO", "LLMs", "ONNX Deployment", "Hugging Face", "Dockerised API
           href="/docs/m-shafri-syamsuddin-cv.pdf"
           target="_blank"
           rel="noopener"
-          className="inline-flex items-center justify-center rounded-full border border-transparent bg-gradient-to-br from-accent to-accent-2 px-7 py-3 font-display font-semibold text-bg-deep shadow-[0_18px_48px_rgba(56,189,248,0.25)]"
+          className="inline-flex items-center justify-center border-2 border-transparent bg-gradient-to-br from-accent to-accent-2 px-7 py-3 font-display font-bold text-bg-deep shadow-[0_18px_48px_rgba(56,189,248,0.25)]"
         >
           Download CV
         </MagneticLink>
         <MagneticLink
           client:visible
           href="mailto:shafrisyamsuddin@gmail.com"
-          className="inline-flex items-center justify-center rounded-full border border-border bg-accent/8 px-7 py-3 font-display font-semibold text-ink transition-colors hover:border-white/30"
+          className="inline-flex items-center justify-center border-2 border-border bg-accent/8 px-7 py-3 font-display font-bold text-ink transition-colors hover:border-accent"
         >
           Email Me
         </MagneticLink>
@@ -69,7 +69,7 @@ const tags = ["YOLO", "LLMs", "ONNX Deployment", "Hugging Face", "Dockerised API
           href="https://www.linkedin.com/in/shafrisyamsuddin/"
           target="_blank"
           rel="noopener"
-          className="inline-flex items-center justify-center rounded-full border border-border px-7 py-3 font-display font-semibold text-ink transition-colors hover:border-white/30"
+          className="inline-flex items-center justify-center border-2 border-border px-7 py-3 font-display font-bold text-ink transition-colors hover:border-accent"
         >
           LinkedIn
         </MagneticLink>
@@ -77,25 +77,27 @@ const tags = ["YOLO", "LLMs", "ONNX Deployment", "Hugging Face", "Dockerised API
     </div>
 
     <div class="flex justify-center" data-reveal>
-      <TiltCard client:visible maxTilt={14} className="w-full max-w-sm rounded-[28px] glass-panel glow-ring glow-ring--always p-6 shadow-[0_0_90px_rgba(56,189,248,0.25)]">
-        <Image
-          src={portrait}
-          alt="Portrait of M Shafri Syamsuddin"
-          width={420}
-          height={420}
-          class="mb-6 w-full rounded-2xl object-cover"
-        />
-        <div class="flex flex-wrap gap-2">
+      <div class="w-full max-w-sm">
+        <a href="/docs/m-shafri-syamsuddin-cv.pdf" target="_blank" rel="noopener" class="photo-frame photo-frame--tilt-left block">
+          <Image
+            src={portrait}
+            alt="Portrait of M Shafri Syamsuddin"
+            width={420}
+            height={420}
+            class="aspect-square object-cover"
+          />
+        </a>
+        <div class="mt-6 flex flex-wrap gap-2">
           {tags.map((tag, i) => (
             <span
-              class="rounded-full bg-accent/12 px-3 py-1.5 text-sm font-medium text-accent"
+              class="border border-accent/40 bg-accent/12 px-3 py-1.5 text-sm font-medium text-accent"
               style={`animation: pulse-glow 4s ease-in-out ${i * 0.4}s infinite;`}
             >
               {tag}
             </span>
           ))}
         </div>
-      </TiltCard>
+      </div>
     </div>
   </div>
 

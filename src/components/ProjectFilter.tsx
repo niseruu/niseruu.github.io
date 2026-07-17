@@ -24,7 +24,7 @@ export default function ProjectFilter({ projects }: { projects: ProjectCard[] })
           <button
             key={category}
             onClick={() => setActive(category)}
-            className={`rounded-full border px-5 py-2 font-display text-sm font-semibold transition-colors ${
+            className={`border-2 px-5 py-2 font-display text-sm font-bold transition-colors ${
               active === category
                 ? "border-accent/60 bg-accent/15 text-ink"
                 : "border-border text-muted hover:text-ink"
@@ -47,18 +47,18 @@ export default function ProjectFilter({ projects }: { projects: ProjectCard[] })
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, scale: 0.96 }}
                 transition={{ duration: 0.35, ease: "easeOut" }}
-                className="glass-panel glow-ring group block overflow-hidden rounded-3xl"
+                className="glass-panel group block overflow-hidden"
               >
                 <div className="aspect-[16/10] overflow-hidden">
                   <img
                     src={project.imageSrc}
                     alt={project.imageAlt}
-                    className="h-full w-full rounded-none object-cover transition-transform duration-500 group-hover:scale-105"
+                    className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
                   />
                 </div>
                 <div className="flex flex-col gap-3 p-7">
-                  <p className="text-xs font-semibold uppercase tracking-[0.2em] text-accent">{project.eyebrow}</p>
-                  <h3 className="font-display text-xl font-semibold text-ink">{project.title}</h3>
+                  <p className="text-xs font-bold uppercase tracking-[0.2em] text-accent">{project.eyebrow}</p>
+                  <h3 className="font-display text-xl font-bold text-ink">{project.title}</h3>
                   <p className="text-muted">{project.summary}</p>
                 </div>
               </motion.a>

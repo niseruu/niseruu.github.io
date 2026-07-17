@@ -43,9 +43,10 @@
 
   h1, h2, h3, h4 {
     font-family: var(--font-display);
-    font-weight: 600;
-    line-height: 1.1;
+    font-weight: 700;
+    line-height: 1.02;
     letter-spacing: -0.02em;
+    text-transform: uppercase;
   }
 
   ::selection {
@@ -73,16 +74,68 @@
   }
 
   .glass-panel {
-    background: var(--color-surface);
-    border: 1px solid var(--color-border);
-    backdrop-filter: blur(20px);
-    transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.4s ease, border-color 0.4s ease;
+    position: relative;
+    background: var(--color-surface-raised);
+    border: 2px solid var(--color-border);
+    transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.35s ease, border-color 0.35s ease;
   }
 
   .glass-panel:hover {
-    transform: translateY(-6px);
-    border-color: rgba(148, 163, 184, 0.32);
-    box-shadow: 0 30px 90px rgba(56, 189, 248, 0.2), 0 14px 36px rgba(139, 92, 246, 0.16);
+    transform: translate(-5px, -5px);
+    border-color: var(--color-accent);
+    box-shadow: 7px 7px 0 0 var(--color-accent-2);
+  }
+
+  .stripe-accent {
+    display: block;
+    height: 5px;
+    width: 84px;
+    background: linear-gradient(
+      90deg,
+      var(--color-accent) 0 33%,
+      var(--color-accent-2) 33% 66%,
+      var(--color-accent-3) 66% 100%
+    );
+  }
+
+  .photo-frame {
+    display: block;
+    background: #f8fafc;
+    padding: 10px 10px 10px;
+    box-shadow: 14px 14px 0 0 rgba(2, 6, 23, 0.6);
+  }
+
+  .photo-frame img {
+    display: block;
+    width: 100%;
+  }
+
+  .photo-frame:hover {
+    box-shadow: 14px 14px 0 0 var(--color-accent);
+  }
+
+  .photo-frame--tilt-left {
+    transform: rotate(-4deg);
+    transition: transform 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  .photo-frame--tilt-right {
+    transform: rotate(4deg);
+    transition: transform 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  .photo-frame--tilt-left:hover,
+  .photo-frame--tilt-right:hover {
+    transform: rotate(0deg);
+  }
+
+  .halftone {
+    background-image: radial-gradient(rgba(255, 255, 255, 0.12) 1.4px, transparent 1.6px);
+    background-size: 16px 16px;
+  }
+
+  .skew-panel {
+    clip-path: polygon(0 0, 100% 1.6rem, 100% 100%, 0 calc(100% - 1.6rem));
   }
 
   .text-gradient {
@@ -96,9 +149,10 @@
 
   .eyebrow {
     font-family: var(--font-display);
+    font-weight: 700;
     text-transform: uppercase;
-    letter-spacing: 0.32em;
-    font-size: 0.72rem;
+    letter-spacing: 0.28em;
+    font-size: 0.78rem;
     color: var(--color-accent);
   }
 

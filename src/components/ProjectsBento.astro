@@ -3,7 +3,6 @@ import { getCollection } from "astro:content";
 import { Image } from "astro:assets";
 import SectionHeading from "./SectionHeading.astro";
 import SectionGlow from "./SectionGlow.astro";
-import TiltCard from "./TiltCard.tsx";
 
 const allProjects = await getCollection("projects");
 const projects = allProjects
@@ -11,7 +10,7 @@ const projects = allProjects
   .sort((a, b) => a.data.order - b.data.order);
 ---
 
-<section id="projects" class="relative py-28">
+<section id="projects" class="relative py-32">
   <SectionGlow colorA="bg-accent/25" colorB="bg-accent-2/20" />
   <div class="container-shell relative z-10">
     <SectionHeading
@@ -20,44 +19,57 @@ const projects = allProjects
       description="Each project pairs research-backed methods with deployment thinking — whether that means ONNX runtimes for clinics or containerised APIs for product teams."
     />
 
-    <div class="grid gap-6 md:grid-cols-2">
-      {projects.map((project, index) => (
-        <a
-          href={`/projects/${project.id}`}
-          data-scrub={index === 0 ? "rotate" : index % 2 === 1 ? "right" : "left"}
-          class={`block ${index === 0 ? "md:col-span-2" : ""}`}
-        >
-          <TiltCard client:visible maxTilt={4} className="glass-panel glow-ring h-full overflow-hidden rounded-3xl">
-            <div class={`grid h-full ${index === 0 ? "md:grid-cols-2" : ""}`}>
-              <div class="aspect-[16/10] overflow-hidden md:aspect-auto">
-                <Image
-                  src={project.data.heroImage}
-                  alt={project.data.heroImageAlt}
-                  width={index === 0 ? 760 : 520}
-                  class="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
-                />
+    <div class="flex flex-col gap-28 md:gap-36">
+      {projects.map((project, index) => {
+        const reverse = index % 2 === 1;
+        return (
+          <article class="grid items-center gap-10 md:grid-cols-2 md:gap-16">
+            <a
+              href={`/projects/${project.id}`}
+              data-scrub={reverse ? "photo-right" : "photo-left"}
+              class={`photo-frame block ${reverse ? "md:order-2" : ""}`}
+            >
+              <Image
+                src={project.data.heroImage}
+                alt={project.data.heroImageAlt}
+                width={720}
+                class="aspect-[4/3] object-cover"
+              />
+            </a>
+            <div class={reverse ? "md:order-1" : ""} data-reveal>
+              <span class="stripe-accent mb-4"></span>
+              <p class="eyebrow mb-3 mt-4">{project.data.eyebrow}</p>
+              <h3 class="mb-4 font-display text-4xl font-bold text-ink md:text-5xl">{project.data.title}</h3>
+              <p class="mb-8 max-w-md text-lg text-muted">{project.data.summary}</p>
+
+              <div class="mb-8 flex flex-wrap gap-x-10 gap-y-5">
+                {project.data.metrics.map((metric) => (
+                  <div class="max-w-[11rem]">
+                    <p class="font-display text-3xl font-bold text-gradient">{metric.value}</p>
+                    <p class="text-sm text-muted">{metric.label}</p>
+                  </div>
+                ))}
               </div>
-              <div class="flex flex-col justify-center gap-3 p-8">
-                <p class="text-xs font-semibold uppercase tracking-[0.2em] text-accent">{project.data.eyebrow}</p>
-                <h3 class="font-display text-2xl font-semibold text-ink">{project.data.title}</h3>
-                <p class="text-muted">{project.data.summary}</p>
-                <span class="mt-2 inline-flex items-center gap-2 font-display text-sm font-semibold text-ink">
-                  View case study
-                  <svg class="h-4 w-4 transition-transform group-hover:translate-x-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M5 12h14M13 6l6 6-6 6" stroke-linecap="round" stroke-linejoin="round" />
-                  </svg>
-                </span>
-              </div>
+
+              <a
+                href={`/projects/${project.id}`}
+                class="inline-flex items-center gap-2 border-b-4 border-accent pb-1 font-display text-lg font-bold text-ink transition-colors hover:border-accent-2"
+              >
+                View case study
+                <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                  <path d="M5 12h14M13 6l6 6-6 6" stroke-linecap="round" stroke-linejoin="round" />
+                </svg>
+              </a>
             </div>
-          </TiltCard>
-        </a>
-      ))}
+          </article>
+        );
+      })}
     </div>
 
-    <div class="mt-10 flex justify-center" data-reveal>
+    <div class="mt-20 flex justify-center" data-reveal>
       <a
         href="/projects"
-        class="rounded-full border border-border px-6 py-3 font-display font-semibold text-ink transition hover:border-accent/60 hover:bg-accent/10"
+        class="border-2 border-border px-7 py-3 font-display font-bold text-ink transition hover:border-accent hover:bg-accent/10"
       >
         View all case studies
       </a>

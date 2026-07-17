@@ -3,6 +3,14 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 
 gsap.registerPlugin(ScrollTrigger);
 
+const SCRUB_PRESETS: Record<string, { from: gsap.TweenVars; to: gsap.TweenVars }> = {
+  left: { from: { x: -160, rotateY: -26, scale: 0.88 }, to: { x: 0, rotateY: 0, scale: 1 } },
+  right: { from: { x: 160, rotateY: 26, scale: 0.88 }, to: { x: 0, rotateY: 0, scale: 1 } },
+  rotate: { from: { y: 120, rotateX: 18, scale: 0.88 }, to: { y: 0, rotateX: 0, scale: 1 } },
+  "photo-left": { from: { x: -240, rotate: -16, scale: 0.82 }, to: { x: 0, rotate: -3, scale: 1 } },
+  "photo-right": { from: { x: 240, rotate: 16, scale: 0.82 }, to: { x: 0, rotate: 3, scale: 1 } },
+};
+
 function initReveals() {
   const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   const revealEls = document.querySelectorAll<HTMLElement>("[data-reveal]");
@@ -41,19 +49,10 @@ function initReveals() {
     });
   } else {
     scrubEls.forEach((el) => {
-      const preset = el.dataset.scrub;
-      const from: gsap.TweenVars = { opacity: 0, transformPerspective: 900 };
-      if (preset === "left") Object.assign(from, { x: -160, rotateY: -26, scale: 0.88 });
-      else if (preset === "right") Object.assign(from, { x: 160, rotateY: 26, scale: 0.88 });
-      else Object.assign(from, { y: 120, rotateX: 18, scale: 0.88 });
-
-      gsap.set(el, from);
+      const preset = SCRUB_PRESETS[el.dataset.scrub ?? ""] ?? SCRUB_PRESETS.rotate;
+      gsap.set(el, { ...preset.from, opacity: 0, transformPerspective: 900 });
       gsap.to(el, {
-        x: 0,
-        y: 0,
-        rotateX: 0,
-        rotateY: 0,
-        scale: 1,
+        ...preset.to,
         opacity: 1,
         ease: "none",
         scrollTrigger: {
