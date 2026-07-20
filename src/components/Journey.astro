@@ -4,7 +4,14 @@ import KineticMarquee from "./KineticMarquee.astro";
 import { journey } from "../data/journey";
 ---
 
-<section id="journey" class="portfolio-section journey-section">
+<section
+  id="journey"
+  class="portfolio-section journey-section"
+  data-story-screen
+  data-story-key="journey"
+  data-story-group="journey"
+  data-story-title="Journey"
+>
   <div class="section-shell">
     <SectionHeading
       index="03"
@@ -15,7 +22,7 @@ import { journey } from "../data/journey";
 
     <ol class="journey-list">
       {journey.map((entry, index) => (
-        <li data-reveal>
+        <li data-reveal data-story-item>
           <span class="journey-number">{String(index + 1).padStart(2, "0")}</span>
           <p class="journey-period">{entry.period}</p>
           <div class="journey-content">

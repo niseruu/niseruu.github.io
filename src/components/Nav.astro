@@ -36,6 +36,13 @@ const links = [
     icon: '<path d="m12 3 8 4.5-8 4.5-8-4.5z"/><path d="m4 12 8 4.5 8-4.5M4 16.5l8 4.5 8-4.5"/>',
   },
   {
+    href: "/#scores",
+    section: "scores",
+    label: "Scores",
+    code: "05",
+    icon: '<path d="M5 4h14v16H5z"/><path d="M8 15l2-2 2 1 4-5"/><path d="M8 8h3"/>',
+  },
+  {
     href: "/#contact",
     section: "contact",
     label: "Contact",
@@ -47,7 +54,7 @@ const links = [
 
 <aside id="sidebar" class="desktop-rail" transition:persist="desktop-rail">
   <div class="rail-surface">
-    <a href="/#hero" class="rail-logo" aria-label="M Shafri Syamsuddin — Home">
+    <a href="/#hero" class="rail-logo" data-nav-section="hero" aria-label="M Shafri Syamsuddin — Home">
       <span>M</span><span>S</span><small>PORTFOLIO</small>
     </a>
 
@@ -91,7 +98,7 @@ const links = [
 </aside>
 
 <header class="mobile-header" transition:persist="mobile-header">
-  <a href="/#hero" class="mobile-logo" aria-label="Home"><strong>MS</strong><span>PORTFOLIO</span></a>
+  <a href="/#hero" class="mobile-logo" data-nav-section="hero" aria-label="Home"><strong>MS</strong><span>PORTFOLIO</span></a>
   <div class="mobile-header-actions">
     <a href="/docs/m-shafri-syamsuddin-cv.pdf" target="_blank" rel="noopener" class="mobile-resume">CV ↗</a>
     <button id="menu-toggle" class="menu-toggle" aria-label="Open navigation" aria-expanded="false" aria-controls="mobile-menu">

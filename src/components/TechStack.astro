@@ -5,7 +5,14 @@ import { techStack } from "../data/techStack";
 const allItems = techStack.flatMap((category) => category.items);
 ---
 
-<section id="tech-stack" class="portfolio-section stack-section">
+<section
+  id="tech-stack"
+  class="portfolio-section stack-section"
+  data-story-screen
+  data-story-key="tech-stack"
+  data-story-group="tech-stack"
+  data-story-title="Capabilities"
+>
   <div class="stack-ticker" aria-hidden="true">
     <div class="stack-ticker-track">
       {[...allItems, ...allItems].map((item) => (
@@ -24,7 +31,7 @@ const allItems = techStack.flatMap((category) => category.items);
 
     <div class="stack-grid">
       {techStack.map((category, index) => (
-        <article class="stack-category" data-reveal>
+        <article class="stack-category" data-reveal data-story-item>
           <header><span>0{index + 1}</span><h3>{category.title}</h3></header>
           <div class="stack-items">
             {category.items.map((item) => (

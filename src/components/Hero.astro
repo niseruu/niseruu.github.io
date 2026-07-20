@@ -4,7 +4,14 @@ import portrait from "../assets/images/portrait-cutout-v2.png";
 import KineticMarquee from "./KineticMarquee.astro";
 ---
 
-<section id="hero" class="hero-section">
+<section
+  id="hero"
+  class="hero-section"
+  data-story-screen
+  data-story-key="hero"
+  data-story-group="hero"
+  data-story-title="Home"
+>
   <div class="hero-grid" aria-hidden="true"></div>
   <div class="hero-corner hero-corner--one" aria-hidden="true">+</div>
   <div class="hero-corner hero-corner--two" aria-hidden="true">+</div>
@@ -51,7 +58,7 @@ import KineticMarquee from "./KineticMarquee.astro";
     <a href="mailto:shafrisyamsuddin@gmail.com" class="text-action">AVAILABLE FOR COLLABORATION <b>↗</b></a>
   </div>
 
-  <a href="#projects" class="hero-scroll" aria-label="Scroll to case studies">
+  <a href="/#projects" class="hero-scroll" data-nav-section="projects" aria-label="Scroll to case studies">
     <span>SCROLL TO EXPLORE</span><i>↓</i>
   </a>
 </section>

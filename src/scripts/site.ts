@@ -6,12 +6,12 @@ gsap.registerPlugin(ScrollTrigger);
 const REDUCED_MOTION = "(prefers-reduced-motion: reduce)";
 const MOBILE_LAYOUT = "(max-width: 767px)";
 const LOADER_KEY = "shafri-portfolio-loader-seen";
-const SCROLL_FOCUS_SELECTOR = ".hero-section";
 
 let pageCleanup: Array<() => void> = [];
 let fullLoaderPromise: Promise<void> | null = null;
 let routeTransition = false;
 let pageInitialized = false;
+let storySeek: ((section: string, behavior?: ScrollBehavior) => boolean) | null = null;
 
 function getLoader() {
   return document.getElementById("site-loader");
@@ -168,6 +168,7 @@ function closeMobileMenu() {
 function initNavigation() {
   const menu = document.getElementById("mobile-menu");
   const toggle = document.getElementById("menu-toggle");
+  const menuLinks = menu ? [...menu.querySelectorAll<HTMLAnchorElement>("a")] : [];
   if (menu && toggle) {
     const onToggle = () => {
       const open = menu.dataset.open !== "true";
@@ -181,16 +182,17 @@ function initNavigation() {
     };
     toggle.addEventListener("click", onToggle);
     document.addEventListener("keydown", onKey);
-    menu.querySelectorAll("a").forEach((link) => link.addEventListener("click", closeMobileMenu));
+    menuLinks.forEach((link) => link.addEventListener("click", closeMobileMenu));
     pageCleanup.push(() => {
       toggle.removeEventListener("click", onToggle);
       document.removeEventListener("keydown", onKey);
+      menuLinks.forEach((link) => link.removeEventListener("click", closeMobileMenu));
     });
   }
 
   const sections = [...document.querySelectorAll<HTMLElement>("main section[id]")];
-  const navLinks = [...document.querySelectorAll<HTMLElement>("[data-nav-section]")];
-  if (!sections.length || !navLinks.length) return;
+  const navLinks = [...document.querySelectorAll<HTMLAnchorElement>("[data-nav-section]")];
+  if (!navLinks.length) return;
 
   const setActive = (id: string) => {
     navLinks.forEach((link) => {
@@ -200,6 +202,43 @@ function initNavigation() {
       else link.removeAttribute("aria-current");
     });
   };
+
+  const onStoryChange = (event: Event) => {
+    const section = (event as CustomEvent<{ section?: string }>).detail?.section;
+    if (section) setActive(section);
+  };
+
+  const onNavClick = (event: MouseEvent) => {
+    const link = event.currentTarget as HTMLAnchorElement;
+    const url = new URL(link.href, window.location.href);
+    const currentPath = window.location.pathname.replace(/\/$/, "") || "/";
+    const targetPath = url.pathname.replace(/\/$/, "") || "/";
+    const section = url.hash.slice(1);
+    if (!section || currentPath !== targetPath || !storySeek?.(section, "smooth")) return;
+
+    event.preventDefault();
+    if (window.location.hash !== url.hash) window.history.pushState(null, "", url.hash);
+    closeMobileMenu();
+  };
+
+  const onHistoryNavigation = () => {
+    const section = window.location.hash.slice(1);
+    if (section) storySeek?.(section, "auto");
+  };
+
+  navLinks.forEach((link) => link.addEventListener("click", onNavClick));
+  document.addEventListener("story:change", onStoryChange);
+  window.addEventListener("popstate", onHistoryNavigation);
+  window.addEventListener("hashchange", onHistoryNavigation);
+  pageCleanup.push(() => {
+    navLinks.forEach((link) => link.removeEventListener("click", onNavClick));
+    document.removeEventListener("story:change", onStoryChange);
+    window.removeEventListener("popstate", onHistoryNavigation);
+    window.removeEventListener("hashchange", onHistoryNavigation);
+  });
+
+  if (document.querySelector("[data-story-deck].is-active")) return;
+  if (!sections.length) return;
 
   const observer = new IntersectionObserver(
     (entries) => {
@@ -214,139 +253,317 @@ function initNavigation() {
   pageCleanup.push(() => observer.disconnect());
 }
 
-function initScrollResistance() {
-  if (window.matchMedia(REDUCED_MOTION).matches) return;
+function chunkElements(elements: HTMLElement[], size: number) {
+  const groups: HTMLElement[][] = [];
+  for (let index = 0; index < elements.length; index += size) {
+    groups.push(elements.slice(index, index + size));
+  }
+  return groups;
+}
 
-  const targets = [...document.querySelectorAll<HTMLElement>(SCROLL_FOCUS_SELECTOR)];
-  if (!targets.length) return;
+function getStorySubframes(screen: HTMLElement, mobile: boolean) {
+  if (mobile && screen.hasAttribute("data-story-project")) {
+    return [...screen.querySelectorAll<HTMLElement>("[data-story-frame]")].map((element) => [element]);
+  }
 
-  const releasedTargets = new Set<HTMLElement>();
-  let gateTarget: HTMLElement | null = null;
-  let gateStartedAt = 0;
-  let wheelPressure = 0;
-  let touchTarget: HTMLElement | null = null;
-  let touchStartY = 0;
+  const key = screen.dataset.storyKey;
+  if (mobile && key === "publications") {
+    return [...screen.querySelectorAll<HTMLElement>("[data-story-frame]")].map((element) => [element]);
+  }
+  if (key === "journey") {
+    return chunkElements([...screen.querySelectorAll<HTMLElement>("[data-story-item]")], mobile ? 2 : 4);
+  }
+  if (mobile && (key === "tech-stack" || key === "scores")) {
+    return [...screen.querySelectorAll<HTMLElement>("[data-story-item]")].map((element) => [element]);
+  }
+  if (mobile && key === "contact") {
+    return [...screen.querySelectorAll<HTMLElement>("[data-story-frame]")].map((element) => [element]);
+  }
 
-  const topInset = () => parseFloat(getComputedStyle(document.documentElement).scrollPaddingTop) || 0;
+  return [];
+}
 
-  const clearExitedTargets = () => {
-    releasedTargets.forEach((target) => {
-      const rect = target.getBoundingClientRect();
-      if (rect.bottom <= 0 || rect.top >= window.innerHeight) releasedTargets.delete(target);
+function getCompactFontSettings(element: HTMLElement) {
+  const finalSettings = getComputedStyle(element).fontVariationSettings;
+  const compactSettings = finalSettings.replace(/"wdth"\s+[-\d.]+/, '"wdth" 72');
+  return { compactSettings, finalSettings };
+}
+
+function initStoryDeck() {
+  const deck = document.querySelector<HTMLElement>("[data-story-deck]");
+  const stage = deck?.querySelector<HTMLElement>("[data-story-stage]");
+  const screens = stage ? [...stage.querySelectorAll<HTMLElement>(":scope > [data-story-screen]")] : [];
+  if (!deck || !stage || screens.length < 2) return;
+
+  const currentLabel = stage.querySelector<HTMLElement>("[data-story-current]");
+  const totalLabel = stage.querySelector<HTMLElement>("[data-story-total]");
+  const titleLabel = stage.querySelector<HTMLElement>("[data-story-label]");
+  const progressBar = stage.querySelector<HTMLElement>("[data-story-progress]");
+  const transitionRail = stage.querySelector<HTMLElement>("[data-story-transition-rail]");
+  const transitionTrack = stage.querySelector<HTMLElement>("[data-story-transition-track]");
+  const media = gsap.matchMedia();
+
+  totalLabel && (totalLabel.textContent = String(screens.length).padStart(2, "0"));
+
+  const resetAccessibility = () => {
+    screens.forEach((screen) => {
+      screen.inert = false;
+      screen.removeAttribute("aria-hidden");
+      screen.classList.remove("is-story-active", "has-story-subframes");
     });
   };
 
-  const getFocusedTarget = () => {
-    const inset = topInset();
-    const availableHeight = Math.max(1, window.innerHeight - inset);
-    const candidates = targets
-      .map((target) => {
-        const rect = target.getBoundingClientRect();
-        const visible = Math.max(0, Math.min(rect.bottom, window.innerHeight) - Math.max(rect.top, inset));
-        return { target, height: rect.height, visible };
-      })
-      .filter(({ height, visible }) => height >= availableHeight * 0.72 && visible >= availableHeight * 0.78)
-      .sort((a, b) => a.height - b.height);
-
-    return candidates[0]?.target ?? null;
-  };
-
-  const canScrollNestedElement = (origin: EventTarget | null, delta: number) => {
-    let element = origin instanceof Element ? origin : null;
-    while (element && element !== document.body) {
-      const style = getComputedStyle(element);
-      if (/(auto|scroll)/.test(style.overflowY) && element.scrollHeight > element.clientHeight + 1) {
-        const canMoveDown = delta > 0 && element.scrollTop + element.clientHeight < element.scrollHeight - 1;
-        const canMoveUp = delta < 0 && element.scrollTop > 1;
-        if (canMoveDown || canMoveUp) return true;
+  media.add(
+    { desktop: "(min-width: 768px)", mobile: MOBILE_LAYOUT, reduce: REDUCED_MOTION },
+    (context) => {
+      const mobile = Boolean(context.conditions?.mobile);
+      const reduce = Boolean(context.conditions?.reduce);
+      if (reduce) {
+        deck.classList.remove("is-active");
+        document.documentElement.classList.remove("story-deck-active");
+        resetAccessibility();
+        storySeek = null;
+        return;
       }
-      element = element.parentElement;
+
+      deck.classList.add("is-active");
+      document.documentElement.classList.add("story-deck-active");
+
+      const pageBeat = mobile ? 0.65 : 0.9;
+      const subframeBeat = mobile ? 0.4 : 0.45;
+      const master = gsap.timeline({ paused: true, defaults: { ease: "none" } });
+      const labels = new Map<string, number>();
+      const groupLabels = new Map<string, number>();
+      const thresholds: Array<{ time: number; index: number }> = [];
+      const subframes = screens.map((screen) => getStorySubframes(screen, mobile));
+      let cursor = 0;
+      let subframeTransitions = 0;
+      let activeIndex = -1;
+
+      screens.forEach((screen, index) => {
+        gsap.set(screen, {
+          zIndex: index + 1,
+          autoAlpha: index === 0 ? 1 : 0,
+          visibility: index === 0 ? "visible" : "hidden",
+          clipPath: index === 0 ? "inset(0% 0% 0% 0%)" : "inset(100% 0% 0% 0%)",
+          y: 0,
+          scale: 1,
+        });
+
+        const groups = subframes[index];
+        if (groups.length > 1) {
+          screen.classList.add("has-story-subframes");
+          subframeTransitions += groups.length - 1;
+          groups.forEach((group, groupIndex) => {
+            group.forEach((element, slot) => {
+              gsap.set(element, {
+                "--story-slot": slot,
+                "--story-count": group.length,
+                autoAlpha: groupIndex === 0 ? 1 : 0,
+                visibility: groupIndex === 0 ? "visible" : "hidden",
+                y: groupIndex === 0 ? 0 : 28,
+              });
+            });
+          });
+        }
+      });
+
+      if (transitionRail) gsap.set(transitionRail, { autoAlpha: 0, scaleX: 0, transformOrigin: "left center" });
+
+      screens.forEach((screen, index) => {
+        const key = screen.dataset.storyKey ?? `screen-${index + 1}`;
+        const group = screen.dataset.storyGroup ?? key;
+        labels.set(key, cursor);
+        if (!groupLabels.has(group)) groupLabels.set(group, cursor);
+        master.addLabel(key, cursor);
+
+        const groups = subframes[index];
+        for (let groupIndex = 1; groupIndex < groups.length; groupIndex += 1) {
+          const previous = groups[groupIndex - 1];
+          const next = groups[groupIndex];
+          master
+            .set(next, { visibility: "visible" }, cursor)
+            .to(previous, { autoAlpha: 0, y: -24, duration: subframeBeat }, cursor)
+            .fromTo(
+              next,
+              { autoAlpha: 0, y: 28 },
+              { autoAlpha: 1, y: 0, duration: subframeBeat, immediateRender: false },
+              cursor
+            )
+            .set(previous, { visibility: "hidden" }, cursor + subframeBeat);
+          cursor += subframeBeat;
+        }
+
+        const nextScreen = screens[index + 1];
+        if (!nextScreen) return;
+
+        const transitionStart = cursor;
+        thresholds.push({ time: transitionStart + pageBeat / 2, index: index + 1 });
+        const incomingType = nextScreen.querySelector<HTMLElement>("[data-kinetic]");
+        const incomingImage = nextScreen.querySelector<HTMLElement>(
+          ".project-image, .publication-image img, .case-image img"
+        );
+
+        master
+          .set(nextScreen, { visibility: "visible", autoAlpha: 1 }, transitionStart)
+          .to(
+            screen,
+            { y: "-8vh", scale: 0.975, opacity: 0.35, duration: pageBeat },
+            transitionStart
+          )
+          .fromTo(
+            nextScreen,
+            { clipPath: "inset(100% 0% 0% 0%)", y: "12vh", scale: 1.015 },
+            {
+              clipPath: "inset(0% 0% 0% 0%)",
+              y: 0,
+              scale: 1,
+              duration: pageBeat,
+              immediateRender: false,
+            },
+            transitionStart
+          );
+
+        if (incomingType) {
+          const { compactSettings, finalSettings } = getCompactFontSettings(incomingType);
+          master.fromTo(
+            incomingType,
+            { fontVariationSettings: compactSettings },
+            { fontVariationSettings: finalSettings, duration: pageBeat, immediateRender: false },
+            transitionStart
+          );
+        }
+        if (incomingImage) {
+          master.fromTo(
+            incomingImage,
+            { scale: 1.045 },
+            { scale: 1, duration: pageBeat, immediateRender: false },
+            transitionStart
+          );
+        }
+        if (transitionRail) {
+          master
+            .set(transitionRail, { autoAlpha: 1, scaleX: 0 }, transitionStart)
+            .to(transitionRail, { scaleX: 1, duration: pageBeat * 0.72 }, transitionStart)
+            .to(transitionRail, { autoAlpha: 0, duration: pageBeat * 0.28 }, transitionStart + pageBeat * 0.72)
+            .set(transitionRail, { scaleX: 0 }, transitionStart + pageBeat);
+        }
+        if (transitionTrack) {
+          master.fromTo(
+            transitionTrack,
+            { xPercent: -8 },
+            { xPercent: 0, duration: pageBeat, immediateRender: false },
+            transitionStart
+          );
+        }
+
+        master.set(screen, { visibility: "hidden" }, transitionStart + pageBeat);
+        cursor += pageBeat;
+      });
+
+      const setActiveScreen = (index: number) => {
+        if (index === activeIndex) return;
+        activeIndex = index;
+        screens.forEach((screen, screenIndex) => {
+          const active = screenIndex === index;
+          screen.inert = !active;
+          screen.setAttribute("aria-hidden", String(!active));
+          screen.classList.toggle("is-story-active", active);
+        });
+
+        const screen = screens[index];
+        const title = screen.dataset.storyTitle ?? `Screen ${index + 1}`;
+        if (currentLabel) currentLabel.textContent = String(index + 1).padStart(2, "0");
+        if (titleLabel) titleLabel.textContent = title.toUpperCase();
+        document.dispatchEvent(new CustomEvent("story:change", {
+          detail: {
+            index,
+            key: screen.dataset.storyKey,
+            section: screen.dataset.storyGroup ?? screen.dataset.storyKey,
+          },
+        }));
+      };
+
+      const updateStoryState = () => {
+        const time = master.time();
+        let index = 0;
+        thresholds.forEach((threshold) => {
+          if (time >= threshold.time) index = threshold.index;
+        });
+        setActiveScreen(index);
+        if (progressBar) {
+          progressBar.style.transform = mobile
+            ? `scaleX(${master.progress()})`
+            : `scaleY(${master.progress()})`;
+        }
+      };
+
+      setActiveScreen(0);
+      if (progressBar) progressBar.style.transform = mobile ? "scaleX(0)" : "scaleY(0)";
+      master.eventCallback("onUpdate", updateStoryState);
+
+      const scrollDistance = () => {
+        const pageDistance = (screens.length - 1) * window.innerHeight * (mobile ? 0.65 : 0.9);
+        const frameDistance = subframeTransitions * window.innerHeight * (mobile ? 0.4 : 0.45);
+        return Math.max(window.innerHeight, pageDistance + frameDistance);
+      };
+
+      const trigger = ScrollTrigger.create({
+        trigger: stage,
+        animation: master,
+        start: () => `top ${mobile ? 58.4 : 0}px`,
+        end: () => `+=${scrollDistance()}`,
+        pin: stage,
+        pinSpacing: true,
+        scrub: mobile ? 0.12 : 0.25,
+        anticipatePin: 1,
+        invalidateOnRefresh: true,
+        onUpdate: updateStoryState,
+        onRefresh: updateStoryState,
+      });
+
+      const seekLabels = new Map([...labels, ...groupLabels]);
+      storySeek = (section, behavior = "smooth") => {
+        const targetTime = seekLabels.get(section);
+        const duration = master.duration();
+        if (targetTime === undefined || duration <= 0) return false;
+        const targetScroll = trigger.start + (targetTime / duration) * (trigger.end - trigger.start);
+        window.scrollTo({ top: targetScroll, behavior });
+        return true;
+      };
+
+      const initialHash = window.location.hash.slice(1);
+      if (initialHash && seekLabels.has(initialHash)) {
+        requestAnimationFrame(() => storySeek?.(initialHash, "auto"));
+      }
+
+      ScrollTrigger.refresh();
+
+      return () => {
+        trigger.kill();
+        master.revert();
+        storySeek = null;
+        resetAccessibility();
+        deck.classList.remove("is-active");
+        document.documentElement.classList.remove("story-deck-active");
+        if (progressBar) progressBar.style.removeProperty("transform");
+      };
     }
-    return false;
-  };
-
-  const resetWheelGate = (target: HTMLElement | null) => {
-    gateTarget = target;
-    gateStartedAt = performance.now();
-    wheelPressure = 0;
-  };
-
-  const onWheel = (event: WheelEvent) => {
-    if (
-      event.ctrlKey ||
-      Math.abs(event.deltaY) <= Math.abs(event.deltaX) ||
-      document.body.classList.contains("is-loading") ||
-      document.body.classList.contains("menu-open") ||
-      canScrollNestedElement(event.target, event.deltaY)
-    ) return;
-
-    clearExitedTargets();
-    const target = getFocusedTarget();
-    if (!target || releasedTargets.has(target)) {
-      if (gateTarget !== target) resetWheelGate(target);
-      return;
-    }
-
-    if (gateTarget !== target) resetWheelGate(target);
-
-    const deltaScale = event.deltaMode === WheelEvent.DOM_DELTA_LINE
-      ? 16
-      : event.deltaMode === WheelEvent.DOM_DELTA_PAGE
-        ? window.innerHeight
-        : 1;
-    wheelPressure += Math.min(Math.abs(event.deltaY * deltaScale), 120);
-
-    const heldLongEnough = performance.now() - gateStartedAt >= 340;
-    if (heldLongEnough && wheelPressure >= 180) {
-      releasedTargets.add(target);
-      resetWheelGate(null);
-      return;
-    }
-
-    event.preventDefault();
-  };
-
-  const onTouchStart = (event: TouchEvent) => {
-    if (event.touches.length !== 1 || document.body.classList.contains("menu-open")) return;
-    clearExitedTargets();
-    const target = getFocusedTarget();
-    touchTarget = target && !releasedTargets.has(target) ? target : null;
-    touchStartY = event.touches[0].clientY;
-  };
-
-  const onTouchMove = (event: TouchEvent) => {
-    if (!touchTarget || event.touches.length !== 1) return;
-    const distance = Math.abs(event.touches[0].clientY - touchStartY);
-    event.preventDefault();
-    if (distance >= 72) {
-      releasedTargets.add(touchTarget);
-      touchTarget = null;
-    }
-  };
-
-  const onTouchEnd = () => {
-    touchTarget = null;
-  };
-
-  window.addEventListener("wheel", onWheel, { passive: false, capture: true });
-  window.addEventListener("touchstart", onTouchStart, { passive: true });
-  window.addEventListener("touchmove", onTouchMove, { passive: false });
-  window.addEventListener("touchend", onTouchEnd, { passive: true });
-  window.addEventListener("touchcancel", onTouchEnd, { passive: true });
+  );
 
   pageCleanup.push(() => {
-    window.removeEventListener("wheel", onWheel, { capture: true });
-    window.removeEventListener("touchstart", onTouchStart);
-    window.removeEventListener("touchmove", onTouchMove);
-    window.removeEventListener("touchend", onTouchEnd);
-    window.removeEventListener("touchcancel", onTouchEnd);
+    media.revert();
+    storySeek = null;
+    resetAccessibility();
+    deck.classList.remove("is-active");
+    document.documentElement.classList.remove("story-deck-active");
   });
 }
 
 function initMotion() {
   const reduceMotion = window.matchMedia(REDUCED_MOTION).matches;
   const mobileLayout = window.matchMedia(MOBILE_LAYOUT).matches;
-  ScrollTrigger.getAll().forEach((trigger) => trigger.kill());
+  const outsideActiveDeck = (element: HTMLElement) => !element.closest("[data-story-deck].is-active");
 
   if (reduceMotion) {
     document.querySelectorAll<HTMLElement>("[data-count]").forEach((el) => {
@@ -367,7 +584,7 @@ function initMotion() {
     });
   }
 
-  document.querySelectorAll<HTMLElement>("[data-reveal]").forEach((el) => {
+  [...document.querySelectorAll<HTMLElement>("[data-reveal]")].filter(outsideActiveDeck).forEach((el) => {
     gsap.from(el, {
       y: mobileLayout ? 28 : 54,
       opacity: 0,
@@ -377,7 +594,7 @@ function initMotion() {
     });
   });
 
-  document.querySelectorAll<HTMLElement>("[data-kinetic]").forEach((el) => {
+  [...document.querySelectorAll<HTMLElement>("[data-kinetic]")].filter(outsideActiveDeck).forEach((el) => {
     if (mobileLayout) {
       const finalSettings = getComputedStyle(el).fontVariationSettings;
       const compactSettings = finalSettings.replace(/"wdth"\s+[-\d.]+/, '"wdth" 72');
@@ -408,7 +625,7 @@ function initMotion() {
     );
   });
 
-  document.querySelectorAll<HTMLElement>("[data-image-reveal]").forEach((el) => {
+  [...document.querySelectorAll<HTMLElement>("[data-image-reveal]")].filter(outsideActiveDeck).forEach((el) => {
     const image = el.matches("img") ? el : el.querySelector<HTMLElement>("img");
     if (!image) return;
     const timeline = gsap.timeline({
@@ -429,7 +646,7 @@ function initMotion() {
       }, 0);
   });
 
-  document.querySelectorAll<HTMLElement>("[data-parallax]").forEach((el) => {
+  [...document.querySelectorAll<HTMLElement>("[data-parallax]")].filter(outsideActiveDeck).forEach((el) => {
     const distance = Number(el.dataset.parallax) || 8;
     gsap.to(el, {
       yPercent: distance,
@@ -438,7 +655,7 @@ function initMotion() {
     });
   });
 
-  document.querySelectorAll<HTMLElement>("[data-count]").forEach((el) => {
+  [...document.querySelectorAll<HTMLElement>("[data-count]")].filter(outsideActiveDeck).forEach((el) => {
     const target = Number(el.dataset.count);
     if (Number.isNaN(target)) return;
     const counter = { value: 0 };
@@ -473,8 +690,8 @@ async function bootstrap() {
   await runFullLoader();
   const completingRoute = routeTransition;
   if (completingRoute) await runRouteLoader();
+  initStoryDeck();
   initNavigation();
-  initScrollResistance();
   initMotion();
   if (completingRoute) {
     routeTransition = false;

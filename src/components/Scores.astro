@@ -3,13 +3,20 @@ import SectionHeading from "./SectionHeading.astro";
 import { scores } from "../data/scores";
 ---
 
-<section id="scores" class="portfolio-section scores-section">
+<section
+  id="scores"
+  class="portfolio-section scores-section"
+  data-story-screen
+  data-story-key="scores"
+  data-story-group="scores"
+  data-story-title="Scores"
+>
   <div class="section-shell">
     <SectionHeading index="05" eyebrow="Verified Benchmarks" title="Signals, measured." />
 
     <div class="scores-grid">
       {scores.map((score, index) => (
-        <a href={score.reportHref} target="_blank" rel="noopener" class="score-card" data-reveal>
+        <a href={score.reportHref} target="_blank" rel="noopener" class="score-card" data-reveal data-story-item>
           <div class="score-card-top"><span>REPORT / 0{index + 1}</span><span>VERIFIED ↗</span></div>
           <strong data-count={score.numericValue}>{score.value}</strong>
           <div class="score-card-bottom"><h3>{score.name}</h3><p>{score.meta}</p></div>

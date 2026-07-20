@@ -3,7 +3,14 @@ import ContactForm from "./ContactForm.tsx";
 import { socials, email } from "../data/socials";
 ---
 
-<section id="contact" class="contact-section">
+<section
+  id="contact"
+  class="contact-section"
+  data-story-screen
+  data-story-key="contact"
+  data-story-group="contact"
+  data-story-title="Contact"
+>
   <div class="contact-grid" aria-hidden="true"></div>
   <div class="contact-header" data-reveal>
     <span>[06] CONTACT CHANNEL</span>
@@ -11,7 +18,7 @@ import { socials, email } from "../data/socials";
   </div>
 
   <div class="contact-layout">
-    <div class="contact-intro">
+    <div class="contact-intro" data-story-frame="contact-intro">
       <p class="contact-kicker">LET'S BUILD SOMETHING USEFUL.</p>
       <h2 data-kinetic>START A<br />CONVERSATION.</h2>
       <p>
@@ -25,7 +32,7 @@ import { socials, email } from "../data/socials";
       </div>
     </div>
 
-    <div class="contact-form-shell" data-reveal>
+    <div class="contact-form-shell" data-reveal data-story-frame="contact-form">
       <div class="contact-form-head"><span>SECURE MESSAGE FORM</span><span>ENCRYPTION // TLS</span></div>
       <ContactForm client:visible />
     </div>
