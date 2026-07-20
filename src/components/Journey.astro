@@ -13,27 +13,47 @@ import { journey } from "../data/journey";
   data-flow-code="JR-01"
   data-flow-transition="timeline"
 >
-  <div class="section-shell">
-    <SectionHeading
-      index="03"
-      eyebrow="Experience & Education"
-      title="A path through code, research, and product."
-      description="From game development and product leadership to graduate research and applied machine learning."
-    />
+  <div class="section-shell journey-layout">
+    <div class="journey-intro" data-flow-panel="timeline-intro">
+      <SectionHeading
+        index="03"
+        eyebrow="Experience & Education"
+        title="A path through code, research, and product."
+        description="From game development and product leadership to graduate research and applied machine learning."
+      />
 
-    <ol class="journey-list">
-      {journey.map((entry, index) => (
-        <li data-reveal data-flow-panel="timeline-row">
-          <span class="journey-number">{String(index + 1).padStart(2, "0")}</span>
-          <p class="journey-period">{entry.period}</p>
-          <div class="journey-content">
-            <h3>{entry.title}</h3>
-            <p>{entry.description}</p>
-          </div>
-          <span class="journey-symbol" aria-hidden="true">+</span>
-        </li>
-      ))}
-    </ol>
+      <div class="journey-direction" aria-hidden="true">
+        <span>PRESENT / 2025</span>
+        <i></i>
+        <span>ORIGIN / 2018</span>
+      </div>
+    </div>
+
+    <div class="journey-chronology" data-journey-chronology>
+      <span class="journey-axis" aria-hidden="true"><i data-journey-axis></i></span>
+      <span class="journey-boundary journey-boundary--present" aria-hidden="true">LIVE RECORD</span>
+
+      <ol class="journey-list">
+        {journey.map((entry, index) => (
+          <li data-journey-entry>
+            <span class="journey-node" aria-hidden="true"><i></i></span>
+            <span class="journey-connector" aria-hidden="true"></span>
+
+            <div class="journey-meta">
+              <span class="journey-number">[JR-{String(index + 1).padStart(2, "0")}]</span>
+              <p class="journey-period">{entry.period}</p>
+            </div>
+
+            <div class="journey-content">
+              <h3>{entry.title}</h3>
+              <p>{entry.description}</p>
+            </div>
+          </li>
+        ))}
+      </ol>
+
+      <span class="journey-boundary journey-boundary--origin" aria-hidden="true">END OF LOG / 2018</span>
+    </div>
   </div>
 </section>
 

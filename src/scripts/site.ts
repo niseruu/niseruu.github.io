@@ -4,7 +4,7 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 gsap.registerPlugin(ScrollTrigger);
 
 const REDUCED_MOTION = "(prefers-reduced-motion: reduce)";
-const MOBILE_LAYOUT = "(max-width: 767px)";
+const MOBILE_LAYOUT = "(max-width: 959px)";
 const LOADER_KEY = "shafri-portfolio-loader-seen";
 
 let pageCleanup: Array<() => void> = [];
@@ -12,6 +12,8 @@ let fullLoaderPromise: Promise<void> | null = null;
 let routeTransition = false;
 let pageInitialized = false;
 let storySeek: ((section: string, behavior?: ScrollBehavior) => boolean) | null = null;
+let playHeroIntro: (() => void) | null = null;
+let loaderExitToken = 0;
 
 function getLoader() {
   return document.getElementById("site-loader");
@@ -38,7 +40,11 @@ function setLoaderStatus(loaded: number, total: number) {
 function showLoader(mode: "full" | "route") {
   const loader = getLoader();
   if (!loader) return;
+  loaderExitToken += 1;
+  loader.classList.add("is-resetting");
   loader.classList.remove("is-leaving", "is-hidden");
+  void loader.offsetWidth;
+  loader.classList.remove("is-resetting");
   loader.classList.toggle("is-route", mode === "route");
   loader.setAttribute("aria-hidden", "false");
   document.body.classList.add("is-loading");
@@ -47,36 +53,51 @@ function showLoader(mode: "full" | "route") {
 
 function hideLoader() {
   const loader = getLoader();
-  if (!loader) return;
+  if (!loader) return Promise.resolve();
+  const token = ++loaderExitToken;
   setLoaderProgress(100);
-  loader.classList.add("is-leaving");
-  window.setTimeout(() => {
-    loader.classList.add("is-hidden");
-    loader.classList.remove("is-leaving", "is-route");
-    loader.setAttribute("aria-hidden", "true");
-    document.body.classList.remove("is-loading");
-  }, 720);
+  return new Promise<void>((resolve) => {
+    let finished = false;
+    let fallback = 0;
+    const finish = () => {
+      if (finished) return;
+      finished = true;
+      loader.removeEventListener("transitionend", onTransitionEnd);
+      window.clearTimeout(fallback);
+      if (token === loaderExitToken) {
+        loader.classList.add("is-hidden");
+        loader.classList.remove("is-leaving", "is-route");
+        loader.setAttribute("aria-hidden", "true");
+        document.body.classList.remove("is-loading");
+      }
+      resolve();
+    };
+    const onTransitionEnd = (event: TransitionEvent) => {
+      if (event.target === loader && event.propertyName === "transform") finish();
+    };
+    loader.addEventListener("transitionend", onTransitionEnd);
+    fallback = window.setTimeout(finish, 820);
+    loader.classList.add("is-leaving");
+  });
 }
 
 function waitForImage(image: HTMLImageElement) {
   return new Promise<void>((resolve) => {
+    let settled = false;
     const decode = () => {
       if (typeof image.decode === "function") image.decode().catch(() => undefined).then(() => resolve());
       else resolve();
     };
-
-    if (image.complete) {
-      decode();
-      return;
-    }
-
     const finish = () => {
+      if (settled) return;
+      settled = true;
       image.removeEventListener("load", finish);
       image.removeEventListener("error", finish);
       decode();
     };
     image.addEventListener("load", finish, { once: true });
     image.addEventListener("error", finish, { once: true });
+    if (image.complete) finish();
   });
 }
 
@@ -145,8 +166,6 @@ function runFullLoader() {
       end: 94,
     });
     sessionStorage.setItem(LOADER_KEY, "1");
-    hideLoader();
-    await new Promise((resolve) => window.setTimeout(resolve, seen ? 540 : 650));
   })();
   return fullLoaderPromise;
 }
@@ -326,25 +345,30 @@ function initEndfieldFlow() {
       const metadata = hero.querySelector<HTMLElement>(".hero-topline");
       const stats = hero.querySelector<HTMLElement>(".hero-role");
       const actions = hero.querySelector<HTMLElement>(".hero-actions");
-      const intro = gsap.timeline({ delay: 0.05, defaults: { ease: "expo.out" } });
+      const intro = gsap.timeline({ paused: true, defaults: { ease: "expo.out" } });
+
+      gsap.set(metadata, { clipPath: "inset(0 100% 0 0)" });
+      gsap.set(titleLines, { xPercent: (index) => index === 0 ? -104 : 104 });
+      gsap.set(yellowField, { scaleY: 0, transformOrigin: "bottom center" });
+      gsap.set(subject, { clipPath: "inset(0 48% 0 48%)" });
+      gsap.set(stats, { clipPath: "inset(0 100% 0 0)" });
+      gsap.set(actions, { clipPath: "inset(0 0 100% 0)" });
 
       intro
-        .fromTo(metadata, { clipPath: "inset(0 100% 0 0)" }, { clipPath: "inset(0 0% 0 0)", duration: 0.72 }, 0)
-        .fromTo(titleLines, { xPercent: -102 }, { xPercent: 0, duration: 0.9, stagger: 0.09 }, 0.08)
-        .fromTo(yellowField, { scaleY: 0, transformOrigin: "bottom center" }, { scaleY: 1, duration: 0.78 }, 0.12)
-        .fromTo(
-          subject,
-          { clipPath: "polygon(45% 0, 55% 0, 46% 100%, 36% 100%)" },
-          { clipPath: "polygon(0 0, 100% 0, 100% 100%, 0 100%)", duration: 0.92 },
-          0.18
-        )
-        .fromTo(stats, { clipPath: "inset(0 100% 0 0)" }, { clipPath: "inset(0 0% 0 0)", duration: 0.66 }, 0.46)
-        .fromTo(actions, { clipPath: "inset(0 0 100% 0)" }, { clipPath: "inset(0 0 0% 0)", duration: 0.62 }, 0.54);
+        .to(yellowField, { scaleY: 1, duration: 0.7 }, 0.06)
+        .to(subject, { clipPath: "inset(0 0% 0 0%)", duration: 0.72 }, 0.08)
+        .to(titleLines, { xPercent: 0, duration: 0.72, stagger: 0.06 }, 0.14)
+        .to(metadata, { clipPath: "inset(0 0% 0 0)", duration: 0.42 }, 0.24)
+        .to(stats, { clipPath: "inset(0 0% 0 0)", duration: 0.46 }, 0.42)
+        .to(actions, { clipPath: "inset(0 0 0% 0)", duration: 0.46 }, 0.5);
+
+      playHeroIntro = () => intro.play(0);
     }
 
     const projectsScene = flow.querySelector<HTMLElement>('[data-flow-chapter="projects"]');
     if (projectsScene) {
       const heading = projectsScene.querySelector<HTMLElement>(".section-heading");
+      const roster = projectsScene.querySelector<HTMLElement>(".project-record-strip");
       const records = [...projectsScene.querySelectorAll<HTMLElement>("[data-flow-record]")];
       const recordLinks = [...projectsScene.querySelectorAll<HTMLElement>("[data-project-jump]")];
 
@@ -352,12 +376,19 @@ function initEndfieldFlow() {
         const title = heading.querySelector<HTMLElement>("[data-flow-title]");
         const finalWidth = title ? getComputedStyle(title).fontVariationSettings : '"wdth" 110, "wght" 820';
         const compactWidth = finalWidth.replace(/"wdth"\s+[-\d.]+/, '"wdth" 64');
-        gsap.timeline({
-          scrollTrigger: { trigger: heading, start: "top 88%", end: "top 34%", scrub: 0.2 },
+        const chapterIntro = gsap.timeline({
+          defaults: { ease: "expo.out" },
+          scrollTrigger: { trigger: projectsScene, start: "top 74%", once: true },
         })
-          .fromTo(heading.querySelector(".section-heading-meta"), { clipPath: "inset(0 100% 0 0)" }, { clipPath: "inset(0 0% 0 0)", duration: 0.55 }, 0)
-          .fromTo(title, { fontVariationSettings: compactWidth }, { fontVariationSettings: finalWidth, duration: 1 }, 0)
-          .fromTo(heading.querySelector(".section-description"), { clipPath: "inset(0 0 100% 0)" }, { clipPath: "inset(0 0 0% 0)", duration: 0.62 }, 0.25);
+          .fromTo(heading.querySelector(".section-heading-meta"), { clipPath: "inset(0 100% 0 0)" }, { clipPath: "inset(0 0% 0 0)", duration: 0.32 }, 0)
+          .fromTo(title, { clipPath: "inset(0 100% 0 0)", fontVariationSettings: compactWidth }, { clipPath: "inset(0 0% 0 0)", fontVariationSettings: finalWidth, duration: 0.62 }, 0.06)
+          .fromTo(heading.querySelector(".section-description"), { clipPath: "inset(0 0 100% 0)" }, { clipPath: "inset(0 0 0% 0)", duration: 0.4 }, 0.2);
+
+        if (roster) {
+          chapterIntro
+            .fromTo(roster, { clipPath: "inset(0 0 100% 0)" }, { clipPath: "inset(0 0 0% 0)", duration: 0.34 }, 0.28)
+            .fromTo(recordLinks, { clipPath: "inset(0 100% 0 0)" }, { clipPath: "inset(0 0% 0 0)", duration: 0.3, stagger: 0.055 }, 0.36);
+        }
       }
 
       records.forEach((record, index) => {
@@ -375,13 +406,14 @@ function initEndfieldFlow() {
         const compactWidth = finalWidth.replace(/"wdth"\s+[-\d.]+/, '"wdth" 62');
 
         gsap.timeline({
-          scrollTrigger: { trigger: record, start: "top 82%", end: "top 25%", scrub: 0.18 },
+          defaults: { ease: "expo.out" },
+          scrollTrigger: { trigger: record, start: "top 76%", once: true },
         })
-          .fromTo(mediaPanel, { clipPath: aperture }, { clipPath: finalClip, duration: 1 }, 0)
-          .fromTo(image, { xPercent: reverse ? 6 : -6, scale: 1.055 }, { xPercent: 0, scale: 1, duration: 1 }, 0)
-          .fromTo(dataPanel, { clipPath: reverse ? "inset(0 100% 0 0)" : "inset(0 0 0 100%)" }, { clipPath: "inset(0 0% 0 0%)", duration: 0.72 }, 0.18)
-          .fromTo(title, { fontVariationSettings: compactWidth }, { fontVariationSettings: finalWidth, duration: 0.68 }, 0.28)
-          .fromTo(metrics, { scaleX: 0, transformOrigin: reverse ? "right center" : "left center" }, { scaleX: 1, duration: 0.45, stagger: 0.07 }, 0.4);
+          .fromTo(mediaPanel, { clipPath: aperture }, { clipPath: finalClip, duration: 0.88 }, 0)
+          .fromTo(image, { xPercent: reverse ? 5 : -5, scale: 1.045 }, { xPercent: 0, scale: 1, duration: 0.92 }, 0.03)
+          .fromTo(dataPanel, { clipPath: reverse ? "inset(0 100% 0 0)" : "inset(0 0 0 100%)" }, { clipPath: "inset(0 0% 0 0%)", duration: 0.62 }, 0.14)
+          .fromTo(title, { fontVariationSettings: compactWidth }, { fontVariationSettings: finalWidth, duration: 0.5 }, 0.24)
+          .fromTo(metrics, { clipPath: "inset(0 100% 0 0)" }, { clipPath: "inset(0 0% 0 0)", duration: 0.36, stagger: 0.055 }, 0.32);
 
         ScrollTrigger.create({
           trigger: record,
@@ -395,7 +427,86 @@ function initEndfieldFlow() {
       });
     }
 
-    scenes.slice(2).forEach((scene) => {
+    const journeyScene = flow.querySelector<HTMLElement>('[data-flow-chapter="journey"]');
+    if (journeyScene) {
+      const heading = journeyScene.querySelector<HTMLElement>(".section-heading");
+      const title = journeyScene.querySelector<HTMLElement>("[data-flow-title]");
+      const chronology = journeyScene.querySelector<HTMLElement>("[data-journey-chronology]");
+      const axis = journeyScene.querySelector<HTMLElement>("[data-journey-axis]");
+      const entries = [...journeyScene.querySelectorAll<HTMLElement>("[data-journey-entry]")];
+
+      if (heading) {
+        const finalWidth = title ? getComputedStyle(title).fontVariationSettings : '"wdth" 110, "wght" 820';
+        const compactWidth = finalWidth.replace(/"wdth"\s+[-\d.]+/, '"wdth" 68');
+        gsap.timeline({
+          defaults: { ease: "expo.out" },
+          scrollTrigger: { trigger: journeyScene, start: "top 74%", once: true },
+        })
+          .fromTo(heading.querySelector(".section-heading-meta"), { clipPath: "inset(0 100% 0 0)" }, { clipPath: "inset(0 0% 0 0)", duration: 0.32 }, 0)
+          .fromTo(title, { clipPath: "inset(0 100% 0 0)", fontVariationSettings: compactWidth }, { clipPath: "inset(0 0% 0 0)", fontVariationSettings: finalWidth, duration: 0.64 }, 0.06)
+          .fromTo(heading.querySelector(".section-description"), { clipPath: "inset(0 0 100% 0)" }, { clipPath: "inset(0 0 0% 0)", duration: 0.4 }, 0.2)
+          .fromTo(journeyScene.querySelector(".journey-direction"), { clipPath: "inset(0 100% 0 0)" }, { clipPath: "inset(0 0% 0 0)", duration: 0.42 }, 0.3);
+      }
+
+      if (chronology && axis) {
+        gsap.fromTo(axis, { scaleY: 0, transformOrigin: "top center" }, {
+          scaleY: 1,
+          ease: "none",
+          scrollTrigger: { trigger: chronology, start: "top 72%", end: "bottom 68%", scrub: 0.16 },
+        });
+      }
+
+      entries.forEach((entry) => {
+        const connector = entry.querySelector<HTMLElement>(".journey-connector");
+        const node = entry.querySelector<HTMLElement>(".journey-node");
+        const meta = entry.querySelector<HTMLElement>(".journey-meta");
+        const content = entry.querySelector<HTMLElement>(".journey-content");
+        gsap.timeline({
+          defaults: { ease: "expo.out" },
+          scrollTrigger: { trigger: entry, start: "top 82%", once: true },
+        })
+          .fromTo(connector, { scaleX: 0, transformOrigin: "left center" }, { scaleX: 1, duration: 0.34 }, 0)
+          .fromTo(node, { scale: 0, rotate: 0 }, { scale: 1, rotate: 45, duration: 0.38 }, 0.08)
+          .fromTo(meta, { clipPath: "inset(0 100% 0 0)" }, { clipPath: "inset(0 0% 0 0)", duration: 0.4 }, 0.14)
+          .fromTo(content, { clipPath: "inset(0 100% 0 0)" }, { clipPath: "inset(0 0% 0 0)", duration: 0.54 }, 0.2);
+      });
+    }
+
+    const stackScene = flow.querySelector<HTMLElement>('[data-flow-chapter="tech-stack"]');
+    if (stackScene) {
+      const heading = stackScene.querySelector<HTMLElement>(".section-heading");
+      const title = stackScene.querySelector<HTMLElement>("[data-flow-title]");
+      const matrixHead = stackScene.querySelector<HTMLElement>("[data-stack-head]");
+      const modules = [...stackScene.querySelectorAll<HTMLElement>("[data-stack-module]")];
+
+      if (heading) {
+        const finalWidth = title ? getComputedStyle(title).fontVariationSettings : '"wdth" 110, "wght" 820';
+        const compactWidth = finalWidth.replace(/"wdth"\s+[-\d.]+/, '"wdth" 68');
+        gsap.timeline({
+          defaults: { ease: "expo.out" },
+          scrollTrigger: { trigger: stackScene, start: "top 74%", once: true },
+        })
+          .fromTo(heading.querySelector(".section-heading-meta"), { clipPath: "inset(0 100% 0 0)" }, { clipPath: "inset(0 0% 0 0)", duration: 0.32 }, 0)
+          .fromTo(title, { clipPath: "inset(0 100% 0 0)", fontVariationSettings: compactWidth }, { clipPath: "inset(0 0% 0 0)", fontVariationSettings: finalWidth, duration: 0.64 }, 0.06)
+          .fromTo(heading.querySelector(".section-description"), { clipPath: "inset(0 0 100% 0)" }, { clipPath: "inset(0 0 0% 0)", duration: 0.4 }, 0.2)
+          .fromTo(matrixHead, { clipPath: "inset(0 100% 0 0)" }, { clipPath: "inset(0 0% 0 0)", duration: 0.46 }, 0.3);
+      }
+
+      modules.forEach((module) => {
+        const rule = module.querySelector<HTMLElement>("[data-stack-rule]");
+        const header = module.querySelector<HTMLElement>("header");
+        const items = module.querySelectorAll<HTMLElement>("[data-stack-item]");
+        gsap.timeline({
+          defaults: { ease: "expo.out" },
+          scrollTrigger: { trigger: module, start: "top 84%", once: true },
+        })
+          .fromTo(rule, { scaleX: 0, transformOrigin: "left center" }, { scaleX: 1, duration: 0.44 }, 0)
+          .fromTo(header, { clipPath: "inset(0 100% 0 0)" }, { clipPath: "inset(0 0% 0 0)", duration: 0.42 }, 0.08)
+          .fromTo(items, { clipPath: "inset(0 100% 0 0)" }, { clipPath: "inset(0 0% 0 0)", duration: 0.34, stagger: 0.045 }, 0.16);
+      });
+    }
+
+    scenes.slice(2).filter((scene) => !["timeline", "matrix"].includes(scene.dataset.flowTransition ?? "")).forEach((scene) => {
       const variant = scene.dataset.flowTransition;
       const title = scene.querySelector<HTMLElement>("[data-flow-title]");
       const finalWidth = title ? getComputedStyle(title).fontVariationSettings : '"wdth" 110, "wght" 820';
@@ -420,25 +531,6 @@ function initEndfieldFlow() {
             { clipPath: index % 2 === 0 ? "polygon(0 0, 8% 0, 0 100%, 0 100%)" : "polygon(92% 0, 100% 0, 100% 100%, 100% 100%)" },
             { clipPath: "polygon(0 0, 100% 0, 100% 100%, 0 100%)", duration: 0.72 },
             0.18 + index * 0.08
-          );
-        });
-      } else if (variant === "timeline") {
-        panels.forEach((panel, index) => {
-          timeline.fromTo(
-            panel,
-            { clipPath: index % 2 === 0 ? "inset(0 100% 0 0)" : "inset(0 0 0 100%)", x: index % 2 === 0 ? -24 : 24 },
-            { clipPath: "inset(0 0% 0 0%)", x: 0, duration: 0.48 },
-            0.12 + index * 0.055
-          );
-        });
-      } else if (variant === "matrix") {
-        panels.forEach((panel, index) => {
-          const origin = index % 2 === 0 ? "top left" : "bottom right";
-          timeline.fromTo(
-            panel,
-            { clipPath: "inset(48% 48% 48% 48%)", transformOrigin: origin },
-            { clipPath: "inset(0% 0% 0% 0%)", duration: 0.58 },
-            0.12 + index * 0.075
           );
         });
       } else if (variant === "diagnostic") {
@@ -485,6 +577,7 @@ function initEndfieldFlow() {
     context.revert();
     flow.classList.remove("is-enhanced");
     storySeek = null;
+    playHeroIntro = null;
   });
 }
 
@@ -613,6 +706,7 @@ function teardownPage() {
   pageCleanup = [];
   ScrollTrigger.getAll().forEach((trigger) => trigger.kill());
   closeMobileMenu();
+  playHeroIntro = null;
 }
 
 async function bootstrap() {
@@ -624,10 +718,12 @@ async function bootstrap() {
   initEndfieldFlow();
   initNavigation();
   initMotion();
-  if (completingRoute) {
-    routeTransition = false;
-    window.setTimeout(hideLoader, 120);
-  }
+  await new Promise<void>((resolve) => requestAnimationFrame(() => requestAnimationFrame(() => resolve())));
+  const loaderExit = hideLoader();
+  playHeroIntro?.();
+  await loaderExit;
+  routeTransition = false;
+  ScrollTrigger.refresh();
 }
 
 document.addEventListener("astro:before-preparation", () => {

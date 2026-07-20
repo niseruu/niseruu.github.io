@@ -3,6 +3,7 @@ import SectionHeading from "./SectionHeading.astro";
 import { techStack } from "../data/techStack";
 
 const allItems = techStack.flatMap((category) => category.items);
+const toolCount = allItems.length;
 ---
 
 <section
@@ -30,13 +31,32 @@ const allItems = techStack.flatMap((category) => category.items);
       description="A practical stack spanning model development, evaluation, serving, automation, and analytical communication."
     />
 
-    <div class="stack-grid">
+    <div class="stack-matrix-head" data-stack-head aria-hidden="true">
+      <span>CAPABILITY MATRIX / ACTIVE</span>
+      <i></i>
+      <span>{String(techStack.length).padStart(2, "0")} MODULES</span>
+      <span>{String(toolCount).padStart(2, "0")} TOOLS</span>
+    </div>
+
+    <div class="stack-grid" data-stack-matrix>
       {techStack.map((category, index) => (
-        <article class="stack-category" data-reveal data-flow-panel="module">
-          <header><span>0{index + 1}</span><h3>{category.title}</h3></header>
+        <article class="stack-category" data-reveal data-stack-module>
+          <i class="stack-module-rule" data-stack-rule aria-hidden="true"></i>
+          <header>
+            <span>[CP-{String(index + 1).padStart(2, "0")}]</span>
+            <div>
+              <small>CAPABILITY MODULE</small>
+              <h3>{category.title}</h3>
+            </div>
+            <b>{String(category.items.length).padStart(2, "0")}</b>
+          </header>
           <div class="stack-items">
-            {category.items.map((item) => (
-              <span class="stack-item"><img src={`/icons/${item.icon}`} alt="" width="24" height="24" /><b>{item.name}</b></span>
+            {category.items.map((item, itemIndex) => (
+              <span class="stack-item" data-stack-item>
+                <small>{String(itemIndex + 1).padStart(2, "0")}</small>
+                <img src={`/icons/${item.icon}`} alt="" width="24" height="24" />
+                <b>{item.name}</b>
+              </span>
             ))}
           </div>
         </article>
