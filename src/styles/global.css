@@ -959,27 +959,46 @@ p {
 
 .hero-section.is-idle-ready.is-idle-visible .hero-image-yellow {
   transform-origin: 82% 80%;
-  animation: hero-signal-idle 11.5s cubic-bezier(.45,0,.3,1) infinite alternate;
+  animation:
+    hero-signal-idle 11.5s cubic-bezier(.45,0,.3,1) infinite alternate,
+    hero-signal-flicker 6.1s steps(1,end) .8s infinite;
 }
 
 .hero-section.is-idle-ready.is-idle-visible .hero-image-scan {
-  animation: hero-scan 5.8s cubic-bezier(.45,0,.3,1) .25s infinite;
+  animation: hero-scan 7.2s cubic-bezier(.45,0,.3,1) .25s infinite;
+}
+
+.hero-section.is-idle-ready.is-idle-visible .hero-image-scan::after {
+  animation: hero-status-flicker 3.2s steps(1,end) .4s infinite;
 }
 
 .hero-section.is-idle-ready.is-idle-visible .status-dot {
-  animation: hero-status-flicker 6.7s steps(1,end) infinite;
+  animation: hero-status-flicker 4.7s steps(1,end) infinite;
 }
 
 .hero-section.is-idle-ready.is-idle-visible .hero-image-label {
-  animation: hero-label-flicker 8.9s steps(1,end) 1.1s infinite;
+  animation: hero-label-flicker 6.2s steps(1,end) 1.1s infinite;
 }
 
 .hero-section.is-idle-ready.is-idle-visible .hero-image-zone::before {
-  animation: hero-reticle-flicker 10.6s steps(1,end) 2.2s infinite;
+  animation: hero-reticle-flicker 7.6s steps(1,end) 2.2s infinite;
 }
 
 .hero-section.is-idle-ready.is-idle-visible .hero-instrument--asset strong {
-  animation: hero-label-flicker 9.7s steps(1,end) 3.4s infinite;
+  animation: hero-label-flicker 6.8s steps(1,end) 3.4s infinite;
+}
+
+.hero-section.is-idle-ready.is-idle-visible .hero-instrument--base span,
+.hero-section.is-idle-ready.is-idle-visible .hero-topline p:nth-child(2) {
+  animation: hero-readout-flicker 7.1s steps(1,end) 1.8s infinite;
+}
+
+.hero-section.is-idle-ready.is-idle-visible .hero-dossier-header b {
+  animation: hero-status-flicker 5.3s steps(1,end) 2.7s infinite;
+}
+
+.hero-section.is-idle-ready.is-idle-visible .hero-title-line--second > span {
+  animation: hero-type-flicker 11.8s steps(1,end) 3.1s infinite;
 }
 
 @keyframes hero-subject-idle {
@@ -995,29 +1014,51 @@ p {
   100% { transform: translate3d(-.2%,-.1%,0) scaleX(1.003); }
 }
 
+@keyframes hero-signal-flicker {
+  0%, 20%, 23%, 57%, 60%, 83%, 85%, 100% { opacity: 1; filter: none; }
+  21% { opacity: .78; filter: brightness(.92); }
+  22%, 58%, 84% { opacity: .9; filter: brightness(1.08); }
+  59% { opacity: .68; filter: brightness(.86); }
+}
+
 @keyframes hero-scan {
-  0%, 12% { top: 14%; opacity: 0; }
-  15% { opacity: .95; }
-  52% { opacity: .68; }
-  70% { top: 83%; opacity: .9; }
-  74%, 100% { top: 83%; opacity: 0; }
+  0% { top: 14%; opacity: .42; }
+  5% { opacity: .95; }
+  45% { opacity: .72; }
+  50% { top: 83%; opacity: .46; }
+  55% { opacity: .95; }
+  95% { opacity: .72; }
+  100% { top: 14%; opacity: .42; }
 }
 
 @keyframes hero-status-flicker {
-  0%, 7%, 9%, 52%, 54%, 100% { opacity: 1; }
-  8%, 53% { opacity: .16; }
+  0%, 7%, 9%, 31%, 34%, 69%, 71%, 100% { opacity: 1; }
+  8%, 33%, 70% { opacity: .12; }
+  32% { opacity: .58; }
 }
 
 @keyframes hero-label-flicker {
-  0%, 16%, 18%, 66%, 69%, 100% { opacity: 1; }
-  17% { opacity: .55; }
-  67% { opacity: .22; }
-  68% { opacity: .76; }
+  0%, 12%, 15%, 42%, 44%, 72%, 76%, 100% { opacity: 1; }
+  13%, 43%, 74% { opacity: .18; }
+  14%, 73%, 75% { opacity: .64; }
 }
 
 @keyframes hero-reticle-flicker {
-  0%, 28%, 30%, 73%, 75%, 100% { opacity: 1; }
-  29%, 74% { opacity: .32; }
+  0%, 18%, 21%, 49%, 51%, 80%, 83%, 100% { opacity: 1; }
+  19%, 50%, 82% { opacity: .24; }
+  20%, 81% { opacity: .62; }
+}
+
+@keyframes hero-readout-flicker {
+  0%, 25%, 28%, 62%, 64%, 88%, 91%, 100% { opacity: 1; }
+  26%, 63%, 89% { opacity: .3; }
+  27%, 90% { opacity: .72; }
+}
+
+@keyframes hero-type-flicker {
+  0%, 34%, 37%, 76%, 79%, 100% { text-shadow: none; }
+  35%, 77% { text-shadow: 3px 0 0 rgba(255,250,0,.9); }
+  36%, 78% { text-shadow: -2px 0 0 rgba(25,25,25,.5); }
 }
 
 .hero-image-label {
