@@ -932,18 +932,20 @@ p {
 
 .hero-image-scan {
   position: absolute;
-  z-index: 2;
-  top: 34%;
-  right: 4%;
-  left: 46%;
+  z-index: 3;
+  top: 14%;
+  right: 8%;
+  left: 8%;
   height: 1px;
-  background: rgba(25,25,25,.34);
+  background: linear-gradient(90deg,transparent 0,var(--signal) 12%,var(--signal) 88%,transparent 100%);
+  box-shadow: 0 0 .85rem rgba(255,250,0,.6);
+  opacity: 0;
 }
 
 .hero-image-scan::after {
   position: absolute;
   top: -.2rem;
-  right: 0;
+  right: 4%;
   width: .42rem;
   height: .42rem;
   background: var(--signal);
@@ -961,7 +963,23 @@ p {
 }
 
 .hero-section.is-idle-ready.is-idle-visible .hero-image-scan {
-  animation: hero-datum-idle 6.4s cubic-bezier(.45,0,.3,1) infinite alternate;
+  animation: hero-scan 5.8s cubic-bezier(.45,0,.3,1) .25s infinite;
+}
+
+.hero-section.is-idle-ready.is-idle-visible .status-dot {
+  animation: hero-status-flicker 6.7s steps(1,end) infinite;
+}
+
+.hero-section.is-idle-ready.is-idle-visible .hero-image-label {
+  animation: hero-label-flicker 8.9s steps(1,end) 1.1s infinite;
+}
+
+.hero-section.is-idle-ready.is-idle-visible .hero-image-zone::before {
+  animation: hero-reticle-flicker 10.6s steps(1,end) 2.2s infinite;
+}
+
+.hero-section.is-idle-ready.is-idle-visible .hero-instrument--asset strong {
+  animation: hero-label-flicker 9.7s steps(1,end) 3.4s infinite;
 }
 
 @keyframes hero-subject-idle {
@@ -977,10 +995,29 @@ p {
   100% { transform: translate3d(-.2%,-.1%,0) scaleX(1.003); }
 }
 
-@keyframes hero-datum-idle {
-  0%, 20% { opacity: .62; transform: translate3d(0,0,0); }
-  58% { opacity: 1; transform: translate3d(-5%,0,0); }
-  100% { opacity: .78; transform: translate3d(2%,0,0); }
+@keyframes hero-scan {
+  0%, 12% { top: 14%; opacity: 0; }
+  15% { opacity: .95; }
+  52% { opacity: .68; }
+  70% { top: 83%; opacity: .9; }
+  74%, 100% { top: 83%; opacity: 0; }
+}
+
+@keyframes hero-status-flicker {
+  0%, 7%, 9%, 52%, 54%, 100% { opacity: 1; }
+  8%, 53% { opacity: .16; }
+}
+
+@keyframes hero-label-flicker {
+  0%, 16%, 18%, 66%, 69%, 100% { opacity: 1; }
+  17% { opacity: .55; }
+  67% { opacity: .22; }
+  68% { opacity: .76; }
+}
+
+@keyframes hero-reticle-flicker {
+  0%, 28%, 30%, 73%, 75%, 100% { opacity: 1; }
+  29%, 74% { opacity: .32; }
 }
 
 .hero-image-label {
