@@ -7,10 +7,11 @@ import { journey } from "../data/journey";
 <section
   id="journey"
   class="portfolio-section journey-section"
-  data-story-screen
-  data-story-key="journey"
-  data-story-group="journey"
-  data-story-title="Journey"
+  data-flow-scene
+  data-flow-chapter="journey"
+  data-flow-label="Journey"
+  data-flow-code="JR-01"
+  data-flow-transition="timeline"
 >
   <div class="section-shell">
     <SectionHeading
@@ -22,7 +23,7 @@ import { journey } from "../data/journey";
 
     <ol class="journey-list">
       {journey.map((entry, index) => (
-        <li data-reveal data-story-item>
+        <li data-reveal data-flow-panel="timeline-row">
           <span class="journey-number">{String(index + 1).padStart(2, "0")}</span>
           <p class="journey-period">{entry.period}</p>
           <div class="journey-content">

@@ -1,6 +1,5 @@
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { dossierPages } from "../data/dossierPages";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -238,7 +237,6 @@ function initNavigation() {
     window.removeEventListener("hashchange", onHistoryNavigation);
   });
 
-  if (document.querySelector("[data-operator-deck].is-active")) return;
   if (!sections.length) return;
 
   const observer = new IntersectionObserver(
@@ -254,447 +252,248 @@ function initNavigation() {
   pageCleanup.push(() => observer.disconnect());
 }
 
-function initOperatorDeck() {
-  const deck = document.querySelector<HTMLElement>("[data-operator-deck]");
-  const stage = deck?.querySelector<HTMLElement>("[data-operator-stage]");
-  const pages = stage ? [...stage.querySelectorAll<HTMLElement>("[data-dossier-page]")] : [];
-  const handoff = stage?.querySelector<HTMLElement>("[data-operator-handoff]");
-  if (!deck || !stage || !handoff || pages.length !== dossierPages.length) return;
+function initEndfieldFlow() {
+  const flow = document.querySelector<HTMLElement>("[data-endfield-flow]");
+  const scenes = flow ? [...flow.querySelectorAll<HTMLElement>("[data-flow-scene]")] : [];
+  if (!flow || !scenes.length) return;
 
-  const currentLabel = stage.querySelector<HTMLElement>("[data-dossier-current]");
-  const codeLabel = stage.querySelector<HTMLElement>("[data-dossier-code]");
-  const announcer = stage.querySelector<HTMLElement>("[data-dossier-announcer]");
-  const previousButton = stage.querySelector<HTMLButtonElement>("[data-dossier-prev]");
-  const nextButton = stage.querySelector<HTMLButtonElement>("[data-dossier-next]");
-  const targetButtons = [...stage.querySelectorAll<HTMLButtonElement>("[data-dossier-target]")];
-  const pageMarks = [...stage.querySelectorAll<HTMLButtonElement>(".operator-page-track [data-dossier-target]")];
-  const chapterButtons = [...stage.querySelectorAll<HTMLButtonElement>(".operator-chapters [data-dossier-target]")];
-  const fromLabel = handoff.querySelector<HTMLElement>("[data-handoff-from]");
-  const toLabel = handoff.querySelector<HTMLElement>("[data-handoff-to]");
-  const shutters = [...handoff.querySelectorAll<HTMLElement>(".operator-shutter")];
-  const spine = handoff.querySelector<HTMLElement>(".operator-handoff-spine");
-  const handoffRules = [...handoff.querySelectorAll<HTMLElement>(".operator-handoff-rule")];
-  const pageIndex = new Map(pages.map((page, index) => [page.dataset.dossierId ?? "", index]));
-  const hashIndex = new Map<string, number>();
-  const media = gsap.matchMedia();
+  const progress = flow.querySelector<HTMLElement>("[data-flow-progress]");
+  const announcer = flow.querySelector<HTMLElement>("[data-flow-announcer]");
+  const reduceMotion = window.matchMedia(REDUCED_MOTION).matches;
+  const context = gsap.context(() => undefined, flow);
 
-  pages.forEach((page, index) => {
-    const hash = page.dataset.dossierHash;
-    const id = page.dataset.dossierId;
-    const section = page.dataset.dossierSection;
-    if (hash) hashIndex.set(hash, index);
-    if (id) hashIndex.set(id, index);
-    if (section && !hashIndex.has(section)) hashIndex.set(section, index);
-  });
-
-  const resetPages = () => {
-    pages.forEach((page) => {
-      page.inert = false;
-      page.removeAttribute("aria-hidden");
-      page.classList.remove("is-dossier-active", "is-dossier-incoming", "is-dossier-outgoing");
-      page.style.removeProperty("visibility");
-      page.style.removeProperty("z-index");
-      page.style.removeProperty("clip-path");
-      page.style.removeProperty("background-color");
-      page.style.removeProperty("background-image");
-      page.querySelectorAll<HTMLElement>("[data-dossier-zone], [data-dossier-display]").forEach((element) => {
-        element.removeAttribute("style");
-      });
-    });
+  const resolveTarget = (section: string) => {
+    const exact = document.getElementById(section);
+    if (exact) return exact;
+    return scenes.find((scene) => scene.dataset.flowChapter === section) ?? null;
   };
 
-  media.add("(prefers-reduced-motion: no-preference)", () => {
-    const initialHash = window.location.hash.slice(1);
-    let activeIndex = hashIndex.get(initialHash) ?? 0;
-    let transitioning = false;
-    let transition: gsap.core.Timeline | null = null;
-    let wheelAmount = 0;
-    let wheelDirection = 0;
-    let lastWheelAt = 0;
-    let wheelNeedsQuiet = false;
-    let wheelReset = 0;
-    let ownershipTimer = 0;
-    let queuedHistoryTarget: number | null = null;
-    let touchStart: { x: number; y: number; interactive: boolean } | null = null;
+  storySeek = (section, behavior = "smooth") => {
+    const target = resolveTarget(section);
+    if (!target) return false;
+    target.scrollIntoView({ behavior, block: "start" });
+    return true;
+  };
 
-    deck.classList.add("is-active");
-    document.documentElement.classList.add("operator-deck-active");
-
-    const updateInterface = (index: number, announce = true) => {
-      activeIndex = index;
-      pages.forEach((page, pageNumber) => {
-        const active = pageNumber === index;
-        page.inert = !active;
-        page.setAttribute("aria-hidden", String(!active));
-        page.classList.toggle("is-dossier-active", active);
-        page.classList.remove("is-dossier-incoming", "is-dossier-outgoing");
-        gsap.set(page, { visibility: active ? "visible" : "hidden", zIndex: active ? 2 : 1, clearProps: "clipPath,transform" });
-      });
-
-      const record = dossierPages[index];
-      if (currentLabel) currentLabel.textContent = String(index + 1).padStart(2, "0");
-      if (codeLabel) codeLabel.textContent = record.code;
-      if (announcer && announce) announcer.textContent = `Page ${index + 1} of ${pages.length}: ${record.title}`;
-      pageMarks.forEach((mark, markIndex) => {
-        const active = markIndex === index;
-        mark.classList.toggle("is-active", active);
-        if (active) mark.setAttribute("aria-current", "step");
-        else mark.removeAttribute("aria-current");
-      });
-      chapterButtons.forEach((button) => {
-        button.classList.toggle("is-active", button.dataset.dossierTarget === record.id || pageIndex.get(button.dataset.dossierTarget ?? "") === hashIndex.get(record.section));
-      });
-      if (previousButton) previousButton.disabled = index === 0;
-      if (nextButton) nextButton.disabled = index === pages.length - 1;
-      document.dispatchEvent(new CustomEvent("story:change", {
-        detail: { index, key: record.id, section: record.section },
-      }));
-    };
-
-    const writeHash = (index: number, mode: "push" | "replace" | "none") => {
-      if (mode === "none") return;
-      const nextHash = `#${dossierPages[index].hash}`;
-      if (window.location.hash === nextHash) return;
-      if (mode === "push") window.history.pushState(null, "", nextHash);
-      else window.history.replaceState(null, "", nextHash);
-    };
-
-    const goTo = (
-      targetIndex: number,
-      options: { history?: "push" | "replace" | "none"; animate?: boolean } = {}
-    ) => {
-      const boundedIndex = Math.max(0, Math.min(pages.length - 1, targetIndex));
-      if (boundedIndex === activeIndex || transitioning) return boundedIndex === activeIndex;
-
-      const outgoing = pages[activeIndex];
-      const incoming = pages[boundedIndex];
-      const outgoingZones = [...outgoing.querySelectorAll<HTMLElement>("[data-dossier-zone]")];
-      const incomingZones = [...incoming.querySelectorAll<HTMLElement>("[data-dossier-zone]")];
-      const outgoingTitle = outgoing.querySelector<HTMLElement>("[data-dossier-display]");
-      const incomingTitle = incoming.querySelector<HTMLElement>("[data-dossier-display]");
-      const direction = boundedIndex > activeIndex ? 1 : -1;
-      const outgoingIndex = activeIndex;
-      const outgoingRecord = dossierPages[outgoingIndex];
-      const incomingRecord = dossierPages[boundedIndex];
-      const internalTransition = outgoingRecord.section === incomingRecord.section;
-      const duration = internalTransition ? 0.46 : Math.abs(boundedIndex - activeIndex) > 1 ? 0.56 : 0.68;
-      const moveOut = direction > 0 ? "-9vw" : "9vw";
-      const moveIn = direction > 0 ? "7vw" : "-7vw";
-      const outgoingClip = direction > 0 ? "inset(0% 100% 0% 0%)" : "inset(0% 0% 0% 100%)";
-      const incomingClip = direction > 0
-        ? "polygon(100% 0%, 100% 0%, 92% 100%, 92% 100%)"
-        : "polygon(0% 0%, 0% 0%, 8% 100%, 8% 100%)";
-      const fullClip = "polygon(0% 0%, 100% 0%, 100% 100%, 0% 100%)";
-      const fullInset = "inset(0% 0% 0% 0%)";
-      const hadFocus = outgoing.contains(document.activeElement);
-
-      writeHash(boundedIndex, options.history ?? "replace");
-      if (options.animate === false) {
-        updateInterface(boundedIndex);
-        return true;
-      }
-
-      transitioning = true;
-      deck.classList.add("is-transitioning");
-      deck.dataset.direction = direction > 0 ? "forward" : "backward";
-      deck.dataset.transition = internalTransition ? outgoingRecord.section : "chapter";
-      outgoing.classList.add("is-dossier-outgoing");
-      incoming.classList.add("is-dossier-incoming");
-      incoming.inert = true;
-      incoming.setAttribute("aria-hidden", "true");
-      gsap.set(outgoing, { visibility: "visible", zIndex: 2, clipPath: fullClip });
-      gsap.set(incoming, {
-        visibility: "visible",
-        zIndex: 3,
-        clipPath: internalTransition ? fullInset : incomingClip,
-      });
-
-      if (internalTransition) {
-        gsap.set(handoff, { visibility: "hidden" });
-        gsap.set([outgoing, incoming], { backgroundColor: "transparent", backgroundImage: "none" });
-      } else {
-        gsap.set(handoff, { visibility: "visible" });
-        if (fromLabel) fromLabel.textContent = String(outgoingIndex + 1).padStart(2, "0");
-        if (toLabel) toLabel.textContent = String(boundedIndex + 1).padStart(2, "0");
-        const leading = direction > 0 ? -125 : 125;
-        gsap.set(shutters, { xPercent: leading });
-        gsap.set(handoffRules, { scaleX: 0, transformOrigin: direction > 0 ? "left center" : "right center" });
-        if (spine) gsap.set(spine, { x: direction > 0 ? -120 : window.innerWidth + 120 });
-        gsap.set(incomingZones, { x: moveIn, clipPath: incomingClip });
-      }
-
-      transition = gsap.timeline({
-        defaults: { ease: "power4.inOut" },
-        onComplete: () => {
-          gsap.set(handoff, { visibility: "hidden" });
-          const cleanupTargets = [outgoing, incoming].flatMap((page) => [
-            ...page.querySelectorAll<HTMLElement>(
-              "[data-dossier-zone], [data-dossier-display], .operator-journey-pair li, .operator-capability-grid article, .operator-project-image, .operator-form-shell"
-            ),
-          ]);
-          gsap.set(cleanupTargets, { clearProps: "transform,clipPath,fontVariationSettings" });
-          gsap.set([outgoing, incoming], { clearProps: "backgroundColor,backgroundImage" });
-          if (outgoingTitle) gsap.set(outgoingTitle, { clearProps: "fontVariationSettings" });
-          if (incomingTitle) gsap.set(incomingTitle, { clearProps: "fontVariationSettings" });
-          updateInterface(boundedIndex);
-          transitioning = false;
-          wheelNeedsQuiet = true;
-          transition = null;
-          deck.classList.remove("is-transitioning");
-          delete deck.dataset.direction;
-          delete deck.dataset.transition;
-          if (hadFocus) {
-            const focusTarget = incoming.querySelector<HTMLElement>("h1, h2, a, button");
-            if (focusTarget?.matches("h1, h2")) focusTarget.tabIndex = -1;
-            focusTarget?.focus({ preventScroll: true });
-          }
-          const queuedTarget = queuedHistoryTarget;
-          queuedHistoryTarget = null;
-          if (queuedTarget !== null && queuedTarget !== boundedIndex) {
-            window.setTimeout(() => goTo(queuedTarget, { history: "none" }), 0);
-          }
-        },
-      });
-
-      if (internalTransition) {
-        const section = outgoingRecord.section;
-        const outgoingParts = section === "journey"
-          ? [...outgoing.querySelectorAll<HTMLElement>(".operator-page-head, .operator-section-title, .operator-journey-pair li")]
-          : section === "tech-stack"
-            ? [...outgoing.querySelectorAll<HTMLElement>(".operator-page-head, .operator-section-title, .operator-capability-grid article")]
-            : outgoingZones;
-        const incomingParts = section === "journey"
-          ? [...incoming.querySelectorAll<HTMLElement>(".operator-page-head, .operator-section-title, .operator-journey-pair li")]
-          : section === "tech-stack"
-            ? [...incoming.querySelectorAll<HTMLElement>(".operator-page-head, .operator-section-title, .operator-capability-grid article")]
-            : incomingZones;
-        const vertical = section === "journey";
-        const partDistance = direction * (section === "projects" ? 42 : section === "contact" ? 30 : 24);
-        const pageStartClip = vertical
-          ? direction > 0 ? "inset(100% 0% 0% 0%)" : "inset(0% 0% 100% 0%)"
-          : direction > 0 ? "inset(0% 0% 0% 100%)" : "inset(0% 100% 0% 0%)";
-        const pageEndClip = vertical
-          ? direction > 0 ? "inset(0% 0% 100% 0%)" : "inset(100% 0% 0% 0%)"
-          : direction > 0 ? "inset(0% 100% 0% 0%)" : "inset(0% 0% 0% 100%)";
-
-        gsap.set(incomingParts, vertical
-          ? { y: partDistance, clipPath: pageStartClip }
-          : { x: partDistance, clipPath: pageStartClip });
-        transition
-          .to(outgoingParts, {
-            ...(vertical ? { y: -partDistance } : { x: -partDistance }),
-            clipPath: pageEndClip,
-            duration: duration * 0.62,
-            stagger: 0.018,
-            ease: "expo.inOut",
-          }, 0)
-          .fromTo(
-            incomingParts,
-            vertical
-              ? { y: partDistance, clipPath: pageStartClip }
-              : { x: partDistance, clipPath: pageStartClip },
-            {
-              ...(vertical ? { y: 0 } : { x: 0 }),
-              clipPath: fullInset,
-              duration: duration * 0.64,
-              stagger: 0.018,
-              ease: "expo.out",
-              immediateRender: false,
-            },
-            duration * 0.18
-          )
-          .fromTo(
-            incomingTitle,
-            { fontVariationSettings: '"wdth" 92, "wght" 850' },
-            { fontVariationSettings: '"wdth" 116, "wght" 850', duration: duration * 0.5, ease: "power3.out", immediateRender: false },
-            duration * 0.22
-          );
-        if (section === "projects") {
-          transition.fromTo(
-            incoming.querySelector<HTMLElement>(".operator-project-image"),
-            { xPercent: direction * 6 },
-            { xPercent: 0, duration: duration * 0.66, ease: "expo.out", immediateRender: false },
-            duration * 0.18
-          );
-        }
-        if (section === "contact") {
-          transition.fromTo(
-            incoming.querySelector<HTMLElement>(".operator-form-shell"),
-            { clipPath: pageStartClip },
-            { clipPath: fullInset, duration: duration * 0.6, ease: "expo.inOut", immediateRender: false },
-            duration * 0.2
-          );
-        }
-      } else {
-        const trailing = direction > 0 ? 125 : -125;
-        transition
-          .to(handoffRules, { scaleX: 1, duration: duration * 0.24, stagger: 0.035 }, 0)
-          .to(shutters, { xPercent: trailing, duration: duration * 0.82, stagger: 0.035 }, 0.02)
-          .to(spine, { x: direction > 0 ? window.innerWidth + 120 : -120, duration, ease: "expo.inOut" }, 0)
-          .to(outgoingZones, { x: moveOut, clipPath: outgoingClip, duration: duration * 0.54, stagger: 0.018 }, 0.03)
-          .to(outgoingTitle, { fontVariationSettings: '"wdth" 55, "wght" 850', duration: duration * 0.38 }, 0)
-          .to(incoming, { clipPath: fullClip, duration: duration * 0.6 }, duration * 0.27)
-          .to(incomingZones, { x: 0, clipPath: fullClip, duration: duration * 0.5, stagger: 0.018 }, duration * 0.34)
-          .fromTo(
-            incomingTitle,
-            { fontVariationSettings: '"wdth" 58, "wght" 850' },
-            { fontVariationSettings: '"wdth" 132, "wght" 850', duration: duration * 0.44, immediateRender: false },
-            duration * 0.35
-          )
-          .to(handoffRules, { scaleX: 0, duration: duration * 0.2, stagger: 0.025 }, duration * 0.7);
-      }
-
-      window.clearTimeout(ownershipTimer);
-      ownershipTimer = window.setTimeout(() => {
-        outgoing.inert = true;
-        outgoing.setAttribute("aria-hidden", "true");
-        incoming.inert = false;
-        incoming.setAttribute("aria-hidden", "false");
-      }, duration * 500);
-      return true;
-    };
-
-    const goRelative = (direction: 1 | -1, history: "push" | "replace" = "replace") => {
-      return goTo(activeIndex + direction, { history });
-    };
-
-    const resolveTarget = (value: string) => pageIndex.get(value) ?? hashIndex.get(value);
-    const onTargetClick = (event: Event) => {
-      const button = event.currentTarget as HTMLButtonElement;
-      const target = resolveTarget(button.dataset.dossierTarget ?? "");
-      if (target !== undefined) goTo(target, { history: "push" });
-    };
-    const onPrevious = () => goRelative(-1, "push");
-    const onNext = () => goRelative(1, "push");
-
-    const onWheel = (event: WheelEvent) => {
-      if (document.body.classList.contains("menu-open")) return;
-      if ((event.target as Element | null)?.closest("[data-page-interactive]")) return;
-      event.preventDefault();
-      const now = performance.now();
-      const unit = event.deltaMode === 1 ? 16 : event.deltaMode === 2 ? window.innerHeight : 1;
-      const delta = event.deltaY * unit;
-      const direction = Math.sign(delta);
-      if (!direction) return;
-
-      if (transitioning) {
-        lastWheelAt = now;
-        wheelAmount = 0;
-        return;
-      }
-      if (wheelNeedsQuiet) {
-        if (now - lastWheelAt < 135) {
-          lastWheelAt = now;
-          wheelAmount = 0;
-          return;
-        }
-        wheelNeedsQuiet = false;
-      }
-      lastWheelAt = now;
-      if (direction !== wheelDirection) wheelAmount = 0;
-      wheelDirection = direction;
-      wheelAmount += Math.abs(delta);
-      window.clearTimeout(wheelReset);
-      wheelReset = window.setTimeout(() => { wheelAmount = 0; }, 220);
-      if (wheelAmount < 46) return;
-      wheelAmount = 0;
-      goRelative(direction > 0 ? 1 : -1);
-    };
-
-    const onTouchStart = (event: TouchEvent) => {
-      const touch = event.touches[0];
-      if (!touch) return;
-      touchStart = {
-        x: touch.clientX,
-        y: touch.clientY,
-        interactive: Boolean((event.target as Element | null)?.closest("[data-page-interactive]")),
-      };
-    };
-    const onTouchMove = (event: TouchEvent) => {
-      if (touchStart && !touchStart.interactive) event.preventDefault();
-    };
-    const onTouchEnd = (event: TouchEvent) => {
-      if (!touchStart || touchStart.interactive || transitioning) {
-        touchStart = null;
-        return;
-      }
-      const touch = event.changedTouches[0];
-      if (!touch) return;
-      const dx = touch.clientX - touchStart.x;
-      const dy = touch.clientY - touchStart.y;
-      touchStart = null;
-      if (Math.abs(dy) < 56 || Math.abs(dy) < Math.abs(dx) * 1.2) return;
-      goRelative(dy < 0 ? 1 : -1);
-    };
-
-    const onKeyDown = (event: KeyboardEvent) => {
-      if (document.body.classList.contains("menu-open")) return;
-      const target = event.target as HTMLElement | null;
-      if (target?.closest("input, textarea, select, button, a, [contenteditable='true'], [data-page-interactive]")) return;
-      let targetIndex: number | null = null;
-      if (["ArrowDown", "ArrowRight", "PageDown"].includes(event.key) || (event.key === " " && !event.shiftKey)) targetIndex = activeIndex + 1;
-      if (["ArrowUp", "ArrowLeft", "PageUp"].includes(event.key) || (event.key === " " && event.shiftKey)) targetIndex = activeIndex - 1;
-      if (event.key === "Home") targetIndex = 0;
-      if (event.key === "End") targetIndex = pages.length - 1;
-      if (targetIndex === null) return;
-      event.preventDefault();
-      goTo(targetIndex, { history: "replace" });
-    };
-
-    targetButtons.forEach((button) => button.addEventListener("click", onTargetClick));
-    previousButton?.addEventListener("click", onPrevious);
-    nextButton?.addEventListener("click", onNext);
-    window.addEventListener("wheel", onWheel, { passive: false });
-    stage.addEventListener("touchstart", onTouchStart, { passive: true });
-    stage.addEventListener("touchmove", onTouchMove, { passive: false });
-    stage.addEventListener("touchend", onTouchEnd, { passive: true });
-    document.addEventListener("keydown", onKeyDown);
-
-    pages.forEach((page, index) => gsap.set(page, { visibility: index === activeIndex ? "visible" : "hidden" }));
-    updateInterface(activeIndex, false);
-    storySeek = (section) => {
-      const target = resolveTarget(section);
-      if (target === undefined) return false;
-      if (transitioning) {
-        queuedHistoryTarget = target;
-        return true;
-      }
-      return goTo(target, { history: "none" });
-    };
-
-    return () => {
-      transition?.kill();
-      window.clearTimeout(wheelReset);
-      window.clearTimeout(ownershipTimer);
-      targetButtons.forEach((button) => button.removeEventListener("click", onTargetClick));
-      previousButton?.removeEventListener("click", onPrevious);
-      nextButton?.removeEventListener("click", onNext);
-      window.removeEventListener("wheel", onWheel);
-      stage.removeEventListener("touchstart", onTouchStart);
-      stage.removeEventListener("touchmove", onTouchMove);
-      stage.removeEventListener("touchend", onTouchEnd);
-      document.removeEventListener("keydown", onKeyDown);
+  if (reduceMotion) {
+    pageCleanup.push(() => {
+      context.revert();
       storySeek = null;
-      resetPages();
-      deck.classList.remove("is-active", "is-transitioning");
-      document.documentElement.classList.remove("operator-deck-active");
-      handoff.removeAttribute("style");
+    });
+    return;
+  }
+
+  flow.classList.add("is-enhanced");
+
+  context.add(() => {
+    if (progress) {
+      gsap.set(progress, { scaleX: 0, transformOrigin: "left center" });
+      gsap.to(progress, {
+        scaleX: 1,
+        ease: "none",
+        scrollTrigger: { trigger: flow, start: "top top", end: "bottom bottom", scrub: 0.12 },
+      });
+    }
+
+    const setActiveScene = (index: number) => {
+      const scene = scenes[index];
+      if (!scene) return;
+      scenes.forEach((item, itemIndex) => item.classList.toggle("is-flow-current", itemIndex === index));
+      const section = scene.dataset.flowChapter ?? scene.id;
+      document.dispatchEvent(new CustomEvent("story:change", {
+        detail: { index, key: section, section },
+      }));
+      if (announcer) {
+        announcer.textContent = `${scene.dataset.flowLabel ?? section}, chapter ${index + 1} of ${scenes.length}`;
+      }
     };
+
+    scenes.forEach((scene, index) => {
+      ScrollTrigger.create({
+        trigger: scene,
+        start: "top 52%",
+        end: "bottom 52%",
+        onEnter: () => setActiveScene(index),
+        onEnterBack: () => setActiveScene(index),
+      });
+    });
+
+    const hero = scenes[0];
+    if (hero) {
+      const titleLines = hero.querySelectorAll<HTMLElement>(".hero-title-line > span");
+      const subject = hero.querySelector<HTMLElement>(".hero-image-frame");
+      const yellowField = hero.querySelector<HTMLElement>(".hero-image-yellow");
+      const metadata = hero.querySelector<HTMLElement>(".hero-topline");
+      const stats = hero.querySelector<HTMLElement>(".hero-role");
+      const actions = hero.querySelector<HTMLElement>(".hero-actions");
+      const intro = gsap.timeline({ delay: 0.05, defaults: { ease: "expo.out" } });
+
+      intro
+        .fromTo(metadata, { clipPath: "inset(0 100% 0 0)" }, { clipPath: "inset(0 0% 0 0)", duration: 0.72 }, 0)
+        .fromTo(titleLines, { xPercent: -102 }, { xPercent: 0, duration: 0.9, stagger: 0.09 }, 0.08)
+        .fromTo(yellowField, { scaleY: 0, transformOrigin: "bottom center" }, { scaleY: 1, duration: 0.78 }, 0.12)
+        .fromTo(
+          subject,
+          { clipPath: "polygon(45% 0, 55% 0, 46% 100%, 36% 100%)" },
+          { clipPath: "polygon(0 0, 100% 0, 100% 100%, 0 100%)", duration: 0.92 },
+          0.18
+        )
+        .fromTo(stats, { clipPath: "inset(0 100% 0 0)" }, { clipPath: "inset(0 0% 0 0)", duration: 0.66 }, 0.46)
+        .fromTo(actions, { clipPath: "inset(0 0 100% 0)" }, { clipPath: "inset(0 0 0% 0)", duration: 0.62 }, 0.54);
+    }
+
+    const projectsScene = flow.querySelector<HTMLElement>('[data-flow-chapter="projects"]');
+    if (projectsScene) {
+      const heading = projectsScene.querySelector<HTMLElement>(".section-heading");
+      const records = [...projectsScene.querySelectorAll<HTMLElement>("[data-flow-record]")];
+      const recordLinks = [...projectsScene.querySelectorAll<HTMLElement>("[data-project-jump]")];
+
+      if (heading) {
+        const title = heading.querySelector<HTMLElement>("[data-flow-title]");
+        const finalWidth = title ? getComputedStyle(title).fontVariationSettings : '"wdth" 110, "wght" 820';
+        const compactWidth = finalWidth.replace(/"wdth"\s+[-\d.]+/, '"wdth" 64');
+        gsap.timeline({
+          scrollTrigger: { trigger: heading, start: "top 88%", end: "top 34%", scrub: 0.2 },
+        })
+          .fromTo(heading.querySelector(".section-heading-meta"), { clipPath: "inset(0 100% 0 0)" }, { clipPath: "inset(0 0% 0 0)", duration: 0.55 }, 0)
+          .fromTo(title, { fontVariationSettings: compactWidth }, { fontVariationSettings: finalWidth, duration: 1 }, 0)
+          .fromTo(heading.querySelector(".section-description"), { clipPath: "inset(0 0 100% 0)" }, { clipPath: "inset(0 0 0% 0)", duration: 0.62 }, 0.25);
+      }
+
+      records.forEach((record, index) => {
+        const mediaPanel = record.querySelector<HTMLElement>(".project-media");
+        const image = record.querySelector<HTMLElement>(".project-image");
+        const dataPanel = record.querySelector<HTMLElement>(".project-copy");
+        const title = record.querySelector<HTMLElement>("[data-flow-title]");
+        const metrics = record.querySelectorAll<HTMLElement>("[data-flow-metric]");
+        const reverse = index % 2 === 1;
+        const aperture = reverse
+          ? "polygon(100% 0, 100% 0, 100% 100%, 86% 100%)"
+          : "polygon(0 0, 14% 0, 0 100%, 0 100%)";
+        const finalClip = "polygon(0 0, calc(100% - 2.2rem) 0, 100% 2.2rem, 100% 100%, 0 100%)";
+        const finalWidth = title ? getComputedStyle(title).fontVariationSettings : '"wdth" 92, "wght" 820';
+        const compactWidth = finalWidth.replace(/"wdth"\s+[-\d.]+/, '"wdth" 62');
+
+        gsap.timeline({
+          scrollTrigger: { trigger: record, start: "top 82%", end: "top 25%", scrub: 0.18 },
+        })
+          .fromTo(mediaPanel, { clipPath: aperture }, { clipPath: finalClip, duration: 1 }, 0)
+          .fromTo(image, { xPercent: reverse ? 6 : -6, scale: 1.055 }, { xPercent: 0, scale: 1, duration: 1 }, 0)
+          .fromTo(dataPanel, { clipPath: reverse ? "inset(0 100% 0 0)" : "inset(0 0 0 100%)" }, { clipPath: "inset(0 0% 0 0%)", duration: 0.72 }, 0.18)
+          .fromTo(title, { fontVariationSettings: compactWidth }, { fontVariationSettings: finalWidth, duration: 0.68 }, 0.28)
+          .fromTo(metrics, { scaleX: 0, transformOrigin: reverse ? "right center" : "left center" }, { scaleX: 1, duration: 0.45, stagger: 0.07 }, 0.4);
+
+        ScrollTrigger.create({
+          trigger: record,
+          start: "top 55%",
+          end: "bottom 55%",
+          onToggle: (self) => {
+            if (!self.isActive) return;
+            recordLinks.forEach((link, linkIndex) => link.classList.toggle("is-active", linkIndex === index));
+          },
+        });
+      });
+    }
+
+    scenes.slice(2).forEach((scene) => {
+      const variant = scene.dataset.flowTransition;
+      const title = scene.querySelector<HTMLElement>("[data-flow-title]");
+      const finalWidth = title ? getComputedStyle(title).fontVariationSettings : '"wdth" 110, "wght" 820';
+      const compactWidth = finalWidth.replace(/"wdth"\s+[-\d.]+/, '"wdth" 66');
+      const headingMeta = scene.querySelector<HTMLElement>(".section-heading-meta, .contact-header");
+      const panels = [...scene.querySelectorAll<HTMLElement>("[data-flow-panel]")];
+      const timeline = gsap.timeline({
+        scrollTrigger: { trigger: scene, start: "top 84%", end: "top 24%", scrub: 0.2 },
+      });
+
+      if (headingMeta) {
+        timeline.fromTo(headingMeta, { clipPath: "inset(0 100% 0 0)" }, { clipPath: "inset(0 0% 0 0)", duration: 0.42 }, 0);
+      }
+      if (title) {
+        timeline.fromTo(title, { fontVariationSettings: compactWidth }, { fontVariationSettings: finalWidth, duration: 0.8 }, 0.05);
+      }
+
+      if (variant === "ledger") {
+        panels.forEach((panel, index) => {
+          timeline.fromTo(
+            panel,
+            { clipPath: index % 2 === 0 ? "polygon(0 0, 8% 0, 0 100%, 0 100%)" : "polygon(92% 0, 100% 0, 100% 100%, 100% 100%)" },
+            { clipPath: "polygon(0 0, 100% 0, 100% 100%, 0 100%)", duration: 0.72 },
+            0.18 + index * 0.08
+          );
+        });
+      } else if (variant === "timeline") {
+        panels.forEach((panel, index) => {
+          timeline.fromTo(
+            panel,
+            { clipPath: index % 2 === 0 ? "inset(0 100% 0 0)" : "inset(0 0 0 100%)", x: index % 2 === 0 ? -24 : 24 },
+            { clipPath: "inset(0 0% 0 0%)", x: 0, duration: 0.48 },
+            0.12 + index * 0.055
+          );
+        });
+      } else if (variant === "matrix") {
+        panels.forEach((panel, index) => {
+          const origin = index % 2 === 0 ? "top left" : "bottom right";
+          timeline.fromTo(
+            panel,
+            { clipPath: "inset(48% 48% 48% 48%)", transformOrigin: origin },
+            { clipPath: "inset(0% 0% 0% 0%)", duration: 0.58 },
+            0.12 + index * 0.075
+          );
+        });
+      } else if (variant === "diagnostic") {
+        panels.forEach((panel, index) => {
+          timeline.fromTo(
+            panel,
+            { clipPath: index % 2 === 0 ? "inset(100% 0 0 0)" : "inset(0 0 100% 0)" },
+            { clipPath: "inset(0% 0 0% 0)", duration: 0.68 },
+            0.12 + index * 0.08
+          );
+        });
+        scene.querySelectorAll<HTMLElement>("[data-count]").forEach((element) => {
+          const target = Number(element.dataset.count);
+          if (Number.isNaN(target)) return;
+          const counter = { value: 0 };
+          ScrollTrigger.create({
+            trigger: element,
+            start: "top 82%",
+            once: true,
+            onEnter: () => gsap.to(counter, {
+              value: target,
+              duration: 1.15,
+              ease: "power3.out",
+              onUpdate: () => { element.textContent = Math.round(counter.value).toString(); },
+            }),
+          });
+        });
+      } else if (variant === "terminal") {
+        panels.forEach((panel, index) => {
+          timeline.fromTo(
+            panel,
+            { clipPath: index === 0 ? "inset(0 100% 0 0)" : "inset(100% 0 0 0)" },
+            { clipPath: "inset(0% 0% 0% 0%)", duration: 0.72 },
+            0.12 + index * 0.12
+          );
+        });
+      }
+    });
+
+    ScrollTrigger.refresh();
   });
 
   pageCleanup.push(() => {
-    media.revert();
+    context.revert();
+    flow.classList.remove("is-enhanced");
     storySeek = null;
-    resetPages();
-    deck.classList.remove("is-active", "is-transitioning");
-    document.documentElement.classList.remove("operator-deck-active");
   });
 }
 
 function initMotion() {
   const reduceMotion = window.matchMedia(REDUCED_MOTION).matches;
   const mobileLayout = window.matchMedia(MOBILE_LAYOUT).matches;
-  const outsideActiveDeck = (element: HTMLElement) => !element.closest("[data-operator-deck].is-active");
+  const outsideEnhancedFlow = (element: HTMLElement) => (
+    !element.closest("[data-endfield-flow].is-enhanced")
+  );
 
   if (reduceMotion) {
     document.querySelectorAll<HTMLElement>("[data-count]").forEach((el) => {
@@ -703,7 +502,8 @@ function initMotion() {
     return;
   }
 
-  const heroItems = document.querySelectorAll<HTMLElement>("[data-hero-reveal]");
+  const heroItems = [...document.querySelectorAll<HTMLElement>("[data-hero-reveal]")]
+    .filter(outsideEnhancedFlow);
   if (heroItems.length) {
     gsap.from(heroItems, {
       yPercent: 115,
@@ -715,7 +515,7 @@ function initMotion() {
     });
   }
 
-  [...document.querySelectorAll<HTMLElement>("[data-reveal]")].filter(outsideActiveDeck).forEach((el) => {
+  [...document.querySelectorAll<HTMLElement>("[data-reveal]")].filter(outsideEnhancedFlow).forEach((el) => {
     gsap.from(el, {
       y: mobileLayout ? 28 : 54,
       opacity: 0,
@@ -725,7 +525,7 @@ function initMotion() {
     });
   });
 
-  [...document.querySelectorAll<HTMLElement>("[data-kinetic]")].filter(outsideActiveDeck).forEach((el) => {
+  [...document.querySelectorAll<HTMLElement>("[data-kinetic]")].filter(outsideEnhancedFlow).forEach((el) => {
     if (mobileLayout) {
       const finalSettings = getComputedStyle(el).fontVariationSettings;
       const compactSettings = finalSettings.replace(/"wdth"\s+[-\d.]+/, '"wdth" 72');
@@ -756,7 +556,7 @@ function initMotion() {
     );
   });
 
-  [...document.querySelectorAll<HTMLElement>("[data-image-reveal]")].filter(outsideActiveDeck).forEach((el) => {
+  [...document.querySelectorAll<HTMLElement>("[data-image-reveal]")].filter(outsideEnhancedFlow).forEach((el) => {
     const image = el.matches("img") ? el : el.querySelector<HTMLElement>("img");
     if (!image) return;
     const timeline = gsap.timeline({
@@ -777,7 +577,7 @@ function initMotion() {
       }, 0);
   });
 
-  [...document.querySelectorAll<HTMLElement>("[data-parallax]")].filter(outsideActiveDeck).forEach((el) => {
+  [...document.querySelectorAll<HTMLElement>("[data-parallax]")].filter(outsideEnhancedFlow).forEach((el) => {
     const distance = Number(el.dataset.parallax) || 8;
     gsap.to(el, {
       yPercent: distance,
@@ -786,7 +586,7 @@ function initMotion() {
     });
   });
 
-  [...document.querySelectorAll<HTMLElement>("[data-count]")].filter(outsideActiveDeck).forEach((el) => {
+  [...document.querySelectorAll<HTMLElement>("[data-count]")].filter(outsideEnhancedFlow).forEach((el) => {
     const target = Number(el.dataset.count);
     if (Number.isNaN(target)) return;
     const counter = { value: 0 };
@@ -821,7 +621,7 @@ async function bootstrap() {
   await runFullLoader();
   const completingRoute = routeTransition;
   if (completingRoute) await runRouteLoader();
-  initOperatorDeck();
+  initEndfieldFlow();
   initNavigation();
   initMotion();
   if (completingRoute) {

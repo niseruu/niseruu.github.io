@@ -7,37 +7,45 @@ import KineticMarquee from "./KineticMarquee.astro";
 const projects = (await getCollection("projects"))
   .filter((project) => project.data.featured)
   .sort((a, b) => a.data.order - b.data.order);
+const projectAnchors = ["project-malaria", "project-visionserve", "project-sentiment"];
 ---
 
-{projects.map((project, index) => (
-  <section
-    id={index === 0 ? "projects" : undefined}
-    class="portfolio-section projects-section story-project-screen"
-    data-story-screen
-    data-story-project
-    data-story-key={`project-${index + 1}`}
-    data-story-group="projects"
-    data-story-title={`Case Study ${String(index + 1).padStart(2, "0")}`}
-  >
-    <div class="section-shell story-project-shell">
-      {index === 0 ? (
-        <div class="story-integrated-heading">
-          <SectionHeading
-            index="01"
-            eyebrow="Selected Case Studies"
-            title="Research engineered for the real world."
-            description="Applied machine-learning systems built with deployment, reproducibility, and measurable outcomes in mind."
-          />
-        </div>
-      ) : (
-        <div class="story-screen-header" aria-hidden="true">
-          <span>[01] SELECTED CASE STUDIES</span>
-          <span>CASE // 0{index + 1} OF 0{projects.length}</span>
-        </div>
-      )}
+<section
+  id="projects"
+  class="portfolio-section projects-section"
+  data-flow-scene
+  data-flow-chapter="projects"
+  data-flow-label="Case Studies"
+  data-flow-code="CS-01"
+  data-flow-transition="cases"
+>
+  <div class="section-shell">
+    <SectionHeading
+      index="01"
+      eyebrow="Selected Case Studies"
+      title="Research engineered for the real world."
+      description="Applied machine-learning systems built with deployment, reproducibility, and measurable outcomes in mind."
+    />
 
-      <article class:list={["project-feature", index % 2 === 1 && "project-feature--reverse"]}>
-        <a href={`/projects/${project.id}`} class="project-media" data-image-reveal data-story-frame="visual">
+    <nav class="project-record-strip" aria-label="Selected case studies" data-flow-panel="records">
+      {projects.map((project, index) => (
+        <a href={`#${projectAnchors[index]}`} data-project-jump={index}>
+          <small>{String(index + 1).padStart(2, "0")}</small>
+          <span>{project.data.title}</span>
+          <i aria-hidden="true"></i>
+        </a>
+      ))}
+    </nav>
+
+    <div class="project-list">
+      {projects.map((project, index) => (
+        <article
+          id={projectAnchors[index]}
+          class:list={["project-feature", index % 2 === 1 && "project-feature--reverse"]}
+          data-flow-record
+          data-flow-record-index={index}
+        >
+          <a href={`/projects/${project.id}`} class="project-media" data-image-reveal data-flow-panel="media">
           <Image
             src={project.data.heroImage}
             alt={project.data.heroImageAlt}
@@ -47,47 +55,43 @@ const projects = (await getCollection("projects"))
             data-loader-image
           />
           <span class="project-media-index">0{index + 1}</span>
-          <span class="project-media-title">{project.data.title}</span>
           <span class="project-media-arrow">↗</span>
           <span class="project-media-grid" aria-hidden="true"></span>
-        </a>
+          </a>
 
-        <div class="project-copy" data-reveal data-story-frame="details">
-          <div class="project-kicker">
-            <span>CASE // 0{index + 1}</span>
-            <span>{project.data.eyebrow}</span>
+          <div class="project-copy" data-reveal data-flow-panel="data">
+            <div class="project-kicker">
+              <span>CASE // 0{index + 1}</span>
+              <span>{project.data.eyebrow}</span>
+            </div>
+            <h3>
+              <a href={`/projects/${project.id}`} class="project-title-link">
+                <span data-flow-title>{project.data.title}</span>
+              </a>
+            </h3>
+            <p>{project.data.summary}</p>
+
+            <div class="project-metrics">
+              {project.data.metrics.map((metric, metricIndex) => (
+                <div data-flow-metric>
+                  <small>0{metricIndex + 1}</small>
+                  <strong>{metric.value}</strong>
+                  <span>{metric.label}</span>
+                </div>
+              ))}
+            </div>
+
+            <a href={`/projects/${project.id}`} class="inline-link"><span>Open case study</span><b>↗</b></a>
           </div>
-          <h3>
-            <a
-              href={`/projects/${project.id}`}
-              class="project-title-link"
-            >
-              <span>{project.data.title}</span>
-            </a>
-          </h3>
-          <p>{project.data.summary}</p>
-
-          <div class="project-metrics">
-            {project.data.metrics.map((metric) => (
-              <div>
-                <strong>{metric.value}</strong>
-                <span>{metric.label}</span>
-              </div>
-            ))}
-          </div>
-
-          <a href={`/projects/${project.id}`} class="inline-link"><span>Open case study</span><b>↗</b></a>
-        </div>
-      </article>
-
-      {index === projects.length - 1 && (
-        <div class="section-end-action" data-reveal>
-          <span>03 PROJECTS / FULL ARCHIVE</span>
-          <a href="/projects" class="action-button action-button--yellow"><span>View all case studies</span><b>↗</b></a>
-        </div>
-      )}
+        </article>
+      ))}
     </div>
-  </section>
-))}
+
+    <div class="section-end-action" data-reveal data-flow-panel="archive">
+      <span>03 PROJECTS / FULL ARCHIVE</span>
+      <a href="/projects" class="action-button action-button--yellow"><span>View all case studies</span><b>↗</b></a>
+    </div>
+  </div>
+</section>
 
 <KineticMarquee text="RESEARCH / SYSTEMS / IMPACT" reverse dark />

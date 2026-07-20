@@ -6,17 +6,18 @@ import { scores } from "../data/scores";
 <section
   id="scores"
   class="portfolio-section scores-section"
-  data-story-screen
-  data-story-key="scores"
-  data-story-group="scores"
-  data-story-title="Scores"
+  data-flow-scene
+  data-flow-chapter="scores"
+  data-flow-label="Scores"
+  data-flow-code="SC-01"
+  data-flow-transition="diagnostic"
 >
   <div class="section-shell">
     <SectionHeading index="05" eyebrow="Verified Benchmarks" title="Signals, measured." />
 
     <div class="scores-grid">
       {scores.map((score, index) => (
-        <a href={score.reportHref} target="_blank" rel="noopener" class="score-card" data-reveal data-story-item>
+        <a href={score.reportHref} target="_blank" rel="noopener" class="score-card" data-reveal data-flow-panel="score">
           <div class="score-card-top"><span>REPORT / 0{index + 1}</span><span>VERIFIED ↗</span></div>
           <strong data-count={score.numericValue}>{score.value}</strong>
           <div class="score-card-bottom"><h3>{score.name}</h3><p>{score.meta}</p></div>

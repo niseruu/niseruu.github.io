@@ -16,6 +16,6 @@ const { eyebrow, title, description, index = "00", align = "left" } = Astro.prop
     <span class="section-eyebrow">{eyebrow}</span>
     <span class="section-signal" aria-hidden="true"></span>
   </div>
-  <h2 data-kinetic>{title}</h2>
+  <h2 data-kinetic data-flow-title>{title}</h2>
   {description && <p class="section-description">{description}</p>}
 </header>

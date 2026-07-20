@@ -6,10 +6,11 @@ import { publications } from "../data/publications";
 <section
   id="publications"
   class="portfolio-section publication-section"
-  data-story-screen
-  data-story-key="publications"
-  data-story-group="publications"
-  data-story-title="Research"
+  data-flow-scene
+  data-flow-chapter="publications"
+  data-flow-label="Research"
+  data-flow-code="RS-01"
+  data-flow-transition="ledger"
 >
   <div class="section-shell">
     <SectionHeading
@@ -21,7 +22,7 @@ import { publications } from "../data/publications";
 
     <div class="publication-grid">
       {publications.map((publication, index) => (
-        <article class="publication-card" data-reveal data-story-frame="publication">
+        <article class="publication-card" data-reveal data-flow-panel="publication">
           <a href={publication.linkHref} target="_blank" rel="noopener" class="publication-image" data-image-reveal>
             <img src={publication.image} alt={publication.title} loading="eager" decoding="async" data-loader-image />
             <span>0{index + 1}</span>

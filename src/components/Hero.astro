@@ -7,29 +7,30 @@ import KineticMarquee from "./KineticMarquee.astro";
 <section
   id="hero"
   class="hero-section"
-  data-story-screen
-  data-story-key="hero"
-  data-story-group="hero"
-  data-story-title="Home"
+  data-flow-scene
+  data-flow-chapter="hero"
+  data-flow-label="Identity"
+  data-flow-code="ID-00"
+  data-flow-transition="identity"
 >
   <div class="hero-grid" aria-hidden="true"></div>
   <div class="hero-corner hero-corner--one" aria-hidden="true">+</div>
   <div class="hero-corner hero-corner--two" aria-hidden="true">+</div>
 
-  <div class="hero-topline">
+  <div class="hero-topline" data-flow-panel="metadata">
     <p data-hero-reveal>PORTFOLIO / 2026</p>
     <p data-hero-reveal>COMPUTER VISION · NLP · APPLIED AI</p>
     <p data-hero-reveal>JAKARTA, INDONESIA <span class="status-dot"></span></p>
   </div>
 
-  <div class="hero-title" aria-label="Shafri Syamsuddin">
-    <h1>
+  <div class="hero-title" aria-label="Shafri Syamsuddin" data-flow-panel="title">
+    <h1 data-flow-title>
       <span class="hero-title-line hero-title-line--first"><span data-hero-reveal>SHAFRI</span></span>
       <span class="hero-title-line hero-title-line--second"><span data-hero-reveal>SYAMSUDDIN</span></span>
     </h1>
   </div>
 
-  <div class="hero-image-zone">
+  <div class="hero-image-zone" data-flow-panel="subject">
     <div class="hero-image-yellow" aria-hidden="true"></div>
     <div class="hero-image-frame">
       <Image
@@ -46,13 +47,13 @@ import KineticMarquee from "./KineticMarquee.astro";
     <span class="hero-image-label">SUBJECT // MSS-001</span>
   </div>
 
-  <div class="hero-role" data-hero-reveal>
+  <div class="hero-role" data-hero-reveal data-flow-panel="stats">
     <span>ROLE / SPECIALISATION</span>
     <strong>AI ENGINEER</strong>
     <p>Building production-aware vision and language systems from research to deployment.</p>
   </div>
 
-  <div class="hero-actions" data-hero-reveal>
+  <div class="hero-actions" data-hero-reveal data-flow-panel="actions">
     <a href="/projects" class="action-button action-button--dark"><span>Explore work</span><b>↗</b></a>
     <a href="/docs/m-shafri-syamsuddin-cv.pdf" target="_blank" rel="noopener" class="action-button"><span>Download CV</span><b>↓</b></a>
     <a href="mailto:shafrisyamsuddin@gmail.com" class="text-action">AVAILABLE FOR COLLABORATION <b>↗</b></a>

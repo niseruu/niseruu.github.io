@@ -8,10 +8,11 @@ const allItems = techStack.flatMap((category) => category.items);
 <section
   id="tech-stack"
   class="portfolio-section stack-section"
-  data-story-screen
-  data-story-key="tech-stack"
-  data-story-group="tech-stack"
-  data-story-title="Capabilities"
+  data-flow-scene
+  data-flow-chapter="tech-stack"
+  data-flow-label="Capabilities"
+  data-flow-code="CP-01"
+  data-flow-transition="matrix"
 >
   <div class="stack-ticker" aria-hidden="true">
     <div class="stack-ticker-track">
@@ -31,7 +32,7 @@ const allItems = techStack.flatMap((category) => category.items);
 
     <div class="stack-grid">
       {techStack.map((category, index) => (
-        <article class="stack-category" data-reveal data-story-item>
+        <article class="stack-category" data-reveal data-flow-panel="module">
           <header><span>0{index + 1}</span><h3>{category.title}</h3></header>
           <div class="stack-items">
             {category.items.map((item) => (

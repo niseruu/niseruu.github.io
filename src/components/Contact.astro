@@ -6,10 +6,11 @@ import { socials, email } from "../data/socials";
 <section
   id="contact"
   class="contact-section"
-  data-story-screen
-  data-story-key="contact"
-  data-story-group="contact"
-  data-story-title="Contact"
+  data-flow-scene
+  data-flow-chapter="contact"
+  data-flow-label="Contact"
+  data-flow-code="CT-01"
+  data-flow-transition="terminal"
 >
   <div class="contact-grid" aria-hidden="true"></div>
   <div class="contact-header" data-reveal>
@@ -18,9 +19,9 @@ import { socials, email } from "../data/socials";
   </div>
 
   <div class="contact-layout">
-    <div class="contact-intro" data-story-frame="contact-intro">
+    <div class="contact-intro" data-flow-panel="contact-intro">
       <p class="contact-kicker">LET'S BUILD SOMETHING USEFUL.</p>
-      <h2 data-kinetic>START A<br />CONVERSATION.</h2>
+      <h2 data-kinetic data-flow-title>START A<br />CONVERSATION.</h2>
       <p>
         Open to engineering roles, research collaborations, and projects across computer vision, NLP, and MLOps.
       </p>
@@ -32,7 +33,7 @@ import { socials, email } from "../data/socials";
       </div>
     </div>
 
-    <div class="contact-form-shell" data-reveal data-story-frame="contact-form">
+    <div class="contact-form-shell" data-reveal data-flow-panel="contact-form">
       <div class="contact-form-head"><span>SECURE MESSAGE FORM</span><span>ENCRYPTION // TLS</span></div>
       <ContactForm client:visible />
     </div>
