@@ -190,7 +190,9 @@ const year = new Date().getFullYear();
               </li>
             ))}
           </ol>
-          <div class="operator-journey-map" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
+          <div class="operator-journey-map" aria-hidden="true">
+            {Array.from({ length: 4 }, (_, index) => <i class:list={{ "is-active": index === pageIndex }}></i>)}
+          </div>
         </section>
       ))}
 

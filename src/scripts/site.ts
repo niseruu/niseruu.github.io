@@ -295,6 +295,8 @@ function initOperatorDeck() {
       page.style.removeProperty("visibility");
       page.style.removeProperty("z-index");
       page.style.removeProperty("clip-path");
+      page.style.removeProperty("background-color");
+      page.style.removeProperty("background-image");
       page.querySelectorAll<HTMLElement>("[data-dossier-zone], [data-dossier-display]").forEach((element) => {
         element.removeAttribute("style");
       });
@@ -375,9 +377,9 @@ function initOperatorDeck() {
       const outgoingRecord = dossierPages[outgoingIndex];
       const incomingRecord = dossierPages[boundedIndex];
       const internalTransition = outgoingRecord.section === incomingRecord.section;
-      const duration = internalTransition ? 0.52 : Math.abs(boundedIndex - activeIndex) > 1 ? 0.66 : 0.8;
-      const moveOut = direction > 0 ? "-13vw" : "13vw";
-      const moveIn = direction > 0 ? "10vw" : "-10vw";
+      const duration = internalTransition ? 0.46 : Math.abs(boundedIndex - activeIndex) > 1 ? 0.56 : 0.68;
+      const moveOut = direction > 0 ? "-9vw" : "9vw";
+      const moveIn = direction > 0 ? "7vw" : "-7vw";
       const outgoingClip = direction > 0 ? "inset(0% 100% 0% 0%)" : "inset(0% 0% 0% 100%)";
       const incomingClip = direction > 0
         ? "polygon(100% 0%, 100% 0%, 92% 100%, 92% 100%)"
@@ -404,15 +406,12 @@ function initOperatorDeck() {
       gsap.set(incoming, {
         visibility: "visible",
         zIndex: 3,
-        clipPath: internalTransition
-          ? outgoingRecord.section === "journey"
-            ? direction > 0 ? "inset(100% 0% 0% 0%)" : "inset(0% 0% 100% 0%)"
-            : direction > 0 ? "inset(0% 0% 0% 100%)" : "inset(0% 100% 0% 0%)"
-          : incomingClip,
+        clipPath: internalTransition ? fullInset : incomingClip,
       });
 
       if (internalTransition) {
         gsap.set(handoff, { visibility: "hidden" });
+        gsap.set([outgoing, incoming], { backgroundColor: "transparent", backgroundImage: "none" });
       } else {
         gsap.set(handoff, { visibility: "visible" });
         if (fromLabel) fromLabel.textContent = String(outgoingIndex + 1).padStart(2, "0");
@@ -434,6 +433,7 @@ function initOperatorDeck() {
             ),
           ]);
           gsap.set(cleanupTargets, { clearProps: "transform,clipPath,fontVariationSettings" });
+          gsap.set([outgoing, incoming], { clearProps: "backgroundColor,backgroundImage" });
           if (outgoingTitle) gsap.set(outgoingTitle, { clearProps: "fontVariationSettings" });
           if (incomingTitle) gsap.set(incomingTitle, { clearProps: "fontVariationSettings" });
           updateInterface(boundedIndex);
@@ -459,47 +459,55 @@ function initOperatorDeck() {
       if (internalTransition) {
         const section = outgoingRecord.section;
         const outgoingParts = section === "journey"
-          ? [...outgoing.querySelectorAll<HTMLElement>(".operator-section-title, .operator-journey-pair li")]
+          ? [...outgoing.querySelectorAll<HTMLElement>(".operator-page-head, .operator-section-title, .operator-journey-pair li")]
           : section === "tech-stack"
-            ? [...outgoing.querySelectorAll<HTMLElement>(".operator-section-title, .operator-capability-grid article")]
+            ? [...outgoing.querySelectorAll<HTMLElement>(".operator-page-head, .operator-section-title, .operator-capability-grid article")]
             : outgoingZones;
         const incomingParts = section === "journey"
-          ? [...incoming.querySelectorAll<HTMLElement>(".operator-section-title, .operator-journey-pair li")]
+          ? [...incoming.querySelectorAll<HTMLElement>(".operator-page-head, .operator-section-title, .operator-journey-pair li")]
           : section === "tech-stack"
-            ? [...incoming.querySelectorAll<HTMLElement>(".operator-section-title, .operator-capability-grid article")]
+            ? [...incoming.querySelectorAll<HTMLElement>(".operator-page-head, .operator-section-title, .operator-capability-grid article")]
             : incomingZones;
         const vertical = section === "journey";
-        const partDistance = direction * (section === "projects" ? 72 : section === "contact" ? 54 : 38);
+        const partDistance = direction * (section === "projects" ? 42 : section === "contact" ? 30 : 24);
         const pageStartClip = vertical
           ? direction > 0 ? "inset(100% 0% 0% 0%)" : "inset(0% 0% 100% 0%)"
           : direction > 0 ? "inset(0% 0% 0% 100%)" : "inset(0% 100% 0% 0%)";
+        const pageEndClip = vertical
+          ? direction > 0 ? "inset(0% 0% 100% 0%)" : "inset(100% 0% 0% 0%)"
+          : direction > 0 ? "inset(0% 100% 0% 0%)" : "inset(0% 0% 0% 100%)";
 
-        gsap.set(incomingParts, vertical ? { y: partDistance } : { x: partDistance });
+        gsap.set(incomingParts, vertical
+          ? { y: partDistance, clipPath: pageStartClip }
+          : { x: partDistance, clipPath: pageStartClip });
         transition
           .to(outgoingParts, {
             ...(vertical ? { y: -partDistance } : { x: -partDistance }),
-            duration: duration * 0.56,
-            stagger: 0.025,
+            clipPath: pageEndClip,
+            duration: duration * 0.62,
+            stagger: 0.018,
             ease: "expo.inOut",
           }, 0)
-          .to(incoming, { clipPath: fullInset, duration: duration * 0.68, ease: "expo.inOut" }, duration * 0.12)
           .fromTo(
             incomingParts,
-            vertical ? { y: partDistance } : { x: partDistance },
+            vertical
+              ? { y: partDistance, clipPath: pageStartClip }
+              : { x: partDistance, clipPath: pageStartClip },
             {
               ...(vertical ? { y: 0 } : { x: 0 }),
-              duration: duration * 0.58,
-              stagger: 0.025,
+              clipPath: fullInset,
+              duration: duration * 0.64,
+              stagger: 0.018,
               ease: "expo.out",
               immediateRender: false,
             },
-            duration * 0.28
+            duration * 0.18
           )
           .fromTo(
             incomingTitle,
-            { fontVariationSettings: '"wdth" 78, "wght" 850' },
-            { fontVariationSettings: '"wdth" 132, "wght" 850', duration: duration * 0.52, ease: "power3.out", immediateRender: false },
-            duration * 0.3
+            { fontVariationSettings: '"wdth" 92, "wght" 850' },
+            { fontVariationSettings: '"wdth" 116, "wght" 850', duration: duration * 0.5, ease: "power3.out", immediateRender: false },
+            duration * 0.22
           );
         if (section === "projects") {
           transition.fromTo(
