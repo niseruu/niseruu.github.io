@@ -1,6 +1,9 @@
 ---
 import SectionHeading from "./SectionHeading.astro";
 import { publications } from "../data/publications";
+
+const featuredPublication = publications[0]!;
+const archivePublications = publications.slice(1);
 ---
 
 <section
@@ -15,27 +18,100 @@ import { publications } from "../data/publications";
   <div class="section-shell">
     <SectionHeading
       index="02"
-      eyebrow="Publications & Recognition"
+      eyebrow="Research Database / Publications"
       title="Knowledge made visible."
       description="Conference contributions and documentation showing how experimental work becomes credible, shareable research."
     />
 
-    <div class="publication-grid">
-      {publications.map((publication, index) => (
-        <article class="publication-card" data-reveal data-flow-panel="publication">
-          <a href={publication.linkHref} target="_blank" rel="noopener" class="publication-image" data-image-reveal>
-            <img src={publication.image} alt={publication.title} loading="eager" decoding="async" data-loader-image />
-            <span>0{index + 1}</span>
+    <div class="publication-grid publication-console" data-publication-console>
+      <article
+        class="publication-card publication-viewer"
+        data-reveal
+        data-flow-panel="publication"
+        data-publication-primary
+      >
+        <div class="publication-toolbar" data-publication-toolbar>
+          <span>[RS-01] / {featuredPublication.kind.toUpperCase()}</span>
+          <span>SOURCE // {featuredPublication.source.toUpperCase()}</span>
+          <span>STATUS // {featuredPublication.status.toUpperCase()}</span>
+        </div>
+
+        <a
+          href={featuredPublication.linkHref}
+          target="_blank"
+          rel="noopener"
+          class="publication-image publication-viewport"
+          data-image-reveal
+          data-publication-viewport
+        >
+          <img
+            src={featuredPublication.image}
+            alt={featuredPublication.title}
+            loading="eager"
+            decoding="async"
+            data-loader-image
+          />
+          <span>01</span>
+        </a>
+
+        <div class="publication-copy" data-publication-copy>
+          <div class="publication-meta">
+            <span>PRIMARY RESEARCH OUTPUT</span>
+            <span>{featuredPublication.year}</span>
+          </div>
+          <h3>{featuredPublication.title}</h3>
+          <p>{featuredPublication.description}</p>
+          <a href={featuredPublication.linkHref} target="_blank" rel="noopener" class="inline-link">
+            <span>{featuredPublication.linkLabel}</span><b>↗</b>
           </a>
-          <div class="publication-meta"><span>OUTPUT / 0{index + 1}</span><span>2025</span></div>
-          <h3>{publication.title}</h3>
-          <p>{publication.description}</p>
-          <a href={publication.linkHref} target="_blank" rel="noopener" class="inline-link">
-            <span>{publication.linkLabel}</span><b>↗</b>
-          </a>
-        </article>
-      ))}
+        </div>
+      </article>
+
+      <aside class="publication-archive" aria-label="Related research documents" data-publication-archive>
+        <div class="publication-archive-head" data-publication-archive-head>
+          <span>DOCUMENT ARCHIVE</span>
+          <span>{String(archivePublications.length).padStart(2, "0")} RECORD</span>
+        </div>
+
+        {archivePublications.map((publication, index) => (
+          <article
+            class="publication-card publication-record"
+            data-reveal
+            data-flow-panel="publication"
+            data-publication-record
+          >
+            <div class="publication-record-status">
+              <span>[RS-{String(index + 2).padStart(2, "0")}] / {publication.kind.toUpperCase()}</span>
+              <span>{publication.status.toUpperCase()}</span>
+            </div>
+            <a
+              href={publication.linkHref}
+              target="_blank"
+              rel="noopener"
+              class="publication-image"
+              data-image-reveal
+            >
+              <img
+                src={publication.image}
+                alt={publication.title}
+                loading="eager"
+                decoding="async"
+                data-loader-image
+              />
+              <span>{String(index + 2).padStart(2, "0")}</span>
+            </a>
+            <div class="publication-meta">
+              <span>{publication.source.toUpperCase()}</span><span>{publication.year}</span>
+            </div>
+            <h3>{publication.title}</h3>
+            <p>{publication.description}</p>
+            <a href={publication.linkHref} target="_blank" rel="noopener" class="inline-link">
+              <span>{publication.linkLabel}</span><b>↗</b>
+            </a>
+          </article>
+        ))}
+      </aside>
     </div>
   </div>
-  <div class="publication-watermark" aria-hidden="true" data-parallax="-5">RESEARCH</div>
+  <div class="publication-watermark" aria-hidden="true">RS-01</div>
 </section>

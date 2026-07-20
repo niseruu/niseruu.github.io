@@ -99,10 +99,10 @@ export default function ContactForm() {
   };
 
   const statusCode = {
-    idle: "FORM // READY",
-    sending: "FORM // SENDING",
-    success: "FORM // DELIVERED",
-    error: "FORM // FALLBACK READY",
+    idle: "COMMS // READY",
+    sending: "COMMS // TRANSMITTING",
+    success: "COMMS // DELIVERED",
+    error: "COMMS // FALLBACK READY",
   }[status];
 
   return (
@@ -131,7 +131,7 @@ export default function ContactForm() {
 
       <div className="form-submit-row">
         <motion.button whileTap={{ scale: 0.98 }} type="submit" disabled={status === "sending"}>
-          <span>{status === "sending" ? "TRANSMITTING..." : "SEND MESSAGE"}</span><b>↗</b>
+          <span>{status === "sending" ? "TRANSMITTING..." : "TRANSMIT"}</span><b>↗</b>
         </motion.button>
         <span className="form-status-code">{statusCode}</span>
       </div>

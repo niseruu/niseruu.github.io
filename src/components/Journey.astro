@@ -1,6 +1,5 @@
 ---
 import SectionHeading from "./SectionHeading.astro";
-import KineticMarquee from "./KineticMarquee.astro";
 import { journey } from "../data/journey";
 ---
 
@@ -9,7 +8,7 @@ import { journey } from "../data/journey";
   class="portfolio-section journey-section"
   data-flow-scene
   data-flow-chapter="journey"
-  data-flow-label="Journey"
+  data-flow-label="Service Record / Journey"
   data-flow-code="JR-01"
   data-flow-transition="timeline"
 >
@@ -17,7 +16,7 @@ import { journey } from "../data/journey";
     <div class="journey-intro" data-flow-panel="timeline-intro">
       <SectionHeading
         index="03"
-        eyebrow="Experience & Education"
+        eyebrow="Service Record / Experience & Education"
         title="A path through code, research, and product."
         description="From game development and product leadership to graduate research and applied machine learning."
       />
@@ -30,17 +29,26 @@ import { journey } from "../data/journey";
     </div>
 
     <div class="journey-chronology" data-journey-chronology>
+      <div class="journey-toolbar" data-journey-toolbar>
+        <span>{String(journey.length).padStart(2, "0")} RECORDS</span>
+        <span>REVERSE CHRONOLOGY</span>
+        <span>SYNC // COMPLETE</span>
+      </div>
       <span class="journey-axis" aria-hidden="true"><i data-journey-axis></i></span>
       <span class="journey-boundary journey-boundary--present" aria-hidden="true">LIVE RECORD</span>
 
       <ol class="journey-list">
         {journey.map((entry, index) => (
-          <li data-journey-entry>
+          <li data-journey-entry data-journey-kind={entry.kind.toLowerCase()} data-journey-state={index === 0 ? "active" : "archived"}>
             <span class="journey-node" aria-hidden="true"><i></i></span>
             <span class="journey-connector" aria-hidden="true"></span>
 
             <div class="journey-meta">
-              <span class="journey-number">[JR-{String(index + 1).padStart(2, "0")}]</span>
+              <div class="journey-record-flags">
+                <span class="journey-number">[JR-{String(index + 1).padStart(2, "0")}]</span>
+                <span class="journey-kind">{entry.kind}</span>
+                <span class="journey-state">{index === 0 ? "ACTIVE" : "ARCHIVED"}</span>
+              </div>
               <p class="journey-period">{entry.period}</p>
             </div>
 
@@ -56,5 +64,3 @@ import { journey } from "../data/journey";
     </div>
   </div>
 </section>
-
-<KineticMarquee text="LEARN / BUILD / ITERATE" reverse />

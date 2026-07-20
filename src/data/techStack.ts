@@ -1,9 +1,16 @@
 export type StackItem = { name: string; icon: string };
-export type StackCategory = { title: string; items: StackItem[] };
+export type StackCategory = {
+  title: string;
+  domain: string;
+  status: "LOADED";
+  items: StackItem[];
+};
 
 export const techStack: StackCategory[] = [
   {
     title: "Modeling & Data Science",
+    domain: "MODEL DEVELOPMENT",
+    status: "LOADED",
     items: [
       { name: "Python", icon: "python.svg" },
       { name: "PyTorch", icon: "pytorch.svg" },
@@ -15,6 +22,8 @@ export const techStack: StackCategory[] = [
   },
   {
     title: "Serving & MLOps",
+    domain: "DEPLOYMENT & OPERATIONS",
+    status: "LOADED",
     items: [
       { name: "FastAPI", icon: "fastapi.svg" },
       { name: "Docker", icon: "docker.svg" },
@@ -26,6 +35,8 @@ export const techStack: StackCategory[] = [
   },
   {
     title: "Data Platforms & Analytics",
+    domain: "DATA & REPORTING",
+    status: "LOADED",
     items: [
       { name: "PostgreSQL", icon: "postgresql.svg" },
       { name: "SQL", icon: "sql.svg" },
@@ -37,6 +48,8 @@ export const techStack: StackCategory[] = [
   },
   {
     title: "Other Tools",
+    domain: "CREATIVE & COLLABORATION",
+    status: "LOADED",
     items: [
       { name: "Unity (VR/AR)", icon: "unity.svg" },
       { name: "Figma", icon: "figma.svg" },

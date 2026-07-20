@@ -1,7 +1,15 @@
 ---
 import { Image } from "astro:assets";
+import { getCollection } from "astro:content";
 import portrait from "../assets/images/portrait-cutout-v2.png";
+import { publications } from "../data/publications";
 import KineticMarquee from "./KineticMarquee.astro";
+
+const featuredProjectCount = (await getCollection("projects")).filter(
+  (project) => project.data.featured,
+).length;
+const researchRecordCount = publications.length;
+const formatCount = (count: number) => String(count).padStart(2, "0");
 ---
 
 <section
@@ -14,13 +22,19 @@ import KineticMarquee from "./KineticMarquee.astro";
   data-flow-transition="identity"
 >
   <div class="hero-grid" aria-hidden="true"></div>
-  <div class="hero-corner hero-corner--one" aria-hidden="true">+</div>
-  <div class="hero-corner hero-corner--two" aria-hidden="true">+</div>
+  <div class="hero-instrument hero-instrument--asset" aria-hidden="true">
+    <span>PROFILE IMAGE</span>
+    <strong>1024 × 1536 / RGBA</strong>
+  </div>
+  <div class="hero-instrument hero-instrument--base" aria-hidden="true">
+    <span>LOCAL BASE</span>
+    <strong>JAKARTA / ID</strong>
+  </div>
 
   <div class="hero-topline" data-flow-panel="metadata">
     <p data-hero-reveal>PORTFOLIO / 2026</p>
     <p data-hero-reveal>COMPUTER VISION · NLP · APPLIED AI</p>
-    <p data-hero-reveal>JAKARTA, INDONESIA <span class="status-dot"></span></p>
+    <p data-hero-reveal>STATUS / AVAILABLE <span class="status-dot"></span></p>
   </div>
 
   <div class="hero-title" aria-label="Shafri Syamsuddin" data-flow-panel="title">
@@ -33,24 +47,52 @@ import KineticMarquee from "./KineticMarquee.astro";
   <div class="hero-image-zone" data-flow-panel="subject">
     <div class="hero-image-yellow" aria-hidden="true"></div>
     <div class="hero-image-frame">
-      <Image
-        src={portrait}
-        alt="Portrait of M Shafri Syamsuddin"
-        width={800}
-        loading="eager"
-        fetchpriority="high"
-        data-loader-image
-        data-loader-hero
-      />
+      <div class="hero-image-subject">
+        <Image
+          src={portrait}
+          alt="Portrait of M Shafri Syamsuddin"
+          width={800}
+          loading="eager"
+          fetchpriority="high"
+          data-loader-image
+          data-loader-hero
+        />
+      </div>
       <div class="hero-image-scan" aria-hidden="true"></div>
     </div>
     <span class="hero-image-label">SUBJECT // MSS-001</span>
   </div>
 
   <div class="hero-role" data-hero-reveal data-flow-panel="stats">
-    <span>ROLE / SPECIALISATION</span>
-    <strong>AI ENGINEER</strong>
-    <p>Building production-aware vision and language systems from research to deployment.</p>
+    <div class="hero-dossier-header">
+      <span>PROFILE RECORD // MSS-001</span>
+      <b>AVAILABLE</b>
+    </div>
+
+    <div class="hero-dossier-primary">
+      <span>ROLE / SPECIALISATION</span>
+      <strong>AI ENGINEER</strong>
+      <p>Building production-aware vision and language systems from research to deployment.</p>
+    </div>
+
+    <dl class="hero-dossier-grid">
+      <div>
+        <dt>BASE</dt>
+        <dd>JAKARTA / ID</dd>
+      </div>
+      <div>
+        <dt>FOCUS</dt>
+        <dd>VISION + NLP</dd>
+      </div>
+      <div>
+        <dt>PROJECT FILES</dt>
+        <dd>{formatCount(featuredProjectCount)}</dd>
+      </div>
+      <div>
+        <dt>RESEARCH RECORDS</dt>
+        <dd>{formatCount(researchRecordCount)}</dd>
+      </div>
+    </dl>
   </div>
 
   <div class="hero-actions" data-hero-reveal data-flow-panel="actions">

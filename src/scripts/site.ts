@@ -15,6 +15,93 @@ let storySeek: ((section: string, behavior?: ScrollBehavior) => boolean) | null 
 let playHeroIntro: (() => void) | null = null;
 let loaderExitToken = 0;
 
+type MotionTimeline = ReturnType<typeof gsap.timeline>;
+
+const FULL_CLIP = "inset(0% 0% 0% 0%)";
+const LEFT_CLIP = "inset(0 100% 0 0)";
+const RIGHT_CLIP = "inset(0 0 0 100%)";
+
+function fontSettingsFor(element: HTMLElement | null, fallback: string) {
+  if (!element) return fallback;
+  const settings = getComputedStyle(element).fontVariationSettings;
+  return settings && settings !== "normal" ? settings : fallback;
+}
+
+function withFontWidth(settings: string, width: number) {
+  return /"wdth"\s+[-\d.]+/.test(settings)
+    ? settings.replace(/"wdth"\s+[-\d.]+/, `"wdth" ${width}`)
+    : `"wdth" ${width}, ${settings}`;
+}
+
+function addSectionHeadingDeployment(timeline: MotionTimeline, scope: ParentNode, at = 0) {
+  const heading = scope.querySelector<HTMLElement>(".section-heading");
+  if (!heading) return timeline;
+
+  const index = heading.querySelector<HTMLElement>(".section-index");
+  const eyebrow = heading.querySelector<HTMLElement>(".section-eyebrow");
+  const rule = heading.querySelector<HTMLElement>(".section-signal");
+  const title = heading.querySelector<HTMLElement>("[data-flow-title]");
+  const description = heading.querySelector<HTMLElement>(".section-description");
+  const finalWidth = fontSettingsFor(title, '"wdth" 110, "wght" 820');
+  const compactWidth = withFontWidth(finalWidth, 66);
+
+  if (index) {
+    timeline.fromTo(
+      index,
+      { clipPath: LEFT_CLIP },
+      { clipPath: FULL_CLIP, duration: 0.2, clearProps: "clipPath" },
+      at,
+    );
+  }
+  if (rule) {
+    timeline.fromTo(
+      rule,
+      { scaleX: 0, transformOrigin: "left center" },
+      { scaleX: 1, duration: 0.44, clearProps: "transform" },
+      at + 0.03,
+    );
+  }
+  if (eyebrow) {
+    timeline.fromTo(
+      eyebrow,
+      { clipPath: LEFT_CLIP },
+      { clipPath: FULL_CLIP, duration: 0.32, clearProps: "clipPath" },
+      at + 0.07,
+    );
+  }
+  if (title) {
+    timeline.fromTo(
+      title,
+      { clipPath: LEFT_CLIP, fontVariationSettings: compactWidth },
+      {
+        clipPath: FULL_CLIP,
+        fontVariationSettings: finalWidth,
+        duration: 0.64,
+        clearProps: "clipPath,fontVariationSettings",
+      },
+      at + 0.1,
+    );
+  }
+  if (description) {
+    timeline.fromTo(
+      description,
+      { clipPath: "inset(0 0 100% 0)" },
+      { clipPath: FULL_CLIP, duration: 0.4, clearProps: "clipPath" },
+      at + 0.24,
+    );
+  }
+
+  return timeline;
+}
+
+function createSectionEntrance(scene: HTMLElement, start = "top 76%") {
+  const timeline = gsap.timeline({
+    defaults: { ease: "power4.out" },
+    scrollTrigger: { trigger: scene, start, once: true },
+  });
+  return addSectionHeadingDeployment(timeline, scene);
+}
+
 function getLoader() {
   return document.getElementById("site-loader");
 }
@@ -278,7 +365,11 @@ function initEndfieldFlow() {
 
   const progress = flow.querySelector<HTMLElement>("[data-flow-progress]");
   const announcer = flow.querySelector<HTMLElement>("[data-flow-announcer]");
+  const telemetryCode = flow.querySelector<HTMLElement>("[data-flow-telemetry-code]");
+  const telemetryLabel = flow.querySelector<HTMLElement>("[data-flow-telemetry-label]");
+  const telemetryCount = flow.querySelector<HTMLElement>("[data-flow-telemetry-count]");
   const reduceMotion = window.matchMedia(REDUCED_MOTION).matches;
+  const mobileLayout = window.matchMedia(MOBILE_LAYOUT).matches;
   const context = gsap.context(() => undefined, flow);
 
   const resolveTarget = (section: string) => {
@@ -294,8 +385,38 @@ function initEndfieldFlow() {
     return true;
   };
 
+  const setActiveScene = (index: number) => {
+    const scene = scenes[index];
+    if (!scene) return;
+    scenes.forEach((item, itemIndex) => item.classList.toggle("is-flow-current", itemIndex === index));
+    const section = scene.dataset.flowChapter ?? scene.id;
+    const label = scene.dataset.flowLabel ?? section;
+    if (telemetryCode) telemetryCode.textContent = scene.dataset.flowCode ?? "--";
+    if (telemetryLabel) telemetryLabel.textContent = label;
+    if (telemetryCount) {
+      telemetryCount.textContent = `${String(index + 1).padStart(2, "0")} / ${String(scenes.length).padStart(2, "0")}`;
+    }
+    document.dispatchEvent(new CustomEvent("story:change", {
+      detail: { index, key: section, section },
+    }));
+    if (announcer) announcer.textContent = `${label}, chapter ${index + 1} of ${scenes.length}`;
+  };
+
   if (reduceMotion) {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const visible = entries
+          .filter((entry) => entry.isIntersecting)
+          .sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
+        if (!visible) return;
+        const index = scenes.indexOf(visible.target as HTMLElement);
+        if (index >= 0) setActiveScene(index);
+      },
+      { rootMargin: "-25% 0px -60% 0px", threshold: [0, 0.1, 0.35] },
+    );
+    scenes.forEach((scene) => observer.observe(scene));
     pageCleanup.push(() => {
+      observer.disconnect();
       context.revert();
       storySeek = null;
     });
@@ -314,19 +435,6 @@ function initEndfieldFlow() {
       });
     }
 
-    const setActiveScene = (index: number) => {
-      const scene = scenes[index];
-      if (!scene) return;
-      scenes.forEach((item, itemIndex) => item.classList.toggle("is-flow-current", itemIndex === index));
-      const section = scene.dataset.flowChapter ?? scene.id;
-      document.dispatchEvent(new CustomEvent("story:change", {
-        detail: { index, key: section, section },
-      }));
-      if (announcer) {
-        announcer.textContent = `${scene.dataset.flowLabel ?? section}, chapter ${index + 1} of ${scenes.length}`;
-      }
-    };
-
     scenes.forEach((scene, index) => {
       ScrollTrigger.create({
         trigger: scene,
@@ -339,28 +447,62 @@ function initEndfieldFlow() {
 
     const hero = scenes[0];
     if (hero) {
-      const titleLines = hero.querySelectorAll<HTMLElement>(".hero-title-line > span");
+      const titleLines = [...hero.querySelectorAll<HTMLElement>(".hero-title-line > span")];
       const subject = hero.querySelector<HTMLElement>(".hero-image-frame");
       const yellowField = hero.querySelector<HTMLElement>(".hero-image-yellow");
       const metadata = hero.querySelector<HTMLElement>(".hero-topline");
       const stats = hero.querySelector<HTMLElement>(".hero-role");
       const actions = hero.querySelector<HTMLElement>(".hero-actions");
-      const intro = gsap.timeline({ paused: true, defaults: { ease: "expo.out" } });
+      const instruments = [...hero.querySelectorAll<HTMLElement>(".hero-instrument")];
+      const subjectLabel = hero.querySelector<HTMLElement>(".hero-image-label");
+      const titleWidths = titleLines.map((line) => fontSettingsFor(line, '"wdth" 128, "wght" 900'));
+      const compactTitleWidths = titleWidths.map((settings) => withFontWidth(settings, 72));
+      const intro = gsap.timeline({ paused: true, defaults: { ease: "power4.out" } });
 
-      gsap.set(metadata, { clipPath: "inset(0 100% 0 0)" });
-      gsap.set(titleLines, { xPercent: (index) => index === 0 ? -104 : 104 });
-      gsap.set(yellowField, { scaleY: 0, transformOrigin: "bottom center" });
-      gsap.set(subject, { clipPath: "inset(0 48% 0 48%)" });
-      gsap.set(stats, { clipPath: "inset(0 100% 0 0)" });
-      gsap.set(actions, { clipPath: "inset(0 0 100% 0)" });
+      if (metadata) gsap.set(metadata, { clipPath: LEFT_CLIP, willChange: "clip-path" });
+      if (titleLines.length) {
+        gsap.set(titleLines, {
+          clipPath: (index) => index === 0 ? LEFT_CLIP : RIGHT_CLIP,
+          fontVariationSettings: (index: number) => compactTitleWidths[index],
+          willChange: "clip-path,font-variation-settings",
+        });
+      }
+      if (yellowField) {
+        gsap.set(yellowField, { scaleY: 0, transformOrigin: "bottom center", willChange: "transform" });
+      }
+      if (subject) gsap.set(subject, { clipPath: "inset(0 48% 0 48%)", willChange: "clip-path" });
+      if (stats) gsap.set(stats, { clipPath: LEFT_CLIP, willChange: "clip-path" });
+      if (actions) gsap.set(actions, { clipPath: "inset(0 0 100% 0)", willChange: "clip-path" });
+      if (instruments.length) gsap.set(instruments, { clipPath: LEFT_CLIP, willChange: "clip-path" });
+      if (subjectLabel) gsap.set(subjectLabel, { clipPath: RIGHT_CLIP, willChange: "clip-path" });
 
-      intro
-        .to(yellowField, { scaleY: 1, duration: 0.7 }, 0.06)
-        .to(subject, { clipPath: "inset(0 0% 0 0%)", duration: 0.72 }, 0.08)
-        .to(titleLines, { xPercent: 0, duration: 0.72, stagger: 0.06 }, 0.14)
-        .to(metadata, { clipPath: "inset(0 0% 0 0)", duration: 0.42 }, 0.24)
-        .to(stats, { clipPath: "inset(0 0% 0 0)", duration: 0.46 }, 0.42)
-        .to(actions, { clipPath: "inset(0 0 0% 0)", duration: 0.46 }, 0.5);
+      if (metadata) intro.to(metadata, { clipPath: FULL_CLIP, duration: 0.36 }, 0.02);
+      if (yellowField) intro.to(yellowField, { scaleY: 1, duration: 0.62 }, 0.04);
+      if (titleLines.length) {
+        intro.to(titleLines, {
+          clipPath: FULL_CLIP,
+          fontVariationSettings: (index: number) => titleWidths[index],
+          duration: 0.68,
+          stagger: 0.055,
+        }, 0.1);
+      }
+      if (subject) intro.to(subject, { clipPath: FULL_CLIP, duration: 0.7 }, 0.16);
+      if (stats) intro.to(stats, { clipPath: FULL_CLIP, duration: 0.42 }, 0.38);
+      if (actions) intro.to(actions, { clipPath: FULL_CLIP, duration: 0.42 }, 0.48);
+      if (instruments.length) intro.to(instruments, { clipPath: FULL_CLIP, duration: 0.32, stagger: 0.05 }, 0.34);
+      if (subjectLabel) intro.to(subjectLabel, { clipPath: FULL_CLIP, duration: 0.3 }, 0.46);
+      if (metadata) intro.set(metadata, { clearProps: "clipPath,willChange" });
+      if (titleLines.length) intro.set(titleLines, { clearProps: "clipPath,fontVariationSettings,willChange" }, "<");
+      if (yellowField) intro.set(yellowField, { clearProps: "transform,willChange" }, "<");
+      if (subject) intro.set(subject, { clearProps: "clipPath,willChange" }, "<");
+      if (stats) intro.set(stats, { clearProps: "clipPath,willChange" }, "<");
+      if (actions) intro.set(actions, { clearProps: "clipPath,willChange" }, "<");
+      if (instruments.length) intro.set(instruments, { clearProps: "clipPath,willChange" }, "<");
+      if (subjectLabel) intro.set(subjectLabel, { clearProps: "clipPath,willChange" }, "<");
+
+      intro.eventCallback("onComplete", () => {
+        hero.classList.add("is-idle-ready");
+      });
 
       playHeroIntro = () => intro.play(0);
     }
@@ -371,23 +513,15 @@ function initEndfieldFlow() {
       const roster = projectsScene.querySelector<HTMLElement>(".project-record-strip");
       const records = [...projectsScene.querySelectorAll<HTMLElement>("[data-flow-record]")];
       const recordLinks = [...projectsScene.querySelectorAll<HTMLElement>("[data-project-jump]")];
+      const archiveAction = projectsScene.querySelector<HTMLElement>(".section-end-action");
 
       if (heading) {
-        const title = heading.querySelector<HTMLElement>("[data-flow-title]");
-        const finalWidth = title ? getComputedStyle(title).fontVariationSettings : '"wdth" 110, "wght" 820';
-        const compactWidth = finalWidth.replace(/"wdth"\s+[-\d.]+/, '"wdth" 64');
-        const chapterIntro = gsap.timeline({
-          defaults: { ease: "expo.out" },
-          scrollTrigger: { trigger: projectsScene, start: "top 74%", once: true },
-        })
-          .fromTo(heading.querySelector(".section-heading-meta"), { clipPath: "inset(0 100% 0 0)" }, { clipPath: "inset(0 0% 0 0)", duration: 0.32 }, 0)
-          .fromTo(title, { clipPath: "inset(0 100% 0 0)", fontVariationSettings: compactWidth }, { clipPath: "inset(0 0% 0 0)", fontVariationSettings: finalWidth, duration: 0.62 }, 0.06)
-          .fromTo(heading.querySelector(".section-description"), { clipPath: "inset(0 0 100% 0)" }, { clipPath: "inset(0 0 0% 0)", duration: 0.4 }, 0.2);
+        const chapterIntro = createSectionEntrance(projectsScene, "top 74%");
 
         if (roster) {
           chapterIntro
-            .fromTo(roster, { clipPath: "inset(0 0 100% 0)" }, { clipPath: "inset(0 0 0% 0)", duration: 0.34 }, 0.28)
-            .fromTo(recordLinks, { clipPath: "inset(0 100% 0 0)" }, { clipPath: "inset(0 0% 0 0)", duration: 0.3, stagger: 0.055 }, 0.36);
+            .fromTo(roster, { clipPath: "inset(0 0 100% 0)" }, { clipPath: FULL_CLIP, duration: 0.34, clearProps: "clipPath" }, 0.28)
+            .fromTo(recordLinks, { clipPath: LEFT_CLIP }, { clipPath: FULL_CLIP, duration: 0.3, stagger: 0.055, clearProps: "clipPath" }, 0.36);
         }
       }
 
@@ -398,22 +532,63 @@ function initEndfieldFlow() {
         const title = record.querySelector<HTMLElement>("[data-flow-title]");
         const metrics = record.querySelectorAll<HTMLElement>("[data-flow-metric]");
         const reverse = index % 2 === 1;
-        const aperture = reverse
-          ? "polygon(100% 0, 100% 0, 100% 100%, 86% 100%)"
-          : "polygon(0 0, 14% 0, 0 100%, 0 100%)";
+        const aperture = mobileLayout
+          ? (reverse ? "inset(0 0 0 88%)" : "inset(0 88% 0 0)")
+          : (reverse
+              ? "polygon(100% 0, 100% 0, 100% 100%, 86% 100%)"
+              : "polygon(0 0, 14% 0, 0 100%, 0 100%)");
         const finalClip = "polygon(0 0, calc(100% - 2.2rem) 0, 100% 2.2rem, 100% 100%, 0 100%)";
-        const finalWidth = title ? getComputedStyle(title).fontVariationSettings : '"wdth" 92, "wght" 820';
-        const compactWidth = finalWidth.replace(/"wdth"\s+[-\d.]+/, '"wdth" 62');
+        const finalWidth = fontSettingsFor(title, '"wdth" 92, "wght" 820');
+        const compactWidth = withFontWidth(finalWidth, 62);
 
-        gsap.timeline({
-          defaults: { ease: "expo.out" },
+        const recordIntro = gsap.timeline({
+          defaults: { ease: "power4.out" },
           scrollTrigger: { trigger: record, start: "top 76%", once: true },
-        })
-          .fromTo(mediaPanel, { clipPath: aperture }, { clipPath: finalClip, duration: 0.88 }, 0)
-          .fromTo(image, { xPercent: reverse ? 5 : -5, scale: 1.045 }, { xPercent: 0, scale: 1, duration: 0.92 }, 0.03)
-          .fromTo(dataPanel, { clipPath: reverse ? "inset(0 100% 0 0)" : "inset(0 0 0 100%)" }, { clipPath: "inset(0 0% 0 0%)", duration: 0.62 }, 0.14)
-          .fromTo(title, { fontVariationSettings: compactWidth }, { fontVariationSettings: finalWidth, duration: 0.5 }, 0.24)
-          .fromTo(metrics, { clipPath: "inset(0 100% 0 0)" }, { clipPath: "inset(0 0% 0 0)", duration: 0.36, stagger: 0.055 }, 0.32);
+        });
+        if (mediaPanel) {
+          recordIntro.fromTo(
+            mediaPanel,
+            { clipPath: aperture },
+            {
+              clipPath: mobileLayout ? FULL_CLIP : finalClip,
+              duration: mobileLayout ? 0.66 : 0.82,
+              clearProps: "clipPath",
+            },
+            0,
+          );
+        }
+        if (image) {
+          recordIntro.fromTo(
+            image,
+            { xPercent: reverse ? (mobileLayout ? 2 : 4) : (mobileLayout ? -2 : -4), scale: mobileLayout ? 1.02 : 1.04 },
+            { xPercent: 0, scale: 1, duration: mobileLayout ? 0.7 : 0.88, clearProps: "transform" },
+            0.03,
+          );
+        }
+        if (dataPanel) {
+          recordIntro.fromTo(
+            dataPanel,
+            { clipPath: reverse ? LEFT_CLIP : RIGHT_CLIP },
+            { clipPath: FULL_CLIP, duration: 0.58, clearProps: "clipPath" },
+            0.14,
+          );
+        }
+        if (title) {
+          recordIntro.fromTo(
+            title,
+            { fontVariationSettings: compactWidth },
+            { fontVariationSettings: finalWidth, duration: 0.5, clearProps: "fontVariationSettings" },
+            0.24,
+          );
+        }
+        if (metrics.length) {
+          recordIntro.fromTo(
+            metrics,
+            { clipPath: LEFT_CLIP },
+            { clipPath: FULL_CLIP, duration: 0.36, stagger: 0.05, clearProps: "clipPath" },
+            0.32,
+          );
+        }
 
         ScrollTrigger.create({
           trigger: record,
@@ -425,27 +600,137 @@ function initEndfieldFlow() {
           },
         });
       });
+
+      if (archiveAction) {
+        gsap.fromTo(
+          archiveAction,
+          { clipPath: LEFT_CLIP },
+          {
+            clipPath: FULL_CLIP,
+            duration: 0.55,
+            ease: "power4.out",
+            clearProps: "clipPath",
+            scrollTrigger: { trigger: archiveAction, start: "top 88%", once: true },
+          },
+        );
+      }
+    }
+
+    const publicationsScene = flow.querySelector<HTMLElement>('[data-flow-chapter="publications"]');
+    if (publicationsScene) {
+      const toolbar = publicationsScene.querySelector<HTMLElement>("[data-publication-toolbar]");
+      const archiveHead = publicationsScene.querySelector<HTMLElement>("[data-publication-archive-head]");
+      const records = [...publicationsScene.querySelectorAll<HTMLElement>("[data-publication-primary], [data-publication-record]")];
+      const publicationIntro = createSectionEntrance(publicationsScene);
+
+      if (toolbar) {
+        publicationIntro.fromTo(
+          toolbar,
+          { clipPath: LEFT_CLIP },
+          { clipPath: FULL_CLIP, duration: 0.4, clearProps: "clipPath" },
+          0.28,
+        );
+      }
+      if (archiveHead) {
+        publicationIntro.fromTo(
+          archiveHead,
+          { clipPath: RIGHT_CLIP },
+          { clipPath: FULL_CLIP, duration: 0.4, clearProps: "clipPath" },
+          0.3,
+        );
+      }
+
+      records.forEach((record, index) => {
+        const media = record.querySelector<HTMLElement>("[data-publication-media], [data-publication-viewport], .publication-image");
+        const image = media?.querySelector<HTMLElement>("img") ?? null;
+        const meta = record.querySelector<HTMLElement>("[data-publication-meta], .publication-meta");
+        const title = record.querySelector<HTMLElement>("[data-publication-title], h3");
+        const copy = record.querySelector<HTMLElement>("[data-publication-copy] > p, :scope > p, [data-publication-copy]");
+        const action = record.querySelector<HTMLElement>("[data-publication-action], .inline-link");
+        const reverse = index % 2 === 1;
+        const at = 0.32 + index * 0.12;
+        const finalWidth = fontSettingsFor(title, '"wdth" 105, "wght" 790');
+
+        if (media) {
+          publicationIntro.fromTo(
+            media,
+            { clipPath: reverse ? RIGHT_CLIP : LEFT_CLIP },
+            { clipPath: FULL_CLIP, duration: 0.66, clearProps: "clipPath" },
+            at,
+          );
+        }
+        if (image) {
+          publicationIntro.fromTo(
+            image,
+            { xPercent: reverse ? 2 : -2, scale: 1.025 },
+            { xPercent: 0, scale: 1, duration: 0.76, clearProps: "transform" },
+            at + 0.03,
+          );
+        }
+        if (meta) {
+          publicationIntro.fromTo(
+            meta,
+            { clipPath: reverse ? RIGHT_CLIP : LEFT_CLIP },
+            { clipPath: FULL_CLIP, duration: 0.34, clearProps: "clipPath" },
+            at + 0.2,
+          );
+        }
+        if (title) {
+          publicationIntro.fromTo(
+            title,
+            { clipPath: reverse ? RIGHT_CLIP : LEFT_CLIP, fontVariationSettings: withFontWidth(finalWidth, 72) },
+            {
+              clipPath: FULL_CLIP,
+              fontVariationSettings: finalWidth,
+              duration: 0.5,
+              clearProps: "clipPath,fontVariationSettings",
+            },
+            at + 0.24,
+          );
+        }
+        if (copy) {
+          publicationIntro.fromTo(
+            copy,
+            { clipPath: reverse ? RIGHT_CLIP : LEFT_CLIP },
+            { clipPath: FULL_CLIP, duration: 0.42, clearProps: "clipPath" },
+            at + 0.3,
+          );
+        }
+        if (action) {
+          publicationIntro.fromTo(
+            action,
+            { clipPath: reverse ? RIGHT_CLIP : LEFT_CLIP },
+            { clipPath: FULL_CLIP, duration: 0.34, clearProps: "clipPath" },
+            at + 0.38,
+          );
+        }
+      });
     }
 
     const journeyScene = flow.querySelector<HTMLElement>('[data-flow-chapter="journey"]');
     if (journeyScene) {
-      const heading = journeyScene.querySelector<HTMLElement>(".section-heading");
-      const title = journeyScene.querySelector<HTMLElement>("[data-flow-title]");
       const chronology = journeyScene.querySelector<HTMLElement>("[data-journey-chronology]");
       const axis = journeyScene.querySelector<HTMLElement>("[data-journey-axis]");
+      const direction = journeyScene.querySelector<HTMLElement>(".journey-direction");
+      const toolbar = journeyScene.querySelector<HTMLElement>("[data-journey-toolbar]");
       const entries = [...journeyScene.querySelectorAll<HTMLElement>("[data-journey-entry]")];
 
-      if (heading) {
-        const finalWidth = title ? getComputedStyle(title).fontVariationSettings : '"wdth" 110, "wght" 820';
-        const compactWidth = finalWidth.replace(/"wdth"\s+[-\d.]+/, '"wdth" 68');
-        gsap.timeline({
-          defaults: { ease: "expo.out" },
-          scrollTrigger: { trigger: journeyScene, start: "top 74%", once: true },
-        })
-          .fromTo(heading.querySelector(".section-heading-meta"), { clipPath: "inset(0 100% 0 0)" }, { clipPath: "inset(0 0% 0 0)", duration: 0.32 }, 0)
-          .fromTo(title, { clipPath: "inset(0 100% 0 0)", fontVariationSettings: compactWidth }, { clipPath: "inset(0 0% 0 0)", fontVariationSettings: finalWidth, duration: 0.64 }, 0.06)
-          .fromTo(heading.querySelector(".section-description"), { clipPath: "inset(0 0 100% 0)" }, { clipPath: "inset(0 0 0% 0)", duration: 0.4 }, 0.2)
-          .fromTo(journeyScene.querySelector(".journey-direction"), { clipPath: "inset(0 100% 0 0)" }, { clipPath: "inset(0 0% 0 0)", duration: 0.42 }, 0.3);
+      const journeyIntro = createSectionEntrance(journeyScene, "top 74%");
+      if (direction) {
+        journeyIntro.fromTo(
+          direction,
+          { clipPath: LEFT_CLIP },
+          { clipPath: FULL_CLIP, duration: 0.42, clearProps: "clipPath" },
+          0.3,
+        );
+      }
+      if (toolbar) {
+        journeyIntro.fromTo(
+          toolbar,
+          { clipPath: LEFT_CLIP },
+          { clipPath: FULL_CLIP, duration: 0.42, clearProps: "clipPath" },
+          0.34,
+        );
       }
 
       if (chronology && axis) {
@@ -461,121 +746,230 @@ function initEndfieldFlow() {
         const node = entry.querySelector<HTMLElement>(".journey-node");
         const meta = entry.querySelector<HTMLElement>(".journey-meta");
         const content = entry.querySelector<HTMLElement>(".journey-content");
-        gsap.timeline({
-          defaults: { ease: "expo.out" },
+        const entryIntro = gsap.timeline({
+          defaults: { ease: "power4.out" },
           scrollTrigger: { trigger: entry, start: "top 82%", once: true },
-        })
-          .fromTo(connector, { scaleX: 0, transformOrigin: "left center" }, { scaleX: 1, duration: 0.34 }, 0)
-          .fromTo(node, { scale: 0, rotate: 0 }, { scale: 1, rotate: 45, duration: 0.38 }, 0.08)
-          .fromTo(meta, { clipPath: "inset(0 100% 0 0)" }, { clipPath: "inset(0 0% 0 0)", duration: 0.4 }, 0.14)
-          .fromTo(content, { clipPath: "inset(0 100% 0 0)" }, { clipPath: "inset(0 0% 0 0)", duration: 0.54 }, 0.2);
+        });
+        if (connector) {
+          entryIntro.fromTo(
+            connector,
+            { scaleX: 0, transformOrigin: "left center" },
+            { scaleX: 1, duration: 0.34, clearProps: "transform" },
+            0,
+          );
+        }
+        if (node) {
+          entryIntro.fromTo(
+            node,
+            { scale: 0, rotate: 0 },
+            { scale: 1, rotate: 45, duration: 0.38, clearProps: "transform" },
+            0.08,
+          );
+        }
+        if (meta) {
+          entryIntro.fromTo(meta, { clipPath: LEFT_CLIP }, { clipPath: FULL_CLIP, duration: 0.4, clearProps: "clipPath" }, 0.14);
+        }
+        if (content) {
+          entryIntro.fromTo(content, { clipPath: LEFT_CLIP }, { clipPath: FULL_CLIP, duration: 0.54, clearProps: "clipPath" }, 0.2);
+        }
       });
     }
 
     const stackScene = flow.querySelector<HTMLElement>('[data-flow-chapter="tech-stack"]');
     if (stackScene) {
-      const heading = stackScene.querySelector<HTMLElement>(".section-heading");
-      const title = stackScene.querySelector<HTMLElement>("[data-flow-title]");
       const matrixHead = stackScene.querySelector<HTMLElement>("[data-stack-head]");
       const modules = [...stackScene.querySelectorAll<HTMLElement>("[data-stack-module]")];
 
-      if (heading) {
-        const finalWidth = title ? getComputedStyle(title).fontVariationSettings : '"wdth" 110, "wght" 820';
-        const compactWidth = finalWidth.replace(/"wdth"\s+[-\d.]+/, '"wdth" 68');
-        gsap.timeline({
-          defaults: { ease: "expo.out" },
-          scrollTrigger: { trigger: stackScene, start: "top 74%", once: true },
-        })
-          .fromTo(heading.querySelector(".section-heading-meta"), { clipPath: "inset(0 100% 0 0)" }, { clipPath: "inset(0 0% 0 0)", duration: 0.32 }, 0)
-          .fromTo(title, { clipPath: "inset(0 100% 0 0)", fontVariationSettings: compactWidth }, { clipPath: "inset(0 0% 0 0)", fontVariationSettings: finalWidth, duration: 0.64 }, 0.06)
-          .fromTo(heading.querySelector(".section-description"), { clipPath: "inset(0 0 100% 0)" }, { clipPath: "inset(0 0 0% 0)", duration: 0.4 }, 0.2)
-          .fromTo(matrixHead, { clipPath: "inset(0 100% 0 0)" }, { clipPath: "inset(0 0% 0 0)", duration: 0.46 }, 0.3);
+      const stackIntro = createSectionEntrance(stackScene, "top 74%");
+      if (matrixHead) {
+        const headRule = matrixHead.querySelector<HTMLElement>("i");
+        stackIntro.fromTo(
+          matrixHead,
+          { clipPath: LEFT_CLIP },
+          { clipPath: FULL_CLIP, duration: 0.46, clearProps: "clipPath" },
+          0.3,
+        );
+        if (headRule) {
+          stackIntro.fromTo(
+            headRule,
+            { scaleX: 0, transformOrigin: "left center" },
+            { scaleX: 1, duration: 0.4, clearProps: "transform" },
+            0.32,
+          );
+        }
       }
 
       modules.forEach((module) => {
         const rule = module.querySelector<HTMLElement>("[data-stack-rule]");
         const header = module.querySelector<HTMLElement>("header");
-        const items = module.querySelectorAll<HTMLElement>("[data-stack-item]");
-        gsap.timeline({
-          defaults: { ease: "expo.out" },
+        const items = [...module.querySelectorAll<HTMLElement>("[data-stack-item]")];
+        const moduleIntro = gsap.timeline({
+          defaults: { ease: "power4.out" },
           scrollTrigger: { trigger: module, start: "top 84%", once: true },
-        })
-          .fromTo(rule, { scaleX: 0, transformOrigin: "left center" }, { scaleX: 1, duration: 0.44 }, 0)
-          .fromTo(header, { clipPath: "inset(0 100% 0 0)" }, { clipPath: "inset(0 0% 0 0)", duration: 0.42 }, 0.08)
-          .fromTo(items, { clipPath: "inset(0 100% 0 0)" }, { clipPath: "inset(0 0% 0 0)", duration: 0.34, stagger: 0.045 }, 0.16);
+        });
+        if (rule) {
+          moduleIntro.fromTo(
+            rule,
+            { scaleX: 0, transformOrigin: "left center" },
+            { scaleX: 1, duration: 0.44, clearProps: "transform" },
+            0,
+          );
+        }
+        if (header) {
+          moduleIntro.fromTo(header, { clipPath: LEFT_CLIP }, { clipPath: FULL_CLIP, duration: 0.42, clearProps: "clipPath" }, 0.08);
+        }
+        if (items.length) {
+          moduleIntro.fromTo(
+            items,
+            { clipPath: LEFT_CLIP },
+            {
+              clipPath: FULL_CLIP,
+              duration: 0.34,
+              stagger: mobileLayout ? 0.025 : 0.04,
+              clearProps: "clipPath",
+            },
+            0.16,
+          );
+        }
       });
     }
 
-    scenes.slice(2).filter((scene) => !["timeline", "matrix"].includes(scene.dataset.flowTransition ?? "")).forEach((scene) => {
-      const variant = scene.dataset.flowTransition;
-      const title = scene.querySelector<HTMLElement>("[data-flow-title]");
-      const finalWidth = title ? getComputedStyle(title).fontVariationSettings : '"wdth" 110, "wght" 820';
-      const compactWidth = finalWidth.replace(/"wdth"\s+[-\d.]+/, '"wdth" 66');
-      const headingMeta = scene.querySelector<HTMLElement>(".section-heading-meta, .contact-header");
-      const panels = [...scene.querySelectorAll<HTMLElement>("[data-flow-panel]")];
-      const timeline = gsap.timeline({
-        scrollTrigger: { trigger: scene, start: "top 84%", end: "top 24%", scrub: 0.2 },
+    const scoresScene = flow.querySelector<HTMLElement>('[data-flow-chapter="scores"]');
+    if (scoresScene) {
+      const toolbar = scoresScene.querySelector<HTMLElement>("[data-score-toolbar], [data-scores-toolbar]");
+      const grid = scoresScene.querySelector<HTMLElement>("[data-score-grid], [data-scores-grid]");
+      const cards = [...scoresScene.querySelectorAll<HTMLElement>("[data-score-card], [data-score-record]")];
+      const scoresIntro = createSectionEntrance(scoresScene);
+
+      if (toolbar) {
+        scoresIntro.fromTo(toolbar, { clipPath: LEFT_CLIP }, { clipPath: FULL_CLIP, duration: 0.38, clearProps: "clipPath" }, 0.26);
+      }
+      if (grid) {
+        scoresIntro.fromTo(
+          grid,
+          { clipPath: "inset(0 0 99.5% 0)" },
+          { clipPath: FULL_CLIP, duration: 0.6, clearProps: "clipPath" },
+          0.28,
+        );
+      }
+
+      cards.forEach((card, index) => {
+        const top = card.querySelector<HTMLElement>("[data-score-top], .score-card-top");
+        const value = card.querySelector<HTMLElement>("[data-score-value], [data-count]");
+        const bottom = card.querySelector<HTMLElement>("[data-score-bottom], .score-card-bottom");
+        const at = 0.34 + index * 0.08;
+        const sideClip = index % 2 === 0 ? LEFT_CLIP : RIGHT_CLIP;
+
+        scoresIntro.fromTo(
+          card,
+          { clipPath: sideClip },
+          { clipPath: FULL_CLIP, duration: 0.54, clearProps: "clipPath" },
+          at,
+        );
+        if (top) {
+          scoresIntro.fromTo(top, { clipPath: sideClip }, { clipPath: FULL_CLIP, duration: 0.3, clearProps: "clipPath" }, at + 0.12);
+        }
+        if (bottom) {
+          scoresIntro.fromTo(bottom, { clipPath: sideClip }, { clipPath: FULL_CLIP, duration: 0.36, clearProps: "clipPath" }, at + 0.2);
+        }
+        if (value) {
+          const target = Number(value.dataset.count);
+          if (!Number.isNaN(target)) {
+            const counter = { value: 0 };
+            scoresIntro.to(counter, {
+              value: target,
+              duration: 0.76,
+              ease: "power3.out",
+              onStart: () => { value.textContent = "0"; },
+              onUpdate: () => { value.textContent = Math.round(counter.value).toString(); },
+              onComplete: () => { value.textContent = Math.round(target).toString(); },
+            }, at + 0.14);
+          }
+        }
+      });
+    }
+
+    const contactScene = flow.querySelector<HTMLElement>('[data-flow-chapter="contact"]');
+    if (contactScene) {
+      const header = contactScene.querySelector<HTMLElement>(".contact-header");
+      const channelRule = contactScene.querySelector<HTMLElement>(".contact-channel-rule");
+      const title = contactScene.querySelector<HTMLElement>("[data-flow-title]");
+      const kicker = contactScene.querySelector<HTMLElement>(".contact-kicker");
+      const copy = contactScene.querySelector<HTMLElement>(".contact-intro > p:not(.contact-kicker)");
+      const email = contactScene.querySelector<HTMLElement>(".contact-email");
+      const socials = [...contactScene.querySelectorAll<HTMLElement>(".contact-socials a")];
+      const formShell = contactScene.querySelector<HTMLElement>(".contact-form-shell");
+      const formLabels = [...contactScene.querySelectorAll<HTMLElement>(".industrial-form label")];
+      const finalWidth = fontSettingsFor(title, '"wdth" 92, "wght" 850');
+      const contactIntro = gsap.timeline({
+        defaults: { ease: "power4.out" },
+        scrollTrigger: { trigger: contactScene, start: "top 76%", once: true },
       });
 
-      if (headingMeta) {
-        timeline.fromTo(headingMeta, { clipPath: "inset(0 100% 0 0)" }, { clipPath: "inset(0 0% 0 0)", duration: 0.42 }, 0);
+      if (channelRule) {
+        contactIntro.fromTo(
+          channelRule,
+          { scaleX: 0, transformOrigin: "left center" },
+          { scaleX: 1, duration: 0.44, clearProps: "transform" },
+          0,
+        );
+      }
+      if (header) {
+        contactIntro.fromTo(header, { clipPath: LEFT_CLIP }, { clipPath: FULL_CLIP, duration: 0.38, clearProps: "clipPath" }, 0.03);
       }
       if (title) {
-        timeline.fromTo(title, { fontVariationSettings: compactWidth }, { fontVariationSettings: finalWidth, duration: 0.8 }, 0.05);
+        contactIntro.fromTo(
+          title,
+          { clipPath: LEFT_CLIP, fontVariationSettings: withFontWidth(finalWidth, 62) },
+          {
+            clipPath: FULL_CLIP,
+            fontVariationSettings: finalWidth,
+            duration: 0.66,
+            clearProps: "clipPath,fontVariationSettings",
+          },
+          0.1,
+        );
       }
-
-      if (variant === "ledger") {
-        panels.forEach((panel, index) => {
-          timeline.fromTo(
-            panel,
-            { clipPath: index % 2 === 0 ? "polygon(0 0, 8% 0, 0 100%, 0 100%)" : "polygon(92% 0, 100% 0, 100% 100%, 100% 100%)" },
-            { clipPath: "polygon(0 0, 100% 0, 100% 100%, 0 100%)", duration: 0.72 },
-            0.18 + index * 0.08
-          );
-        });
-      } else if (variant === "diagnostic") {
-        panels.forEach((panel, index) => {
-          timeline.fromTo(
-            panel,
-            { clipPath: index % 2 === 0 ? "inset(100% 0 0 0)" : "inset(0 0 100% 0)" },
-            { clipPath: "inset(0% 0 0% 0)", duration: 0.68 },
-            0.12 + index * 0.08
-          );
-        });
-        scene.querySelectorAll<HTMLElement>("[data-count]").forEach((element) => {
-          const target = Number(element.dataset.count);
-          if (Number.isNaN(target)) return;
-          const counter = { value: 0 };
-          ScrollTrigger.create({
-            trigger: element,
-            start: "top 82%",
-            once: true,
-            onEnter: () => gsap.to(counter, {
-              value: target,
-              duration: 1.15,
-              ease: "power3.out",
-              onUpdate: () => { element.textContent = Math.round(counter.value).toString(); },
-            }),
-          });
-        });
-      } else if (variant === "terminal") {
-        panels.forEach((panel, index) => {
-          timeline.fromTo(
-            panel,
-            { clipPath: index === 0 ? "inset(0 100% 0 0)" : "inset(100% 0 0 0)" },
-            { clipPath: "inset(0% 0% 0% 0%)", duration: 0.72 },
-            0.12 + index * 0.12
-          );
-        });
+      if (kicker) {
+        contactIntro.fromTo(kicker, { clipPath: LEFT_CLIP }, { clipPath: FULL_CLIP, duration: 0.3, clearProps: "clipPath" }, 0.14);
       }
-    });
-
-    ScrollTrigger.refresh();
+      if (copy) {
+        contactIntro.fromTo(copy, { clipPath: LEFT_CLIP }, { clipPath: FULL_CLIP, duration: 0.38, clearProps: "clipPath" }, 0.28);
+      }
+      if (email) {
+        contactIntro.fromTo(email, { clipPath: LEFT_CLIP }, { clipPath: FULL_CLIP, duration: 0.38, clearProps: "clipPath" }, 0.34);
+      }
+      if (socials.length) {
+        contactIntro.fromTo(
+          socials,
+          { clipPath: LEFT_CLIP },
+          { clipPath: FULL_CLIP, duration: 0.3, stagger: 0.05, clearProps: "clipPath" },
+          0.4,
+        );
+      }
+      if (formShell) {
+        contactIntro.fromTo(
+          formShell,
+          { clipPath: RIGHT_CLIP },
+          { clipPath: FULL_CLIP, duration: 0.62, clearProps: "clipPath" },
+          0.18,
+        );
+      }
+      if (formLabels.length) {
+        contactIntro.fromTo(
+          formLabels,
+          { clipPath: LEFT_CLIP },
+          { clipPath: FULL_CLIP, duration: 0.32, stagger: 0.045, clearProps: "clipPath" },
+          0.42,
+        );
+      }
+    }
   });
 
   pageCleanup.push(() => {
     context.revert();
     flow.classList.remove("is-enhanced");
+    flow.querySelector<HTMLElement>(".hero-section")?.classList.remove("is-idle-ready", "is-idle-visible");
     storySeek = null;
     playHeroIntro = null;
   });
@@ -595,110 +989,124 @@ function initMotion() {
     return;
   }
 
-  const heroItems = [...document.querySelectorAll<HTMLElement>("[data-hero-reveal]")]
-    .filter(outsideEnhancedFlow);
-  if (heroItems.length) {
-    gsap.from(heroItems, {
-      yPercent: 115,
-      opacity: 0,
-      duration: 1.05,
-      ease: "expo.out",
-      stagger: 0.09,
-      delay: fullLoaderPromise ? 0.05 : 0.2,
-    });
-  }
-
-  [...document.querySelectorAll<HTMLElement>("[data-reveal]")].filter(outsideEnhancedFlow).forEach((el) => {
-    gsap.from(el, {
-      y: mobileLayout ? 28 : 54,
-      opacity: 0,
-      duration: mobileLayout ? 0.72 : 0.9,
-      ease: "power3.out",
-      scrollTrigger: { trigger: el, start: "top 88%", once: true },
-    });
-  });
-
-  [...document.querySelectorAll<HTMLElement>("[data-kinetic]")].filter(outsideEnhancedFlow).forEach((el) => {
-    if (mobileLayout) {
-      const finalSettings = getComputedStyle(el).fontVariationSettings;
-      const compactSettings = finalSettings.replace(/"wdth"\s+[-\d.]+/, '"wdth" 72');
-      gsap.fromTo(
-        el,
-        { fontVariationSettings: compactSettings, y: 18, opacity: 0.76 },
-        {
-          fontVariationSettings: finalSettings,
-          y: 0,
-          opacity: 1,
-          duration: 0.8,
-          ease: "power3.out",
-          clearProps: "fontVariationSettings,transform,opacity",
-          scrollTrigger: { trigger: el, start: "top 90%", once: true },
-        }
+  const motionRoot = document.querySelector<HTMLElement>("main") ?? document.body;
+  const context = gsap.context(() => {
+    const heroItems = [...document.querySelectorAll<HTMLElement>("[data-hero-reveal]")]
+      .filter(outsideEnhancedFlow);
+    if (heroItems.length) {
+      const heroIntro = gsap.timeline({ paused: true, defaults: { ease: "power4.out" } });
+      heroIntro.fromTo(
+        heroItems,
+        { clipPath: LEFT_CLIP },
+        { clipPath: FULL_CLIP, duration: 0.62, stagger: 0.055, clearProps: "clipPath" },
       );
-      return;
+      playHeroIntro = () => heroIntro.play(0);
     }
 
-    gsap.fromTo(
-      el,
-      { fontVariationSettings: '"wdth" 68, "wght" 800' },
-      {
-        fontVariationSettings: '"wdth" 135, "wght" 800',
-        ease: "none",
-        scrollTrigger: { trigger: el, start: "top bottom", end: "bottom top", scrub: 0.8 },
-      }
-    );
-  });
+    [...document.querySelectorAll<HTMLElement>("[data-reveal]")]
+      .filter(outsideEnhancedFlow)
+      .forEach((element, index) => {
+        gsap.fromTo(
+          element,
+          { clipPath: index % 2 === 0 ? LEFT_CLIP : RIGHT_CLIP },
+          {
+            clipPath: FULL_CLIP,
+            duration: mobileLayout ? 0.56 : 0.68,
+            ease: "power4.out",
+            clearProps: "clipPath",
+            scrollTrigger: { trigger: element, start: "top 88%", once: true },
+          },
+        );
+      });
 
-  [...document.querySelectorAll<HTMLElement>("[data-image-reveal]")].filter(outsideEnhancedFlow).forEach((el) => {
-    const image = el.matches("img") ? el : el.querySelector<HTMLElement>("img");
-    if (!image) return;
-    const timeline = gsap.timeline({
-      scrollTrigger: { trigger: el, start: "top 86%", once: true },
-    });
-    timeline
-      .from(el, {
-        y: mobileLayout ? 20 : 30,
-        duration: mobileLayout ? 0.72 : 0.9,
-        ease: "expo.out",
-        clearProps: "transform",
-      })
-      .from(image, {
-        scale: mobileLayout ? 1.025 : 1.055,
-        duration: mobileLayout ? 0.9 : 1.15,
-        ease: "expo.out",
-        clearProps: "transform",
-      }, 0);
-  });
+    [...document.querySelectorAll<HTMLElement>("[data-kinetic]")]
+      .filter(outsideEnhancedFlow)
+      .forEach((element) => {
+        const finalSettings = fontSettingsFor(element, '"wdth" 110, "wght" 800');
+        const compactSettings = withFontWidth(finalSettings, mobileLayout ? 72 : 66);
+        gsap.fromTo(
+          element,
+          { clipPath: LEFT_CLIP, fontVariationSettings: compactSettings },
+          {
+            clipPath: FULL_CLIP,
+            fontVariationSettings: finalSettings,
+            duration: mobileLayout ? 0.64 : 0.76,
+            ease: "power4.out",
+            clearProps: "clipPath,fontVariationSettings",
+            scrollTrigger: { trigger: element, start: "top 88%", once: true },
+          },
+        );
+      });
 
-  [...document.querySelectorAll<HTMLElement>("[data-parallax]")].filter(outsideEnhancedFlow).forEach((el) => {
-    const distance = Number(el.dataset.parallax) || 8;
-    gsap.to(el, {
-      yPercent: distance,
-      ease: "none",
-      scrollTrigger: { trigger: el, start: "top bottom", end: "bottom top", scrub: true },
-    });
-  });
-
-  [...document.querySelectorAll<HTMLElement>("[data-count]")].filter(outsideEnhancedFlow).forEach((el) => {
-    const target = Number(el.dataset.count);
-    if (Number.isNaN(target)) return;
-    const counter = { value: 0 };
-    ScrollTrigger.create({
-      trigger: el,
-      start: "top 88%",
-      once: true,
-      onEnter: () => {
-        gsap.to(counter, {
-          value: target,
-          duration: 1.4,
-          ease: "power3.out",
-          onUpdate: () => { el.textContent = Math.round(counter.value).toString(); },
+    [...document.querySelectorAll<HTMLElement>("[data-image-reveal]")]
+      .filter(outsideEnhancedFlow)
+      .forEach((element, index) => {
+        const image = element.matches("img") ? element : element.querySelector<HTMLElement>("img");
+        if (!image) return;
+        const aperture = index % 2 === 0 ? "inset(0 48% 0 48%)" : "inset(48% 0 48% 0)";
+        const timeline = gsap.timeline({
+          defaults: { ease: "power4.out" },
+          scrollTrigger: { trigger: element, start: "top 86%", once: true },
         });
-      },
-    });
-  });
+        timeline
+          .fromTo(
+            element,
+            { clipPath: aperture },
+            { clipPath: FULL_CLIP, duration: mobileLayout ? 0.62 : 0.74, clearProps: "clipPath" },
+          )
+          .fromTo(
+            image,
+            { scale: mobileLayout ? 1.02 : 1.035 },
+            { scale: 1, duration: mobileLayout ? 0.7 : 0.86, clearProps: "transform" },
+            0,
+          );
+      });
 
-  ScrollTrigger.refresh();
+    [...document.querySelectorAll<HTMLElement>("[data-count]")]
+      .filter(outsideEnhancedFlow)
+      .forEach((element) => {
+        const target = Number(element.dataset.count);
+        if (Number.isNaN(target)) return;
+        const counter = { value: 0 };
+        ScrollTrigger.create({
+          trigger: element,
+          start: "top 88%",
+          once: true,
+          onEnter: () => {
+            element.textContent = "0";
+            gsap.to(counter, {
+              value: target,
+              duration: 0.85,
+              ease: "power3.out",
+              onUpdate: () => { element.textContent = Math.round(counter.value).toString(); },
+              onComplete: () => { element.textContent = Math.round(target).toString(); },
+            });
+          },
+        });
+      });
+  }, motionRoot);
+
+  pageCleanup.push(() => context.revert());
+}
+
+function initAmbientMotion() {
+  if (window.matchMedia(REDUCED_MOTION).matches) return;
+  const bands = [...document.querySelectorAll<HTMLElement>(".kinetic-marquee, .stack-ticker")];
+  const hero = document.querySelector<HTMLElement>(".hero-section");
+  if (!bands.length && !hero) return;
+
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach((entry) => {
+      if (entry.target === hero) {
+        entry.target.classList.toggle("is-idle-visible", entry.isIntersecting);
+        return;
+      }
+      entry.target.classList.toggle("is-in-view", entry.isIntersecting);
+    });
+  }, { rootMargin: "15% 0px", threshold: 0 });
+  bands.forEach((band) => observer.observe(band));
+  if (hero) observer.observe(hero);
+  pageCleanup.push(() => observer.disconnect());
 }
 
 function teardownPage() {
@@ -718,6 +1126,7 @@ async function bootstrap() {
   initEndfieldFlow();
   initNavigation();
   initMotion();
+  initAmbientMotion();
   await new Promise<void>((resolve) => requestAnimationFrame(() => requestAnimationFrame(() => resolve())));
   const loaderExit = hideLoader();
   playHeroIntro?.();

@@ -4,6 +4,7 @@ import { techStack } from "../data/techStack";
 
 const allItems = techStack.flatMap((category) => category.items);
 const toolCount = allItems.length;
+const moduleCapacity = Math.max(...techStack.map((category) => category.items.length));
 ---
 
 <section
@@ -11,7 +12,7 @@ const toolCount = allItems.length;
   class="portfolio-section stack-section"
   data-flow-scene
   data-flow-chapter="tech-stack"
-  data-flow-label="Capabilities"
+  data-flow-label="Capability Modules / Tech Stack"
   data-flow-code="CP-01"
   data-flow-transition="matrix"
 >
@@ -26,7 +27,7 @@ const toolCount = allItems.length;
   <div class="section-shell">
     <SectionHeading
       index="04"
-      eyebrow="Capabilities & Tooling"
+      eyebrow="Capability Modules / Tech Stack"
       title="The machinery behind the work."
       description="A practical stack spanning model development, evaluation, serving, automation, and analytical communication."
     />
@@ -40,15 +41,15 @@ const toolCount = allItems.length;
 
     <div class="stack-grid" data-stack-matrix>
       {techStack.map((category, index) => (
-        <article class="stack-category" data-reveal data-stack-module>
+        <article class="stack-category" data-reveal data-stack-module data-stack-domain={category.domain}>
           <i class="stack-module-rule" data-stack-rule aria-hidden="true"></i>
           <header>
             <span>[CP-{String(index + 1).padStart(2, "0")}]</span>
             <div>
-              <small>CAPABILITY MODULE</small>
+              <small>{category.domain}</small>
               <h3>{category.title}</h3>
             </div>
-            <b>{String(category.items.length).padStart(2, "0")}</b>
+            <b>{category.status} / {String(category.items.length).padStart(2, "0")}</b>
           </header>
           <div class="stack-items">
             {category.items.map((item, itemIndex) => (
@@ -56,6 +57,13 @@ const toolCount = allItems.length;
                 <small>{String(itemIndex + 1).padStart(2, "0")}</small>
                 <img src={`/icons/${item.icon}`} alt="" width="24" height="24" />
                 <b>{item.name}</b>
+              </span>
+            ))}
+            {Array.from({ length: moduleCapacity - category.items.length }, (_, slotIndex) => (
+              <span class="stack-item stack-item--empty" data-stack-item aria-hidden="true">
+                <small>{String(category.items.length + slotIndex + 1).padStart(2, "0")}</small>
+                <i aria-hidden="true">+</i>
+                <b>OPEN SLOT</b>
               </span>
             ))}
           </div>

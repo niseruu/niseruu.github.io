@@ -8,18 +8,19 @@ import { socials, email } from "../data/socials";
   class="contact-section"
   data-flow-scene
   data-flow-chapter="contact"
-  data-flow-label="Contact"
+  data-flow-label="Communications / Contact"
   data-flow-code="CT-01"
   data-flow-transition="terminal"
 >
   <div class="contact-grid" aria-hidden="true"></div>
-  <div class="contact-header" data-reveal>
-    <span>[06] CONTACT CHANNEL</span>
-    <span>STATUS // OPEN</span>
+  <div class="contact-header" data-reveal data-contact-header>
+    <span>[06] COMMUNICATIONS / CONTACT</span>
+    <i class="contact-channel-rule" aria-hidden="true"></i>
+    <span>CHANNEL // ONLINE</span>
   </div>
 
   <div class="contact-layout">
-    <div class="contact-intro" data-flow-panel="contact-intro">
+    <div class="contact-intro" data-flow-panel="contact-intro" data-contact-intro>
       <p class="contact-kicker">LET'S BUILD SOMETHING USEFUL.</p>
       <h2 data-kinetic data-flow-title>START A<br />CONVERSATION.</h2>
       <p>
@@ -33,7 +34,7 @@ import { socials, email } from "../data/socials";
       </div>
     </div>
 
-    <div class="contact-form-shell" data-reveal data-flow-panel="contact-form">
+    <div class="contact-form-shell" data-reveal data-flow-panel="contact-form" data-contact-form>
       <div class="contact-form-head"><span>SECURE MESSAGE FORM</span><span>ENCRYPTION // TLS</span></div>
       <ContactForm client:visible />
     </div>

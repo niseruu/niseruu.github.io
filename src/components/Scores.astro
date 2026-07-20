@@ -8,19 +8,40 @@ import { scores } from "../data/scores";
   class="portfolio-section scores-section"
   data-flow-scene
   data-flow-chapter="scores"
-  data-flow-label="Scores"
+  data-flow-label="Diagnostics / Scores"
   data-flow-code="SC-01"
   data-flow-transition="diagnostic"
 >
   <div class="section-shell">
-    <SectionHeading index="05" eyebrow="Verified Benchmarks" title="Signals, measured." />
+    <SectionHeading index="05" eyebrow="Diagnostics / Verified Scores" title="Signals, measured." />
 
-    <div class="scores-grid">
+    <div class="scores-toolbar" data-scores-toolbar>
+      <span>DIAGNOSTIC ARRAY / {String(scores.length).padStart(2, "0")} SOURCES</span>
+      <i data-scores-rule aria-hidden="true"></i>
+      <span>SOURCE FILES // AVAILABLE</span>
+      <span>STATUS // VALID</span>
+    </div>
+
+    <div class="scores-grid" data-scores-grid>
       {scores.map((score, index) => (
-        <a href={score.reportHref} target="_blank" rel="noopener" class="score-card" data-reveal data-flow-panel="score">
+        <a
+          href={score.reportHref}
+          target="_blank"
+          rel="noopener"
+          class="score-card"
+          data-reveal
+          data-flow-panel="score"
+          data-score-record
+        >
           <div class="score-card-top"><span>REPORT / 0{index + 1}</span><span>VERIFIED ↗</span></div>
-          <strong data-count={score.numericValue}>{score.value}</strong>
-          <div class="score-card-bottom"><h3>{score.name}</h3><p>{score.meta}</p></div>
+          <strong data-count={score.numericValue} data-score-value>{score.value}</strong>
+          <div class="score-card-bottom">
+            <h3>{score.name}</h3>
+            <div class="score-report-meta">
+              <p>{score.issuedAt}</p>
+              <small>ISSUER // {score.issuer}</small>
+            </div>
+          </div>
         </a>
       ))}
     </div>
