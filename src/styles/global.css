@@ -1015,10 +1015,11 @@ p {
 }
 
 @keyframes hero-signal-flicker {
-  0%, 20%, 23%, 57%, 60%, 83%, 85%, 100% { opacity: 1; filter: none; }
-  21% { opacity: .78; filter: brightness(.92); }
-  22%, 58%, 84% { opacity: .9; filter: brightness(1.08); }
-  59% { opacity: .68; filter: brightness(.86); }
+  0%, 18%, 24%, 54%, 62%, 80%, 87%, 100% { opacity: 1; filter: none; }
+  19%, 23%, 55%, 61%, 81%, 86% { opacity: .82; filter: brightness(.94); }
+  20%, 22%, 56%, 60%, 82%, 85% { opacity: .68; filter: brightness(.86); }
+  21%, 57%, 59%, 83%, 84% { opacity: .9; filter: brightness(1.08); }
+  58% { opacity: .58; filter: brightness(.82); }
 }
 
 @keyframes hero-scan {
@@ -1032,33 +1033,37 @@ p {
 }
 
 @keyframes hero-status-flicker {
-  0%, 7%, 9%, 31%, 34%, 69%, 71%, 100% { opacity: 1; }
-  8%, 33%, 70% { opacity: .12; }
-  32% { opacity: .58; }
+  0%, 5%, 12%, 27%, 36%, 65%, 74%, 100% { opacity: 1; }
+  6%, 9%, 28%, 32%, 66%, 70% { opacity: .12; }
+  10%, 33%, 71% { opacity: .52; }
+  11%, 35%, 73% { opacity: .82; }
 }
 
 @keyframes hero-label-flicker {
-  0%, 12%, 15%, 42%, 44%, 72%, 76%, 100% { opacity: 1; }
-  13%, 43%, 74% { opacity: .18; }
-  14%, 73%, 75% { opacity: .64; }
+  0%, 10%, 17%, 39%, 47%, 69%, 79%, 100% { opacity: 1; }
+  11%, 14%, 40%, 44%, 70%, 75% { opacity: .18; }
+  15%, 45%, 76% { opacity: .54; }
+  16%, 46%, 78% { opacity: .78; }
 }
 
 @keyframes hero-reticle-flicker {
-  0%, 18%, 21%, 49%, 51%, 80%, 83%, 100% { opacity: 1; }
-  19%, 50%, 82% { opacity: .24; }
-  20%, 81% { opacity: .62; }
+  0%, 16%, 23%, 46%, 54%, 77%, 85%, 100% { opacity: 1; }
+  17%, 20%, 47%, 51%, 78%, 82% { opacity: .24; }
+  21%, 52%, 83% { opacity: .58; }
+  22%, 53%, 84% { opacity: .8; }
 }
 
 @keyframes hero-readout-flicker {
-  0%, 25%, 28%, 62%, 64%, 88%, 91%, 100% { opacity: 1; }
-  26%, 63%, 89% { opacity: .3; }
-  27%, 90% { opacity: .72; }
+  0%, 22%, 30%, 59%, 67%, 85%, 94%, 100% { opacity: 1; }
+  23%, 27%, 60%, 64%, 86%, 91% { opacity: .3; }
+  28%, 65%, 92% { opacity: .68; }
+  29%, 66%, 93% { opacity: .84; }
 }
 
 @keyframes hero-type-flicker {
-  0%, 34%, 37%, 76%, 79%, 100% { text-shadow: none; }
-  35%, 77% { text-shadow: 3px 0 0 rgba(255,250,0,.9); }
-  36%, 78% { text-shadow: -2px 0 0 rgba(25,25,25,.5); }
+  0%, 33%, 40%, 74%, 81%, 100% { text-shadow: none; }
+  34%, 36%, 75%, 77% { text-shadow: 3px 0 0 rgba(255,250,0,.9); }
+  37%, 39%, 78%, 80% { text-shadow: -2px 0 0 rgba(25,25,25,.5); }
 }
 
 .hero-image-label {
