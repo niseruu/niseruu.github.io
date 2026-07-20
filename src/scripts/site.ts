@@ -1,5 +1,6 @@
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { dossierPages } from "../data/dossierPages";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -237,7 +238,7 @@ function initNavigation() {
     window.removeEventListener("hashchange", onHistoryNavigation);
   });
 
-  if (document.querySelector("[data-story-deck].is-active")) return;
+  if (document.querySelector("[data-operator-deck].is-active")) return;
   if (!sections.length) return;
 
   const observer = new IntersectionObserver(
@@ -253,317 +254,439 @@ function initNavigation() {
   pageCleanup.push(() => observer.disconnect());
 }
 
-function chunkElements(elements: HTMLElement[], size: number) {
-  const groups: HTMLElement[][] = [];
-  for (let index = 0; index < elements.length; index += size) {
-    groups.push(elements.slice(index, index + size));
-  }
-  return groups;
-}
+function initOperatorDeck() {
+  const deck = document.querySelector<HTMLElement>("[data-operator-deck]");
+  const stage = deck?.querySelector<HTMLElement>("[data-operator-stage]");
+  const pages = stage ? [...stage.querySelectorAll<HTMLElement>("[data-dossier-page]")] : [];
+  const handoff = stage?.querySelector<HTMLElement>("[data-operator-handoff]");
+  if (!deck || !stage || !handoff || pages.length !== dossierPages.length) return;
 
-function getStorySubframes(screen: HTMLElement, mobile: boolean) {
-  if (mobile && screen.hasAttribute("data-story-project")) {
-    return [...screen.querySelectorAll<HTMLElement>("[data-story-frame]")].map((element) => [element]);
-  }
-
-  const key = screen.dataset.storyKey;
-  if (mobile && key === "publications") {
-    return [...screen.querySelectorAll<HTMLElement>("[data-story-frame]")].map((element) => [element]);
-  }
-  if (key === "journey") {
-    return chunkElements([...screen.querySelectorAll<HTMLElement>("[data-story-item]")], mobile ? 2 : 4);
-  }
-  if (mobile && (key === "tech-stack" || key === "scores")) {
-    return [...screen.querySelectorAll<HTMLElement>("[data-story-item]")].map((element) => [element]);
-  }
-  if (mobile && key === "contact") {
-    return [...screen.querySelectorAll<HTMLElement>("[data-story-frame]")].map((element) => [element]);
-  }
-
-  return [];
-}
-
-function getCompactFontSettings(element: HTMLElement) {
-  const finalSettings = getComputedStyle(element).fontVariationSettings;
-  const compactSettings = finalSettings.replace(/"wdth"\s+[-\d.]+/, '"wdth" 72');
-  return { compactSettings, finalSettings };
-}
-
-function initStoryDeck() {
-  const deck = document.querySelector<HTMLElement>("[data-story-deck]");
-  const stage = deck?.querySelector<HTMLElement>("[data-story-stage]");
-  const screens = stage ? [...stage.querySelectorAll<HTMLElement>(":scope > [data-story-screen]")] : [];
-  if (!deck || !stage || screens.length < 2) return;
-
-  const currentLabel = stage.querySelector<HTMLElement>("[data-story-current]");
-  const totalLabel = stage.querySelector<HTMLElement>("[data-story-total]");
-  const titleLabel = stage.querySelector<HTMLElement>("[data-story-label]");
-  const progressBar = stage.querySelector<HTMLElement>("[data-story-progress]");
-  const transitionRail = stage.querySelector<HTMLElement>("[data-story-transition-rail]");
-  const transitionTrack = stage.querySelector<HTMLElement>("[data-story-transition-track]");
+  const currentLabel = stage.querySelector<HTMLElement>("[data-dossier-current]");
+  const codeLabel = stage.querySelector<HTMLElement>("[data-dossier-code]");
+  const announcer = stage.querySelector<HTMLElement>("[data-dossier-announcer]");
+  const previousButton = stage.querySelector<HTMLButtonElement>("[data-dossier-prev]");
+  const nextButton = stage.querySelector<HTMLButtonElement>("[data-dossier-next]");
+  const targetButtons = [...stage.querySelectorAll<HTMLButtonElement>("[data-dossier-target]")];
+  const pageMarks = [...stage.querySelectorAll<HTMLButtonElement>(".operator-page-track [data-dossier-target]")];
+  const chapterButtons = [...stage.querySelectorAll<HTMLButtonElement>(".operator-chapters [data-dossier-target]")];
+  const fromLabel = handoff.querySelector<HTMLElement>("[data-handoff-from]");
+  const toLabel = handoff.querySelector<HTMLElement>("[data-handoff-to]");
+  const shutters = [...handoff.querySelectorAll<HTMLElement>(".operator-shutter")];
+  const spine = handoff.querySelector<HTMLElement>(".operator-handoff-spine");
+  const handoffRules = [...handoff.querySelectorAll<HTMLElement>(".operator-handoff-rule")];
+  const pageIndex = new Map(pages.map((page, index) => [page.dataset.dossierId ?? "", index]));
+  const hashIndex = new Map<string, number>();
   const media = gsap.matchMedia();
 
-  totalLabel && (totalLabel.textContent = String(screens.length).padStart(2, "0"));
+  pages.forEach((page, index) => {
+    const hash = page.dataset.dossierHash;
+    const id = page.dataset.dossierId;
+    const section = page.dataset.dossierSection;
+    if (hash) hashIndex.set(hash, index);
+    if (id) hashIndex.set(id, index);
+    if (section && !hashIndex.has(section)) hashIndex.set(section, index);
+  });
 
-  const resetAccessibility = () => {
-    screens.forEach((screen) => {
-      screen.inert = false;
-      screen.removeAttribute("aria-hidden");
-      screen.classList.remove("is-story-active", "has-story-subframes");
+  const resetPages = () => {
+    pages.forEach((page) => {
+      page.inert = false;
+      page.removeAttribute("aria-hidden");
+      page.classList.remove("is-dossier-active", "is-dossier-incoming", "is-dossier-outgoing");
+      page.style.removeProperty("visibility");
+      page.style.removeProperty("z-index");
+      page.style.removeProperty("clip-path");
+      page.querySelectorAll<HTMLElement>("[data-dossier-zone], [data-dossier-display]").forEach((element) => {
+        element.removeAttribute("style");
+      });
     });
   };
 
-  media.add(
-    { desktop: "(min-width: 768px)", mobile: MOBILE_LAYOUT, reduce: REDUCED_MOTION },
-    (context) => {
-      const mobile = Boolean(context.conditions?.mobile);
-      const reduce = Boolean(context.conditions?.reduce);
-      if (reduce) {
-        deck.classList.remove("is-active");
-        document.documentElement.classList.remove("story-deck-active");
-        resetAccessibility();
-        storySeek = null;
-        return;
-      }
+  media.add("(prefers-reduced-motion: no-preference)", () => {
+    const initialHash = window.location.hash.slice(1);
+    let activeIndex = hashIndex.get(initialHash) ?? 0;
+    let transitioning = false;
+    let transition: gsap.core.Timeline | null = null;
+    let wheelAmount = 0;
+    let wheelDirection = 0;
+    let lastWheelAt = 0;
+    let wheelNeedsQuiet = false;
+    let wheelReset = 0;
+    let ownershipTimer = 0;
+    let queuedHistoryTarget: number | null = null;
+    let touchStart: { x: number; y: number; interactive: boolean } | null = null;
 
-      deck.classList.add("is-active");
-      document.documentElement.classList.add("story-deck-active");
+    deck.classList.add("is-active");
+    document.documentElement.classList.add("operator-deck-active");
 
-      const pageBeat = mobile ? 0.65 : 0.9;
-      const subframeBeat = mobile ? 0.4 : 0.45;
-      const master = gsap.timeline({ paused: true, defaults: { ease: "none" } });
-      const labels = new Map<string, number>();
-      const groupLabels = new Map<string, number>();
-      const thresholds: Array<{ time: number; index: number }> = [];
-      const subframes = screens.map((screen) => getStorySubframes(screen, mobile));
-      let cursor = 0;
-      let subframeTransitions = 0;
-      let activeIndex = -1;
-
-      screens.forEach((screen, index) => {
-        gsap.set(screen, {
-          zIndex: index + 1,
-          autoAlpha: index === 0 ? 1 : 0,
-          visibility: index === 0 ? "visible" : "hidden",
-          clipPath: index === 0 ? "inset(0% 0% 0% 0%)" : "inset(100% 0% 0% 0%)",
-          y: 0,
-          scale: 1,
-        });
-
-        const groups = subframes[index];
-        if (groups.length > 1) {
-          screen.classList.add("has-story-subframes");
-          subframeTransitions += groups.length - 1;
-          groups.forEach((group, groupIndex) => {
-            group.forEach((element, slot) => {
-              gsap.set(element, {
-                "--story-slot": slot,
-                "--story-count": group.length,
-                autoAlpha: groupIndex === 0 ? 1 : 0,
-                visibility: groupIndex === 0 ? "visible" : "hidden",
-                y: groupIndex === 0 ? 0 : 28,
-              });
-            });
-          });
-        }
+    const updateInterface = (index: number, announce = true) => {
+      activeIndex = index;
+      pages.forEach((page, pageNumber) => {
+        const active = pageNumber === index;
+        page.inert = !active;
+        page.setAttribute("aria-hidden", String(!active));
+        page.classList.toggle("is-dossier-active", active);
+        page.classList.remove("is-dossier-incoming", "is-dossier-outgoing");
+        gsap.set(page, { visibility: active ? "visible" : "hidden", zIndex: active ? 2 : 1, clearProps: "clipPath,transform" });
       });
 
-      if (transitionRail) gsap.set(transitionRail, { autoAlpha: 0, scaleX: 0, transformOrigin: "left center" });
+      const record = dossierPages[index];
+      if (currentLabel) currentLabel.textContent = String(index + 1).padStart(2, "0");
+      if (codeLabel) codeLabel.textContent = record.code;
+      if (announcer && announce) announcer.textContent = `Page ${index + 1} of ${pages.length}: ${record.title}`;
+      pageMarks.forEach((mark, markIndex) => {
+        const active = markIndex === index;
+        mark.classList.toggle("is-active", active);
+        if (active) mark.setAttribute("aria-current", "step");
+        else mark.removeAttribute("aria-current");
+      });
+      chapterButtons.forEach((button) => {
+        button.classList.toggle("is-active", button.dataset.dossierTarget === record.id || pageIndex.get(button.dataset.dossierTarget ?? "") === hashIndex.get(record.section));
+      });
+      if (previousButton) previousButton.disabled = index === 0;
+      if (nextButton) nextButton.disabled = index === pages.length - 1;
+      document.dispatchEvent(new CustomEvent("story:change", {
+        detail: { index, key: record.id, section: record.section },
+      }));
+    };
 
-      screens.forEach((screen, index) => {
-        const key = screen.dataset.storyKey ?? `screen-${index + 1}`;
-        const group = screen.dataset.storyGroup ?? key;
-        labels.set(key, cursor);
-        if (!groupLabels.has(group)) groupLabels.set(group, cursor);
-        master.addLabel(key, cursor);
+    const writeHash = (index: number, mode: "push" | "replace" | "none") => {
+      if (mode === "none") return;
+      const nextHash = `#${dossierPages[index].hash}`;
+      if (window.location.hash === nextHash) return;
+      if (mode === "push") window.history.pushState(null, "", nextHash);
+      else window.history.replaceState(null, "", nextHash);
+    };
 
-        const groups = subframes[index];
-        for (let groupIndex = 1; groupIndex < groups.length; groupIndex += 1) {
-          const previous = groups[groupIndex - 1];
-          const next = groups[groupIndex];
-          master
-            .set(next, { visibility: "visible" }, cursor)
-            .to(previous, { autoAlpha: 0, y: -24, duration: subframeBeat }, cursor)
-            .fromTo(
-              next,
-              { autoAlpha: 0, y: 28 },
-              { autoAlpha: 1, y: 0, duration: subframeBeat, immediateRender: false },
-              cursor
-            )
-            .set(previous, { visibility: "hidden" }, cursor + subframeBeat);
-          cursor += subframeBeat;
-        }
+    const goTo = (
+      targetIndex: number,
+      options: { history?: "push" | "replace" | "none"; animate?: boolean } = {}
+    ) => {
+      const boundedIndex = Math.max(0, Math.min(pages.length - 1, targetIndex));
+      if (boundedIndex === activeIndex || transitioning) return boundedIndex === activeIndex;
 
-        const nextScreen = screens[index + 1];
-        if (!nextScreen) return;
+      const outgoing = pages[activeIndex];
+      const incoming = pages[boundedIndex];
+      const outgoingZones = [...outgoing.querySelectorAll<HTMLElement>("[data-dossier-zone]")];
+      const incomingZones = [...incoming.querySelectorAll<HTMLElement>("[data-dossier-zone]")];
+      const outgoingTitle = outgoing.querySelector<HTMLElement>("[data-dossier-display]");
+      const incomingTitle = incoming.querySelector<HTMLElement>("[data-dossier-display]");
+      const direction = boundedIndex > activeIndex ? 1 : -1;
+      const outgoingIndex = activeIndex;
+      const outgoingRecord = dossierPages[outgoingIndex];
+      const incomingRecord = dossierPages[boundedIndex];
+      const internalTransition = outgoingRecord.section === incomingRecord.section;
+      const duration = internalTransition ? 0.52 : Math.abs(boundedIndex - activeIndex) > 1 ? 0.66 : 0.8;
+      const moveOut = direction > 0 ? "-13vw" : "13vw";
+      const moveIn = direction > 0 ? "10vw" : "-10vw";
+      const outgoingClip = direction > 0 ? "inset(0% 100% 0% 0%)" : "inset(0% 0% 0% 100%)";
+      const incomingClip = direction > 0
+        ? "polygon(100% 0%, 100% 0%, 92% 100%, 92% 100%)"
+        : "polygon(0% 0%, 0% 0%, 8% 100%, 8% 100%)";
+      const fullClip = "polygon(0% 0%, 100% 0%, 100% 100%, 0% 100%)";
+      const fullInset = "inset(0% 0% 0% 0%)";
+      const hadFocus = outgoing.contains(document.activeElement);
 
-        const transitionStart = cursor;
-        thresholds.push({ time: transitionStart + pageBeat / 2, index: index + 1 });
-        const incomingType = nextScreen.querySelector<HTMLElement>("[data-kinetic]");
-        const incomingImage = nextScreen.querySelector<HTMLElement>(
-          ".project-image, .publication-image img, .case-image img"
-        );
+      writeHash(boundedIndex, options.history ?? "replace");
+      if (options.animate === false) {
+        updateInterface(boundedIndex);
+        return true;
+      }
 
-        master
-          .set(nextScreen, { visibility: "visible", autoAlpha: 1 }, transitionStart)
-          .to(
-            screen,
-            { y: "-8vh", scale: 0.975, opacity: 0.35, duration: pageBeat },
-            transitionStart
-          )
+      transitioning = true;
+      deck.classList.add("is-transitioning");
+      deck.dataset.direction = direction > 0 ? "forward" : "backward";
+      deck.dataset.transition = internalTransition ? outgoingRecord.section : "chapter";
+      outgoing.classList.add("is-dossier-outgoing");
+      incoming.classList.add("is-dossier-incoming");
+      incoming.inert = true;
+      incoming.setAttribute("aria-hidden", "true");
+      gsap.set(outgoing, { visibility: "visible", zIndex: 2, clipPath: fullClip });
+      gsap.set(incoming, {
+        visibility: "visible",
+        zIndex: 3,
+        clipPath: internalTransition
+          ? outgoingRecord.section === "journey"
+            ? direction > 0 ? "inset(100% 0% 0% 0%)" : "inset(0% 0% 100% 0%)"
+            : direction > 0 ? "inset(0% 0% 0% 100%)" : "inset(0% 100% 0% 0%)"
+          : incomingClip,
+      });
+
+      if (internalTransition) {
+        gsap.set(handoff, { visibility: "hidden" });
+      } else {
+        gsap.set(handoff, { visibility: "visible" });
+        if (fromLabel) fromLabel.textContent = String(outgoingIndex + 1).padStart(2, "0");
+        if (toLabel) toLabel.textContent = String(boundedIndex + 1).padStart(2, "0");
+        const leading = direction > 0 ? -125 : 125;
+        gsap.set(shutters, { xPercent: leading });
+        gsap.set(handoffRules, { scaleX: 0, transformOrigin: direction > 0 ? "left center" : "right center" });
+        if (spine) gsap.set(spine, { x: direction > 0 ? -120 : window.innerWidth + 120 });
+        gsap.set(incomingZones, { x: moveIn, clipPath: incomingClip });
+      }
+
+      transition = gsap.timeline({
+        defaults: { ease: "power4.inOut" },
+        onComplete: () => {
+          gsap.set(handoff, { visibility: "hidden" });
+          const cleanupTargets = [outgoing, incoming].flatMap((page) => [
+            ...page.querySelectorAll<HTMLElement>(
+              "[data-dossier-zone], [data-dossier-display], .operator-journey-pair li, .operator-capability-grid article, .operator-project-image, .operator-form-shell"
+            ),
+          ]);
+          gsap.set(cleanupTargets, { clearProps: "transform,clipPath,fontVariationSettings" });
+          if (outgoingTitle) gsap.set(outgoingTitle, { clearProps: "fontVariationSettings" });
+          if (incomingTitle) gsap.set(incomingTitle, { clearProps: "fontVariationSettings" });
+          updateInterface(boundedIndex);
+          transitioning = false;
+          wheelNeedsQuiet = true;
+          transition = null;
+          deck.classList.remove("is-transitioning");
+          delete deck.dataset.direction;
+          delete deck.dataset.transition;
+          if (hadFocus) {
+            const focusTarget = incoming.querySelector<HTMLElement>("h1, h2, a, button");
+            if (focusTarget?.matches("h1, h2")) focusTarget.tabIndex = -1;
+            focusTarget?.focus({ preventScroll: true });
+          }
+          const queuedTarget = queuedHistoryTarget;
+          queuedHistoryTarget = null;
+          if (queuedTarget !== null && queuedTarget !== boundedIndex) {
+            window.setTimeout(() => goTo(queuedTarget, { history: "none" }), 0);
+          }
+        },
+      });
+
+      if (internalTransition) {
+        const section = outgoingRecord.section;
+        const outgoingParts = section === "journey"
+          ? [...outgoing.querySelectorAll<HTMLElement>(".operator-section-title, .operator-journey-pair li")]
+          : section === "tech-stack"
+            ? [...outgoing.querySelectorAll<HTMLElement>(".operator-section-title, .operator-capability-grid article")]
+            : outgoingZones;
+        const incomingParts = section === "journey"
+          ? [...incoming.querySelectorAll<HTMLElement>(".operator-section-title, .operator-journey-pair li")]
+          : section === "tech-stack"
+            ? [...incoming.querySelectorAll<HTMLElement>(".operator-section-title, .operator-capability-grid article")]
+            : incomingZones;
+        const vertical = section === "journey";
+        const partDistance = direction * (section === "projects" ? 72 : section === "contact" ? 54 : 38);
+        const pageStartClip = vertical
+          ? direction > 0 ? "inset(100% 0% 0% 0%)" : "inset(0% 0% 100% 0%)"
+          : direction > 0 ? "inset(0% 0% 0% 100%)" : "inset(0% 100% 0% 0%)";
+
+        gsap.set(incomingParts, vertical ? { y: partDistance } : { x: partDistance });
+        transition
+          .to(outgoingParts, {
+            ...(vertical ? { y: -partDistance } : { x: -partDistance }),
+            duration: duration * 0.56,
+            stagger: 0.025,
+            ease: "expo.inOut",
+          }, 0)
+          .to(incoming, { clipPath: fullInset, duration: duration * 0.68, ease: "expo.inOut" }, duration * 0.12)
           .fromTo(
-            nextScreen,
-            { clipPath: "inset(100% 0% 0% 0%)", y: "12vh", scale: 1.015 },
+            incomingParts,
+            vertical ? { y: partDistance } : { x: partDistance },
             {
-              clipPath: "inset(0% 0% 0% 0%)",
-              y: 0,
-              scale: 1,
-              duration: pageBeat,
+              ...(vertical ? { y: 0 } : { x: 0 }),
+              duration: duration * 0.58,
+              stagger: 0.025,
+              ease: "expo.out",
               immediateRender: false,
             },
-            transitionStart
+            duration * 0.28
+          )
+          .fromTo(
+            incomingTitle,
+            { fontVariationSettings: '"wdth" 78, "wght" 850' },
+            { fontVariationSettings: '"wdth" 132, "wght" 850', duration: duration * 0.52, ease: "power3.out", immediateRender: false },
+            duration * 0.3
           );
-
-        if (incomingType) {
-          const { compactSettings, finalSettings } = getCompactFontSettings(incomingType);
-          master.fromTo(
-            incomingType,
-            { fontVariationSettings: compactSettings },
-            { fontVariationSettings: finalSettings, duration: pageBeat, immediateRender: false },
-            transitionStart
-          );
-        }
-        if (incomingImage) {
-          master.fromTo(
-            incomingImage,
-            { scale: 1.045 },
-            { scale: 1, duration: pageBeat, immediateRender: false },
-            transitionStart
+        if (section === "projects") {
+          transition.fromTo(
+            incoming.querySelector<HTMLElement>(".operator-project-image"),
+            { xPercent: direction * 6 },
+            { xPercent: 0, duration: duration * 0.66, ease: "expo.out", immediateRender: false },
+            duration * 0.18
           );
         }
-        if (transitionRail) {
-          master
-            .set(transitionRail, { autoAlpha: 1, scaleX: 0 }, transitionStart)
-            .to(transitionRail, { scaleX: 1, duration: pageBeat * 0.72 }, transitionStart)
-            .to(transitionRail, { autoAlpha: 0, duration: pageBeat * 0.28 }, transitionStart + pageBeat * 0.72)
-            .set(transitionRail, { scaleX: 0 }, transitionStart + pageBeat);
-        }
-        if (transitionTrack) {
-          master.fromTo(
-            transitionTrack,
-            { xPercent: -8 },
-            { xPercent: 0, duration: pageBeat, immediateRender: false },
-            transitionStart
+        if (section === "contact") {
+          transition.fromTo(
+            incoming.querySelector<HTMLElement>(".operator-form-shell"),
+            { clipPath: pageStartClip },
+            { clipPath: fullInset, duration: duration * 0.6, ease: "expo.inOut", immediateRender: false },
+            duration * 0.2
           );
         }
-
-        master.set(screen, { visibility: "hidden" }, transitionStart + pageBeat);
-        cursor += pageBeat;
-      });
-
-      const setActiveScreen = (index: number) => {
-        if (index === activeIndex) return;
-        activeIndex = index;
-        screens.forEach((screen, screenIndex) => {
-          const active = screenIndex === index;
-          screen.inert = !active;
-          screen.setAttribute("aria-hidden", String(!active));
-          screen.classList.toggle("is-story-active", active);
-        });
-
-        const screen = screens[index];
-        const title = screen.dataset.storyTitle ?? `Screen ${index + 1}`;
-        if (currentLabel) currentLabel.textContent = String(index + 1).padStart(2, "0");
-        if (titleLabel) titleLabel.textContent = title.toUpperCase();
-        document.dispatchEvent(new CustomEvent("story:change", {
-          detail: {
-            index,
-            key: screen.dataset.storyKey,
-            section: screen.dataset.storyGroup ?? screen.dataset.storyKey,
-          },
-        }));
-      };
-
-      const updateStoryState = () => {
-        const time = master.time();
-        let index = 0;
-        thresholds.forEach((threshold) => {
-          if (time >= threshold.time) index = threshold.index;
-        });
-        setActiveScreen(index);
-        if (progressBar) {
-          progressBar.style.transform = mobile
-            ? `scaleX(${master.progress()})`
-            : `scaleY(${master.progress()})`;
-        }
-      };
-
-      setActiveScreen(0);
-      if (progressBar) progressBar.style.transform = mobile ? "scaleX(0)" : "scaleY(0)";
-      master.eventCallback("onUpdate", updateStoryState);
-
-      const scrollDistance = () => {
-        const pageDistance = (screens.length - 1) * window.innerHeight * (mobile ? 0.65 : 0.9);
-        const frameDistance = subframeTransitions * window.innerHeight * (mobile ? 0.4 : 0.45);
-        return Math.max(window.innerHeight, pageDistance + frameDistance);
-      };
-
-      const trigger = ScrollTrigger.create({
-        trigger: stage,
-        animation: master,
-        start: () => `top ${mobile ? 58.4 : 0}px`,
-        end: () => `+=${scrollDistance()}`,
-        pin: stage,
-        pinSpacing: true,
-        scrub: mobile ? 0.12 : 0.25,
-        anticipatePin: 1,
-        invalidateOnRefresh: true,
-        onUpdate: updateStoryState,
-        onRefresh: updateStoryState,
-      });
-
-      const seekLabels = new Map([...labels, ...groupLabels]);
-      storySeek = (section, behavior = "smooth") => {
-        const targetTime = seekLabels.get(section);
-        const duration = master.duration();
-        if (targetTime === undefined || duration <= 0) return false;
-        const targetScroll = trigger.start + (targetTime / duration) * (trigger.end - trigger.start);
-        window.scrollTo({ top: targetScroll, behavior });
-        return true;
-      };
-
-      const initialHash = window.location.hash.slice(1);
-      if (initialHash && seekLabels.has(initialHash)) {
-        requestAnimationFrame(() => storySeek?.(initialHash, "auto"));
+      } else {
+        const trailing = direction > 0 ? 125 : -125;
+        transition
+          .to(handoffRules, { scaleX: 1, duration: duration * 0.24, stagger: 0.035 }, 0)
+          .to(shutters, { xPercent: trailing, duration: duration * 0.82, stagger: 0.035 }, 0.02)
+          .to(spine, { x: direction > 0 ? window.innerWidth + 120 : -120, duration, ease: "expo.inOut" }, 0)
+          .to(outgoingZones, { x: moveOut, clipPath: outgoingClip, duration: duration * 0.54, stagger: 0.018 }, 0.03)
+          .to(outgoingTitle, { fontVariationSettings: '"wdth" 55, "wght" 850', duration: duration * 0.38 }, 0)
+          .to(incoming, { clipPath: fullClip, duration: duration * 0.6 }, duration * 0.27)
+          .to(incomingZones, { x: 0, clipPath: fullClip, duration: duration * 0.5, stagger: 0.018 }, duration * 0.34)
+          .fromTo(
+            incomingTitle,
+            { fontVariationSettings: '"wdth" 58, "wght" 850' },
+            { fontVariationSettings: '"wdth" 132, "wght" 850', duration: duration * 0.44, immediateRender: false },
+            duration * 0.35
+          )
+          .to(handoffRules, { scaleX: 0, duration: duration * 0.2, stagger: 0.025 }, duration * 0.7);
       }
 
-      ScrollTrigger.refresh();
+      window.clearTimeout(ownershipTimer);
+      ownershipTimer = window.setTimeout(() => {
+        outgoing.inert = true;
+        outgoing.setAttribute("aria-hidden", "true");
+        incoming.inert = false;
+        incoming.setAttribute("aria-hidden", "false");
+      }, duration * 500);
+      return true;
+    };
 
-      return () => {
-        trigger.kill();
-        master.revert();
-        storySeek = null;
-        resetAccessibility();
-        deck.classList.remove("is-active");
-        document.documentElement.classList.remove("story-deck-active");
-        if (progressBar) progressBar.style.removeProperty("transform");
+    const goRelative = (direction: 1 | -1, history: "push" | "replace" = "replace") => {
+      return goTo(activeIndex + direction, { history });
+    };
+
+    const resolveTarget = (value: string) => pageIndex.get(value) ?? hashIndex.get(value);
+    const onTargetClick = (event: Event) => {
+      const button = event.currentTarget as HTMLButtonElement;
+      const target = resolveTarget(button.dataset.dossierTarget ?? "");
+      if (target !== undefined) goTo(target, { history: "push" });
+    };
+    const onPrevious = () => goRelative(-1, "push");
+    const onNext = () => goRelative(1, "push");
+
+    const onWheel = (event: WheelEvent) => {
+      if (document.body.classList.contains("menu-open")) return;
+      if ((event.target as Element | null)?.closest("[data-page-interactive]")) return;
+      event.preventDefault();
+      const now = performance.now();
+      const unit = event.deltaMode === 1 ? 16 : event.deltaMode === 2 ? window.innerHeight : 1;
+      const delta = event.deltaY * unit;
+      const direction = Math.sign(delta);
+      if (!direction) return;
+
+      if (transitioning) {
+        lastWheelAt = now;
+        wheelAmount = 0;
+        return;
+      }
+      if (wheelNeedsQuiet) {
+        if (now - lastWheelAt < 135) {
+          lastWheelAt = now;
+          wheelAmount = 0;
+          return;
+        }
+        wheelNeedsQuiet = false;
+      }
+      lastWheelAt = now;
+      if (direction !== wheelDirection) wheelAmount = 0;
+      wheelDirection = direction;
+      wheelAmount += Math.abs(delta);
+      window.clearTimeout(wheelReset);
+      wheelReset = window.setTimeout(() => { wheelAmount = 0; }, 220);
+      if (wheelAmount < 46) return;
+      wheelAmount = 0;
+      goRelative(direction > 0 ? 1 : -1);
+    };
+
+    const onTouchStart = (event: TouchEvent) => {
+      const touch = event.touches[0];
+      if (!touch) return;
+      touchStart = {
+        x: touch.clientX,
+        y: touch.clientY,
+        interactive: Boolean((event.target as Element | null)?.closest("[data-page-interactive]")),
       };
-    }
-  );
+    };
+    const onTouchMove = (event: TouchEvent) => {
+      if (touchStart && !touchStart.interactive) event.preventDefault();
+    };
+    const onTouchEnd = (event: TouchEvent) => {
+      if (!touchStart || touchStart.interactive || transitioning) {
+        touchStart = null;
+        return;
+      }
+      const touch = event.changedTouches[0];
+      if (!touch) return;
+      const dx = touch.clientX - touchStart.x;
+      const dy = touch.clientY - touchStart.y;
+      touchStart = null;
+      if (Math.abs(dy) < 56 || Math.abs(dy) < Math.abs(dx) * 1.2) return;
+      goRelative(dy < 0 ? 1 : -1);
+    };
+
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (document.body.classList.contains("menu-open")) return;
+      const target = event.target as HTMLElement | null;
+      if (target?.closest("input, textarea, select, button, a, [contenteditable='true'], [data-page-interactive]")) return;
+      let targetIndex: number | null = null;
+      if (["ArrowDown", "ArrowRight", "PageDown"].includes(event.key) || (event.key === " " && !event.shiftKey)) targetIndex = activeIndex + 1;
+      if (["ArrowUp", "ArrowLeft", "PageUp"].includes(event.key) || (event.key === " " && event.shiftKey)) targetIndex = activeIndex - 1;
+      if (event.key === "Home") targetIndex = 0;
+      if (event.key === "End") targetIndex = pages.length - 1;
+      if (targetIndex === null) return;
+      event.preventDefault();
+      goTo(targetIndex, { history: "replace" });
+    };
+
+    targetButtons.forEach((button) => button.addEventListener("click", onTargetClick));
+    previousButton?.addEventListener("click", onPrevious);
+    nextButton?.addEventListener("click", onNext);
+    window.addEventListener("wheel", onWheel, { passive: false });
+    stage.addEventListener("touchstart", onTouchStart, { passive: true });
+    stage.addEventListener("touchmove", onTouchMove, { passive: false });
+    stage.addEventListener("touchend", onTouchEnd, { passive: true });
+    document.addEventListener("keydown", onKeyDown);
+
+    pages.forEach((page, index) => gsap.set(page, { visibility: index === activeIndex ? "visible" : "hidden" }));
+    updateInterface(activeIndex, false);
+    storySeek = (section) => {
+      const target = resolveTarget(section);
+      if (target === undefined) return false;
+      if (transitioning) {
+        queuedHistoryTarget = target;
+        return true;
+      }
+      return goTo(target, { history: "none" });
+    };
+
+    return () => {
+      transition?.kill();
+      window.clearTimeout(wheelReset);
+      window.clearTimeout(ownershipTimer);
+      targetButtons.forEach((button) => button.removeEventListener("click", onTargetClick));
+      previousButton?.removeEventListener("click", onPrevious);
+      nextButton?.removeEventListener("click", onNext);
+      window.removeEventListener("wheel", onWheel);
+      stage.removeEventListener("touchstart", onTouchStart);
+      stage.removeEventListener("touchmove", onTouchMove);
+      stage.removeEventListener("touchend", onTouchEnd);
+      document.removeEventListener("keydown", onKeyDown);
+      storySeek = null;
+      resetPages();
+      deck.classList.remove("is-active", "is-transitioning");
+      document.documentElement.classList.remove("operator-deck-active");
+      handoff.removeAttribute("style");
+    };
+  });
 
   pageCleanup.push(() => {
     media.revert();
     storySeek = null;
-    resetAccessibility();
-    deck.classList.remove("is-active");
-    document.documentElement.classList.remove("story-deck-active");
+    resetPages();
+    deck.classList.remove("is-active", "is-transitioning");
+    document.documentElement.classList.remove("operator-deck-active");
   });
 }
 
 function initMotion() {
   const reduceMotion = window.matchMedia(REDUCED_MOTION).matches;
   const mobileLayout = window.matchMedia(MOBILE_LAYOUT).matches;
-  const outsideActiveDeck = (element: HTMLElement) => !element.closest("[data-story-deck].is-active");
+  const outsideActiveDeck = (element: HTMLElement) => !element.closest("[data-operator-deck].is-active");
 
   if (reduceMotion) {
     document.querySelectorAll<HTMLElement>("[data-count]").forEach((el) => {
@@ -690,7 +813,7 @@ async function bootstrap() {
   await runFullLoader();
   const completingRoute = routeTransition;
   if (completingRoute) await runRouteLoader();
-  initStoryDeck();
+  initOperatorDeck();
   initNavigation();
   initMotion();
   if (completingRoute) {
