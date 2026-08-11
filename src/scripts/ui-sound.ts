@@ -1,5 +1,5 @@
 const SOUND_PREFERENCE_KEY = "shafri-portfolio-ui-sound";
-const MASTER_LEVEL = 0.34;
+const MASTER_LEVEL = 0.32;
 const HOVER_SELECTOR = [
   "a",
   "button",
@@ -82,90 +82,102 @@ class UISoundEngine {
 
   hover() {
     this.tone({
-      frequency: 1480,
-      endFrequency: 1780,
-      duration: 0.026,
-      volume: 0.032,
-      type: "sine",
+      frequency: 2140,
+      endFrequency: 2140,
+      duration: 0.014,
+      volume: 0.019,
+      type: "triangle",
     });
-    this.noise(0.011, 0.006, 4100, 2.4);
+    this.noise(0.008, 0.011, 5200, 2.8);
   }
 
   press() {
     this.tone({
-      frequency: 1120,
-      endFrequency: 820,
-      duration: 0.04,
-      volume: 0.047,
-      type: "triangle",
+      frequency: 980,
+      endFrequency: 740,
+      duration: 0.028,
+      volume: 0.027,
+      type: "square",
     });
     this.tone({
-      frequency: 1760,
-      endFrequency: 1390,
-      duration: 0.024,
-      volume: 0.019,
-      type: "sine",
-      delay: 0.006,
+      frequency: 1840,
+      endFrequency: 1840,
+      duration: 0.013,
+      volume: 0.015,
+      type: "triangle",
+      delay: 0.004,
     });
-    this.noise(0.018, 0.027, 2900, 2.8);
+    this.noise(0.012, 0.024, 3300, 2.4);
+    this.noise(0.006, 0.012, 7200, 3.5, 0.02);
   }
 
   scroll(direction: number) {
     this.tone({
-      frequency: direction > 0 ? 980 : 790,
-      endFrequency: direction > 0 ? 790 : 980,
-      duration: 0.027,
-      volume: 0.021,
-      type: "sine",
-    });
-    this.noise(0.012, 0.01, 3500, 2.2);
-  }
-
-  section(index: number) {
-    const root = 590 + (index % 7) * 34;
-    this.tone({
-      frequency: root,
-      endFrequency: root * 1.08,
-      duration: 0.064,
-      volume: 0.04,
+      frequency: direction > 0 ? 1120 : 790,
+      endFrequency: direction > 0 ? 790 : 1120,
+      duration: 0.018,
+      volume: 0.014,
       type: "triangle",
     });
     this.tone({
-      frequency: root * 1.58,
-      endFrequency: root * 1.92,
-      duration: 0.052,
-      volume: 0.03,
-      type: "sine",
-      delay: 0.026,
-    });
-    this.tone({
-      frequency: root * 2.75,
-      endFrequency: root * 2.42,
-      duration: 0.03,
-      volume: 0.013,
-      type: "sine",
+      frequency: 2400,
+      endFrequency: 2400,
+      duration: 0.006,
+      volume: 0.006,
+      type: "square",
       delay: 0.012,
     });
-    this.noise(0.02, 0.014, 2500, 2.5);
+    this.noise(0.008, 0.012, 4300, 0.8, 0, "highpass");
+  }
+
+  section(index: number) {
+    const root = 520 + (index % 4) * 55;
+    this.tone({
+      frequency: root,
+      endFrequency: root,
+      duration: 0.035,
+      volume: 0.028,
+      type: "triangle",
+    });
+    this.tone({
+      frequency: root * 2.35,
+      endFrequency: root * 1.85,
+      duration: 0.026,
+      volume: 0.012,
+      type: "square",
+      delay: 0.008,
+    });
+    this.tone({
+      frequency: root * 4.2,
+      endFrequency: root * 4.2,
+      duration: 0.018,
+      volume: 0.013,
+      type: "triangle",
+      delay: 0.03,
+    });
+    this.noise(0.018, 0.028, 3000, 0.7, 0, "highpass");
+    this.noise(0.1, 0.01, 5200, 1.8, 0.025);
+    this.noise(0.012, 0.018, 7500, 3, 0.085);
   }
 
   enabledCue() {
     this.tone({
-      frequency: 860,
-      endFrequency: 1080,
-      duration: 0.046,
-      volume: 0.038,
+      frequency: 820,
+      endFrequency: 1120,
+      duration: 0.026,
+      volume: 0.025,
       type: "triangle",
     });
     this.tone({
-      frequency: 1280,
-      endFrequency: 1580,
-      duration: 0.042,
-      volume: 0.028,
-      type: "sine",
-      delay: 0.038,
+      frequency: 1680,
+      endFrequency: 1680,
+      duration: 0.014,
+      volume: 0.011,
+      type: "square",
+      delay: 0.03,
     });
-    this.noise(0.014, 0.009, 3600, 2.4);
+    this.noise(0.01, 0.015, 4200, 2.2);
+    this.noise(0.008, 0.009, 6800, 3.2, 0.032);
   }
 
   private createContext() {
@@ -198,39 +210,48 @@ class UISoundEngine {
 
     oscillator.type = options.type;
     oscillator.frequency.setValueAtTime(options.frequency, start);
-    oscillator.frequency.exponentialRampToValueAtTime(options.endFrequency, end);
+    oscillator.frequency.setValueAtTime(options.endFrequency, start + options.duration * 0.42);
     gain.gain.setValueAtTime(0.0001, start);
-    gain.gain.exponentialRampToValueAtTime(options.volume, start + 0.0015);
-    gain.gain.exponentialRampToValueAtTime(0.0001, end);
+    gain.gain.linearRampToValueAtTime(options.volume, start + Math.min(0.0008, options.duration * 0.1));
+    gain.gain.setValueAtTime(options.volume * 0.78, end - Math.min(0.003, options.duration * 0.25));
+    gain.gain.linearRampToValueAtTime(0.0001, end);
     oscillator.connect(gain);
     gain.connect(master);
     oscillator.start(start);
     oscillator.stop(end + 0.02);
   }
 
-  private noise(duration: number, volume: number, frequency: number, resonance: number) {
+  private noise(
+    duration: number,
+    volume: number,
+    frequency: number,
+    resonance: number,
+    delay = 0,
+    filterType: BiquadFilterType = "bandpass",
+  ) {
     const context = this.context;
     const master = this.master;
     if (!this.soundEnabled || context?.state !== "running" || !master) return;
 
     if (!this.noiseBuffer) {
-      const samples = Math.max(1, Math.floor(context.sampleRate * 0.08));
+      const samples = Math.max(1, Math.floor(context.sampleRate * 0.14));
       this.noiseBuffer = context.createBuffer(1, samples, context.sampleRate);
       const channel = this.noiseBuffer.getChannelData(0);
       for (let index = 0; index < samples; index += 1) channel[index] = Math.random() * 2 - 1;
     }
 
-    const now = context.currentTime;
+    const now = context.currentTime + delay;
     const source = context.createBufferSource();
     const filter = context.createBiquadFilter();
     const gain = context.createGain();
     source.buffer = this.noiseBuffer;
-    filter.type = "bandpass";
+    filter.type = filterType;
     filter.frequency.value = frequency;
     filter.Q.value = resonance;
     gain.gain.setValueAtTime(0.0001, now);
-    gain.gain.exponentialRampToValueAtTime(volume, now + 0.001);
-    gain.gain.exponentialRampToValueAtTime(0.0001, now + duration);
+    gain.gain.linearRampToValueAtTime(volume, now + Math.min(0.0007, duration * 0.1));
+    gain.gain.setValueAtTime(volume * 0.72, now + duration * 0.55);
+    gain.gain.linearRampToValueAtTime(0.0001, now + duration);
     source.connect(filter);
     filter.connect(gain);
     gain.connect(master);
