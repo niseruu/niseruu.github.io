@@ -1,5 +1,5 @@
 const SOUND_PREFERENCE_KEY = "shafri-portfolio-ui-sound";
-const MASTER_LEVEL = 0.42;
+const MASTER_LEVEL = 0.34;
 const HOVER_SELECTOR = [
   "a",
   "button",
@@ -82,72 +82,90 @@ class UISoundEngine {
 
   hover() {
     this.tone({
-      frequency: 820,
-      endFrequency: 1160,
-      duration: 0.045,
-      volume: 0.027,
-      type: "triangle",
+      frequency: 1480,
+      endFrequency: 1780,
+      duration: 0.026,
+      volume: 0.032,
+      type: "sine",
     });
+    this.noise(0.011, 0.006, 4100, 2.4);
   }
 
   press() {
     this.tone({
-      frequency: 190,
-      endFrequency: 108,
-      duration: 0.075,
-      volume: 0.055,
-      type: "square",
-    });
-    this.noise(0.038, 0.018, 1550);
-  }
-
-  scroll(direction: number) {
-    this.tone({
-      frequency: direction > 0 ? 510 : 360,
-      endFrequency: direction > 0 ? 360 : 510,
-      duration: 0.038,
-      volume: 0.019,
-      type: "sine",
-    });
-    this.noise(0.022, 0.008, 2100);
-  }
-
-  section(index: number) {
-    const root = 168 + (index % 7) * 18;
-    this.tone({
-      frequency: root,
-      endFrequency: root * 0.78,
-      duration: 0.13,
+      frequency: 1120,
+      endFrequency: 820,
+      duration: 0.04,
       volume: 0.047,
       type: "triangle",
     });
     this.tone({
-      frequency: root * 2.15,
-      endFrequency: root * 2.8,
-      duration: 0.09,
-      volume: 0.026,
+      frequency: 1760,
+      endFrequency: 1390,
+      duration: 0.024,
+      volume: 0.019,
       type: "sine",
-      delay: 0.045,
+      delay: 0.006,
     });
-    this.noise(0.05, 0.011, 1250);
+    this.noise(0.018, 0.027, 2900, 2.8);
   }
 
-  enabledCue() {
+  scroll(direction: number) {
     this.tone({
-      frequency: 420,
-      endFrequency: 680,
-      duration: 0.09,
+      frequency: direction > 0 ? 980 : 790,
+      endFrequency: direction > 0 ? 790 : 980,
+      duration: 0.027,
+      volume: 0.021,
+      type: "sine",
+    });
+    this.noise(0.012, 0.01, 3500, 2.2);
+  }
+
+  section(index: number) {
+    const root = 590 + (index % 7) * 34;
+    this.tone({
+      frequency: root,
+      endFrequency: root * 1.08,
+      duration: 0.064,
       volume: 0.04,
       type: "triangle",
     });
     this.tone({
-      frequency: 680,
-      endFrequency: 940,
-      duration: 0.08,
-      volume: 0.027,
+      frequency: root * 1.58,
+      endFrequency: root * 1.92,
+      duration: 0.052,
+      volume: 0.03,
       type: "sine",
-      delay: 0.065,
+      delay: 0.026,
     });
+    this.tone({
+      frequency: root * 2.75,
+      endFrequency: root * 2.42,
+      duration: 0.03,
+      volume: 0.013,
+      type: "sine",
+      delay: 0.012,
+    });
+    this.noise(0.02, 0.014, 2500, 2.5);
+  }
+
+  enabledCue() {
+    this.tone({
+      frequency: 860,
+      endFrequency: 1080,
+      duration: 0.046,
+      volume: 0.038,
+      type: "triangle",
+    });
+    this.tone({
+      frequency: 1280,
+      endFrequency: 1580,
+      duration: 0.042,
+      volume: 0.028,
+      type: "sine",
+      delay: 0.038,
+    });
+    this.noise(0.014, 0.009, 3600, 2.4);
   }
 
   private createContext() {
@@ -159,11 +177,11 @@ class UISoundEngine {
     this.master = this.context.createGain();
     this.compressor = this.context.createDynamicsCompressor();
     this.master.gain.value = this.soundEnabled ? MASTER_LEVEL : 0.0001;
-    this.compressor.threshold.value = -24;
-    this.compressor.knee.value = 12;
-    this.compressor.ratio.value = 8;
-    this.compressor.attack.value = 0.003;
-    this.compressor.release.value = 0.16;
+    this.compressor.threshold.value = -18;
+    this.compressor.knee.value = 8;
+    this.compressor.ratio.value = 4;
+    this.compressor.attack.value = 0.0005;
+    this.compressor.release.value = 0.08;
     this.master.connect(this.compressor);
     this.compressor.connect(this.context.destination);
   }
@@ -182,7 +200,7 @@ class UISoundEngine {
     oscillator.frequency.setValueAtTime(options.frequency, start);
     oscillator.frequency.exponentialRampToValueAtTime(options.endFrequency, end);
     gain.gain.setValueAtTime(0.0001, start);
-    gain.gain.exponentialRampToValueAtTime(options.volume, start + 0.008);
+    gain.gain.exponentialRampToValueAtTime(options.volume, start + 0.0015);
     gain.gain.exponentialRampToValueAtTime(0.0001, end);
     oscillator.connect(gain);
     gain.connect(master);
@@ -190,7 +208,7 @@ class UISoundEngine {
     oscillator.stop(end + 0.02);
   }
 
-  private noise(duration: number, volume: number, highpass: number) {
+  private noise(duration: number, volume: number, frequency: number, resonance: number) {
     const context = this.context;
     const master = this.master;
     if (!this.soundEnabled || context?.state !== "running" || !master) return;
@@ -207,10 +225,11 @@ class UISoundEngine {
     const filter = context.createBiquadFilter();
     const gain = context.createGain();
     source.buffer = this.noiseBuffer;
-    filter.type = "highpass";
-    filter.frequency.value = highpass;
+    filter.type = "bandpass";
+    filter.frequency.value = frequency;
+    filter.Q.value = resonance;
     gain.gain.setValueAtTime(0.0001, now);
-    gain.gain.exponentialRampToValueAtTime(volume, now + 0.004);
+    gain.gain.exponentialRampToValueAtTime(volume, now + 0.001);
     gain.gain.exponentialRampToValueAtTime(0.0001, now + duration);
     source.connect(filter);
     filter.connect(gain);
