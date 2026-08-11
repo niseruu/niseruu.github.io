@@ -392,6 +392,76 @@ p {
   border-top: 1px solid var(--line);
 }
 
+.sound-toggle {
+  position: relative;
+  border: 0;
+  background: transparent;
+  color: var(--ink);
+  cursor: pointer;
+}
+
+.sound-toggle-icon {
+  position: relative;
+  display: grid;
+  place-items: center;
+}
+
+.sound-toggle-icon::after {
+  position: absolute;
+  top: 50%;
+  right: .15rem;
+  width: .28rem;
+  height: .28rem;
+  background: var(--signal);
+  content: "";
+  transform: translateY(-50%);
+}
+
+.sound-toggle-icon svg {
+  width: 1.15rem;
+  height: 1.15rem;
+  overflow: visible;
+}
+
+.sound-toggle-wave,
+.sound-toggle-slash { transition: opacity .18s ease; }
+.sound-toggle-slash { opacity: 0; }
+.sound-toggle[data-sound-enabled="false"] .sound-toggle-wave { opacity: 0; }
+.sound-toggle[data-sound-enabled="false"] .sound-toggle-slash { opacity: 1; }
+.sound-toggle[data-sound-enabled="false"] .sound-toggle-icon::after { background: #aaa; }
+
+.sound-toggle--rail {
+  display: flex;
+  width: 13rem;
+  height: 3rem;
+  align-items: center;
+  border-bottom: 1px solid var(--line);
+  text-align: left;
+  transition: background .2s ease;
+}
+
+.sound-toggle--rail:hover { background: #e8e8e5; }
+.sound-toggle--rail .sound-toggle-icon {
+  width: var(--rail);
+  flex: 0 0 var(--rail);
+}
+
+.sound-toggle-label {
+  white-space: nowrap;
+  font-size: .62rem;
+  font-weight: 700;
+  letter-spacing: .1em;
+  opacity: 0;
+  transform: translateX(-.4rem);
+  transition: opacity .22s .08s, transform .3s .06s;
+}
+
+.desktop-rail:hover .sound-toggle-label,
+.desktop-rail:focus-within .sound-toggle-label {
+  opacity: 1;
+  transform: translateX(0);
+}
+
 .rail-socials {
   display: flex;
   width: var(--rail);
@@ -499,6 +569,7 @@ p {
 }
 
 .mobile-resume,
+.sound-toggle--mobile,
 .menu-toggle {
   display: grid;
   min-width: 3.65rem;
@@ -509,6 +580,13 @@ p {
   font-size: 0.65rem;
   font-weight: 700;
 }
+
+.sound-toggle--mobile .sound-toggle-icon {
+  width: 1.5rem;
+  justify-self: center;
+}
+
+.sound-toggle--mobile .sound-toggle-label { display: none; }
 
 .menu-toggle {
   position: relative;

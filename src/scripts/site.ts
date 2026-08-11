@@ -1,5 +1,6 @@
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { initUISound } from "./ui-sound";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -1125,6 +1126,7 @@ async function bootstrap() {
   if (completingRoute) await runRouteLoader();
   initEndfieldFlow();
   initNavigation();
+  pageCleanup.push(initUISound());
   initMotion();
   initAmbientMotion();
   await new Promise<void>((resolve) => requestAnimationFrame(() => requestAnimationFrame(() => resolve())));
