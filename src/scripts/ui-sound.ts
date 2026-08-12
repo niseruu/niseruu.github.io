@@ -90,45 +90,42 @@ class UISoundEngine {
   }
 
   hover() {
-    this.tone({ frequency: 1960, duration: 0.013, volume: 0.014 });
-    this.click({ duration: 0.0035, volume: 0.014, frequency: 4800 });
+    this.tone({ frequency: 1960, duration: 0.009, volume: 0.004 });
+    this.click({ duration: 0.004, volume: 0.026, frequency: 4800 });
   }
 
   press() {
-    this.tone({ frequency: 940, endFrequency: 790, duration: 0.024, volume: 0.025 });
-    this.click({ duration: 0.006, volume: 0.038, frequency: 1600 });
-    this.click({ duration: 0.0025, volume: 0.016, frequency: 6200, delay: 0.015 });
+    this.tone({ frequency: 940, endFrequency: 820, duration: 0.014, volume: 0.008 });
+    this.click({ duration: 0.007, volume: 0.055, frequency: 1500 });
+    this.click({ duration: 0.003, volume: 0.025, frequency: 6300, delay: 0.013 });
   }
 
   scroll(direction: number) {
     this.tone({
       frequency: direction > 0 ? 1060 : 820,
       endFrequency: direction > 0 ? 820 : 1060,
-      duration: 0.016,
-      volume: 0.011,
+      duration: 0.01,
+      volume: 0.004,
     });
-    this.click({ duration: 0.0035, volume: 0.02, frequency: 3900 });
+    const firstFrequency = direction > 0 ? 4500 : 2700;
+    const secondFrequency = direction > 0 ? 2700 : 4500;
+    this.click({ duration: 0.004, volume: 0.03, frequency: firstFrequency });
+    this.click({ duration: 0.0025, volume: 0.017, frequency: secondFrequency, delay: 0.008 });
   }
 
   section(index: number) {
     const root = 570 + (index % 4) * 42;
     const offset = (index % 3) * 0.002;
-    this.tone({ frequency: root, endFrequency: root * 0.94, duration: 0.038, volume: 0.026 });
-    this.tone({
-      frequency: root * 2.35,
-      duration: 0.016,
-      volume: 0.006,
-      delay: 0.016 + offset,
-      type: "square",
-    });
-    this.click({ duration: 0.007, volume: 0.045, frequency: 1400 });
-    this.click({ duration: 0.004, volume: 0.026, frequency: 5600, delay: 0.033 + offset });
+    this.tone({ frequency: root, endFrequency: root * 0.96, duration: 0.021, volume: 0.009 });
+    this.click({ duration: 0.009, volume: 0.068, frequency: 1150 });
+    this.click({ duration: 0.0045, volume: 0.042, frequency: 4000, delay: 0.017 + offset });
+    this.click({ duration: 0.003, volume: 0.026, frequency: 6900, delay: 0.04 + offset });
   }
 
   enabledCue() {
-    this.tone({ frequency: 860, endFrequency: 1080, duration: 0.025, volume: 0.022 });
-    this.click({ duration: 0.005, volume: 0.03, frequency: 2100 });
-    this.click({ duration: 0.003, volume: 0.018, frequency: 5900, delay: 0.025 });
+    this.tone({ frequency: 860, endFrequency: 1050, duration: 0.015, volume: 0.008 });
+    this.click({ duration: 0.006, volume: 0.048, frequency: 1800 });
+    this.click({ duration: 0.003, volume: 0.026, frequency: 5900, delay: 0.02 });
   }
 
   private createContext() {
@@ -141,10 +138,10 @@ class UISoundEngine {
     this.compressor = this.context.createDynamicsCompressor();
     this.master.gain.value = this.soundEnabled ? MASTER_LEVEL : 0.0001;
     this.compressor.threshold.value = -18;
-    this.compressor.knee.value = 3;
+    this.compressor.knee.value = 1;
     this.compressor.ratio.value = 3;
     this.compressor.attack.value = 0.001;
-    this.compressor.release.value = 0.04;
+    this.compressor.release.value = 0.03;
     this.master.connect(this.compressor);
     this.compressor.connect(this.context.destination);
   }
@@ -164,8 +161,8 @@ class UISoundEngine {
       oscillator.frequency.setValueAtTime(options.endFrequency, start + options.duration * 0.48);
     }
     gain.gain.setValueAtTime(0.0001, start);
-    gain.gain.linearRampToValueAtTime(options.volume, start + 0.001);
-    gain.gain.linearRampToValueAtTime(options.volume * 0.55, start + options.duration * 0.58);
+    gain.gain.linearRampToValueAtTime(options.volume, start + 0.0007);
+    gain.gain.setValueAtTime(options.volume * 0.48, start + options.duration * 0.48);
     gain.gain.linearRampToValueAtTime(0.0001, end);
     oscillator.connect(gain);
     gain.connect(master);
@@ -184,8 +181,8 @@ class UISoundEngine {
       const channel = this.noiseBuffer.getChannelData(0);
       for (let index = 0; index < samples; index += 1) {
         const position = index / samples;
-        const step = position < 0.14 ? 1 : position < 0.42 ? 0.68 : position < 0.74 ? 0.34 : 0.14;
-        const quantizedNoise = Math.round((Math.random() * 2 - 1) * 8) / 8;
+        const step = position < 0.13 ? 1 : position < 0.38 ? 0.65 : position < 0.7 ? 0.32 : 0.13;
+        const quantizedNoise = Math.round((Math.random() * 2 - 1) * 6) / 6;
         channel[index] = quantizedNoise * step;
       }
     }
@@ -199,9 +196,9 @@ class UISoundEngine {
     filter.type = options.filterType ?? "highpass";
     filter.frequency.value = options.frequency;
     filter.Q.value = options.resonance ?? 0.55;
-    gain.gain.setValueAtTime(0.0001, start);
-    gain.gain.linearRampToValueAtTime(options.volume, start + Math.min(0.0005, options.duration * 0.14));
-    gain.gain.linearRampToValueAtTime(options.volume * 0.38, start + options.duration * 0.64);
+    gain.gain.setValueAtTime(options.volume, start);
+    gain.gain.setValueAtTime(options.volume * 0.52, start + options.duration * 0.34);
+    gain.gain.linearRampToValueAtTime(options.volume * 0.18, start + options.duration * 0.72);
     gain.gain.linearRampToValueAtTime(0.0001, end);
     source.connect(filter);
     filter.connect(gain);
