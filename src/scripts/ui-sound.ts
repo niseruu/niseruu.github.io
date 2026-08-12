@@ -23,6 +23,15 @@ type ClickOptions = {
   resonance?: number;
 };
 
+type ToneOptions = {
+  frequency: number;
+  endFrequency?: number;
+  duration: number;
+  volume: number;
+  delay?: number;
+  type?: "triangle" | "square";
+};
+
 class UISoundEngine {
   private context: AudioContext | null = null;
   private master: GainNode | null = null;
@@ -81,32 +90,45 @@ class UISoundEngine {
   }
 
   hover() {
-    this.click({ duration: 0.0045, volume: 0.032, frequency: 4800 });
+    this.tone({ frequency: 1960, duration: 0.013, volume: 0.014 });
+    this.click({ duration: 0.0035, volume: 0.014, frequency: 4800 });
   }
 
   press() {
-    this.click({ duration: 0.008, volume: 0.07, frequency: 1500 });
-    this.click({ duration: 0.0035, volume: 0.035, frequency: 6400, delay: 0.012 });
+    this.tone({ frequency: 940, endFrequency: 790, duration: 0.024, volume: 0.025 });
+    this.click({ duration: 0.006, volume: 0.038, frequency: 1600 });
+    this.click({ duration: 0.0025, volume: 0.016, frequency: 6200, delay: 0.015 });
   }
 
   scroll(direction: number) {
-    const firstFrequency = direction > 0 ? 4600 : 2600;
-    const secondFrequency = direction > 0 ? 2600 : 4600;
-    this.click({ duration: 0.004, volume: 0.038, frequency: firstFrequency });
-    this.click({ duration: 0.003, volume: 0.024, frequency: secondFrequency, delay: 0.009 });
+    this.tone({
+      frequency: direction > 0 ? 1060 : 820,
+      endFrequency: direction > 0 ? 820 : 1060,
+      duration: 0.016,
+      volume: 0.011,
+    });
+    this.click({ duration: 0.0035, volume: 0.02, frequency: 3900 });
   }
 
   section(index: number) {
-    const offset = (index % 3) * 0.003;
-    this.click({ duration: 0.011, volume: 0.085, frequency: 1050 });
-    this.click({ duration: 0.005, volume: 0.052, frequency: 3900, delay: 0.016 + offset });
-    this.click({ duration: 0.0035, volume: 0.038, frequency: 7200, delay: 0.041 + offset });
-    this.click({ duration: 0.0045, volume: 0.032, frequency: 2800, delay: 0.058 + offset });
+    const root = 570 + (index % 4) * 42;
+    const offset = (index % 3) * 0.002;
+    this.tone({ frequency: root, endFrequency: root * 0.94, duration: 0.038, volume: 0.026 });
+    this.tone({
+      frequency: root * 2.35,
+      duration: 0.016,
+      volume: 0.006,
+      delay: 0.016 + offset,
+      type: "square",
+    });
+    this.click({ duration: 0.007, volume: 0.045, frequency: 1400 });
+    this.click({ duration: 0.004, volume: 0.026, frequency: 5600, delay: 0.033 + offset });
   }
 
   enabledCue() {
-    this.click({ duration: 0.007, volume: 0.06, frequency: 1800 });
-    this.click({ duration: 0.004, volume: 0.04, frequency: 5900, delay: 0.022 });
+    this.tone({ frequency: 860, endFrequency: 1080, duration: 0.025, volume: 0.022 });
+    this.click({ duration: 0.005, volume: 0.03, frequency: 2100 });
+    this.click({ duration: 0.003, volume: 0.018, frequency: 5900, delay: 0.025 });
   }
 
   private createContext() {
@@ -119,12 +141,36 @@ class UISoundEngine {
     this.compressor = this.context.createDynamicsCompressor();
     this.master.gain.value = this.soundEnabled ? MASTER_LEVEL : 0.0001;
     this.compressor.threshold.value = -18;
-    this.compressor.knee.value = 0;
+    this.compressor.knee.value = 3;
     this.compressor.ratio.value = 3;
-    this.compressor.attack.value = 0.0025;
-    this.compressor.release.value = 0.025;
+    this.compressor.attack.value = 0.001;
+    this.compressor.release.value = 0.04;
     this.master.connect(this.compressor);
     this.compressor.connect(this.context.destination);
+  }
+
+  private tone(options: ToneOptions) {
+    const context = this.context;
+    const master = this.master;
+    if (!this.soundEnabled || context?.state !== "running" || !master) return;
+
+    const start = context.currentTime + (options.delay ?? 0);
+    const end = start + options.duration;
+    const oscillator = context.createOscillator();
+    const gain = context.createGain();
+    oscillator.type = options.type ?? "triangle";
+    oscillator.frequency.setValueAtTime(options.frequency, start);
+    if (options.endFrequency) {
+      oscillator.frequency.setValueAtTime(options.endFrequency, start + options.duration * 0.48);
+    }
+    gain.gain.setValueAtTime(0.0001, start);
+    gain.gain.linearRampToValueAtTime(options.volume, start + 0.001);
+    gain.gain.linearRampToValueAtTime(options.volume * 0.55, start + options.duration * 0.58);
+    gain.gain.linearRampToValueAtTime(0.0001, end);
+    oscillator.connect(gain);
+    gain.connect(master);
+    oscillator.start(start);
+    oscillator.stop(end + 0.002);
   }
 
   private click(options: ClickOptions) {
@@ -138,8 +184,8 @@ class UISoundEngine {
       const channel = this.noiseBuffer.getChannelData(0);
       for (let index = 0; index < samples; index += 1) {
         const position = index / samples;
-        const step = position < 0.12 ? 1 : position < 0.34 ? 0.62 : position < 0.68 ? 0.3 : 0.12;
-        const quantizedNoise = Math.round((Math.random() * 2 - 1) * 4) / 4;
+        const step = position < 0.14 ? 1 : position < 0.42 ? 0.68 : position < 0.74 ? 0.34 : 0.14;
+        const quantizedNoise = Math.round((Math.random() * 2 - 1) * 8) / 8;
         channel[index] = quantizedNoise * step;
       }
     }
@@ -153,10 +199,10 @@ class UISoundEngine {
     filter.type = options.filterType ?? "highpass";
     filter.frequency.value = options.frequency;
     filter.Q.value = options.resonance ?? 0.55;
-    gain.gain.setValueAtTime(options.volume, start);
-    gain.gain.setValueAtTime(options.volume * 0.58, start + options.duration * 0.28);
-    gain.gain.setValueAtTime(options.volume * 0.24, start + options.duration * 0.62);
-    gain.gain.setValueAtTime(0.0001, end);
+    gain.gain.setValueAtTime(0.0001, start);
+    gain.gain.linearRampToValueAtTime(options.volume, start + Math.min(0.0005, options.duration * 0.14));
+    gain.gain.linearRampToValueAtTime(options.volume * 0.38, start + options.duration * 0.64);
+    gain.gain.linearRampToValueAtTime(0.0001, end);
     source.connect(filter);
     filter.connect(gain);
     gain.connect(master);
