@@ -1125,6 +1125,10 @@ async function bootstrap() {
   const completingRoute = routeTransition;
   if (completingRoute) await runRouteLoader();
   initEndfieldFlow();
+  if (document.querySelector("[data-game-ui]")) {
+    const { initGameInterface } = await import("./game-interface");
+    pageCleanup.push(initGameInterface());
+  }
   initNavigation();
   pageCleanup.push(initUISound());
   initMotion();

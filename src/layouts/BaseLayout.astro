@@ -8,9 +8,10 @@ import "../styles/global.css";
 interface Props {
   title: string;
   description: string;
+  interfaceMode?: boolean;
 }
 
-const { title, description } = Astro.props;
+const { title, description, interfaceMode = false } = Astro.props;
 ---
 
 <!doctype html>
@@ -31,15 +32,21 @@ const { title, description } = Astro.props;
     <script is:inline>document.documentElement.classList.add("has-js");</script>
     <ClientRouter fallback="swap" />
   </head>
-  <body>
+  <body class:list={[interfaceMode && "game-interface-page"]}>
     <LoadingScreen />
-    <Nav />
-    <div class="page-shell">
+    {!interfaceMode && <Nav />}
+    {interfaceMode ? (
+      <main>
+        <slot />
+      </main>
+    ) : (
+      <div class="page-shell">
       <main>
         <slot />
       </main>
       <Footer />
-    </div>
+      </div>
+    )}
 
     <script>
       import "../scripts/site";
