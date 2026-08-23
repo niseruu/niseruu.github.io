@@ -2823,7 +2823,29 @@ p {
   box-shadow: .85rem .85rem 0 rgba(0,0,0,.3);
 }
 
+/* Lightweight pseudo-3D scene layer. The canvas is a decorative perspective
+   field only; it never owns interaction or content, and stays hidden until
+   its controller has measured the hero successfully. */
+.hero-depth-canvas {
+  display: none;
+}
+
+@media (min-width: 960px) {
+  .endfield-flow.is-art-directed .hero-section.is-depth-scene .hero-depth-canvas {
+    position: absolute;
+    z-index: 1;
+    inset: 0;
+    display: block;
+    width: 100%;
+    height: 100%;
+    mix-blend-mode: multiply;
+    opacity: .72;
+    pointer-events: none;
+  }
+}
+
 @media (max-width: 959px) {
+  .hero-depth-canvas { display: none !important; }
   .endfield-flow.is-art-directed .projects-section::after,
   .endfield-flow.is-art-directed .contact-section::before { display: none; }
   .endfield-flow.is-art-directed .project-feature::before { right: 0; left: 0; }

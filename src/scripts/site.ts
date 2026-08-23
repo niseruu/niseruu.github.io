@@ -1110,6 +1110,155 @@ function initLayeredDepth() {
   });
 }
 
+function initDepthScene() {
+  const hero = document.querySelector<HTMLElement>(".hero-section");
+  const canvas = hero?.querySelector<HTMLCanvasElement>("[data-depth-canvas]");
+  if (
+    !hero ||
+    !canvas ||
+    window.matchMedia(REDUCED_MOTION).matches ||
+    !window.matchMedia("(min-width: 960px)").matches
+  ) return;
+
+  const context = canvas.getContext("2d", { alpha: true });
+  if (!context) return;
+
+  const pointerCapable = window.matchMedia("(hover: hover) and (pointer: fine)").matches;
+  const pointer = { x: 0, y: 0 };
+  const points = Array.from({ length: 30 }, (_, index) => ({
+    x: (Math.random() * 2 - 1) * 1.28,
+    y: (Math.random() * 2 - 1) * .92,
+    z: Math.random(),
+    size: .7 + Math.random() * 1.8,
+    speed: .000018 + Math.random() * .000026,
+    phase: index * .47,
+  }));
+  let width = 1;
+  let height = 1;
+  let dpr = 1;
+  let raf = 0;
+  let visible = true;
+
+  const resize = () => {
+    const bounds = hero.getBoundingClientRect();
+    width = Math.max(1, bounds.width);
+    height = Math.max(1, bounds.height);
+    dpr = Math.min(window.devicePixelRatio || 1, 1.5);
+    canvas.width = Math.round(width * dpr);
+    canvas.height = Math.round(height * dpr);
+    canvas.style.width = `${width}px`;
+    canvas.style.height = `${height}px`;
+    context.setTransform(dpr, 0, 0, dpr, 0, 0);
+  };
+
+  const project = (x: number, y: number, z: number, vanishingX: number, horizon: number) => {
+    const depth = .22 + z * .92;
+    return {
+      x: vanishingX + (x * width * depth),
+      y: horizon + (y * height * depth),
+      depth,
+    };
+  };
+
+  const draw = (time: number) => {
+    raf = 0;
+    if (!visible) return;
+    const scrollProgress = Math.max(0, Math.min(1, window.scrollY / Math.max(hero.offsetHeight, 1)));
+    const vanishingX = width * (.58 + pointer.x * .035);
+    const horizon = height * (.49 + pointer.y * .018 - scrollProgress * .035);
+
+    context.clearRect(0, 0, width, height);
+    context.save();
+    context.globalCompositeOperation = "multiply";
+    context.lineWidth = 1;
+
+    context.strokeStyle = "rgba(25,25,25,.11)";
+    for (let index = -9; index <= 9; index += 1) {
+      const bottomX = width * (index / 9 * .82 + .5) + pointer.x * 16;
+      context.beginPath();
+      context.moveTo(vanishingX, horizon);
+      context.lineTo(bottomX, height * 1.08);
+      context.stroke();
+    }
+
+    for (let index = 1; index <= 11; index += 1) {
+      const ratio = index / 11;
+      const y = horizon + Math.pow(ratio, 1.72) * (height * .7);
+      const drift = (pointer.x * (1 - ratio) * 20) + Math.sin(time * .0002 + index) * .35;
+      context.beginPath();
+      context.moveTo(-width * .04 + drift, y);
+      context.lineTo(width * 1.04 + drift, y);
+      context.stroke();
+    }
+
+    context.strokeStyle = "rgba(255,250,0,.42)";
+    context.lineWidth = 2;
+    context.beginPath();
+    context.moveTo(width * .06, height * (.78 + pointer.y * .02));
+    context.lineTo(width * .42, height * (.69 + pointer.y * .015));
+    context.lineTo(width * .56, height * (.73 + pointer.y * .01));
+    context.stroke();
+
+    points.forEach((point) => {
+      const z = (point.z + time * point.speed + point.phase * .004) % 1;
+      const projected = project(point.x, point.y, z, vanishingX, horizon);
+      const alpha = Math.max(.08, Math.min(.55, .08 + z * .38));
+      const size = point.size * (.45 + z * 1.4);
+      context.fillStyle = z > .72 ? `rgba(255,250,0,${alpha})` : `rgba(25,25,25,${alpha})`;
+      context.fillRect(projected.x - size / 2, projected.y - size / 2, size, size);
+      if (z > .8) {
+        context.strokeStyle = `rgba(25,25,25,${alpha * .68})`;
+        context.lineWidth = .7;
+        context.strokeRect(projected.x - size * 1.7, projected.y - size * 1.7, size * 3.4, size * 3.4);
+      }
+    });
+
+    context.restore();
+    raf = window.requestAnimationFrame(draw);
+  };
+
+  const start = () => {
+    if (!raf && visible) raf = window.requestAnimationFrame(draw);
+  };
+  const onPointerMove = (event: PointerEvent) => {
+    const bounds = hero.getBoundingClientRect();
+    pointer.x = ((event.clientX - bounds.left) / bounds.width) * 2 - 1;
+    pointer.y = ((event.clientY - bounds.top) / bounds.height) * 2 - 1;
+    start();
+  };
+  const onPointerLeave = () => {
+    pointer.x = 0;
+    pointer.y = 0;
+    start();
+  };
+  const observer = new IntersectionObserver(([entry]) => {
+    visible = Boolean(entry?.isIntersecting);
+    if (visible) start();
+  }, { threshold: 0 });
+
+  resize();
+  hero.classList.add("is-depth-scene");
+  observer.observe(hero);
+  window.addEventListener("resize", resize, { passive: true });
+  if (pointerCapable) {
+    hero.addEventListener("pointermove", onPointerMove, { passive: true });
+    hero.addEventListener("pointerleave", onPointerLeave, { passive: true });
+  }
+  start();
+
+  pageCleanup.push(() => {
+    observer.disconnect();
+    window.removeEventListener("resize", resize);
+    if (pointerCapable) {
+      hero.removeEventListener("pointermove", onPointerMove);
+      hero.removeEventListener("pointerleave", onPointerLeave);
+    }
+    if (raf) window.cancelAnimationFrame(raf);
+    hero.classList.remove("is-depth-scene");
+    context.clearRect(0, 0, width, height);
+  });
+}
+
 function initMotion() {
   const reduceMotion = window.matchMedia(REDUCED_MOTION).matches;
   const mobileLayout = window.matchMedia(MOBILE_LAYOUT).matches;
@@ -1260,6 +1409,7 @@ async function bootstrap() {
   if (completingRoute) await runRouteLoader();
   initEndfieldFlow();
   initLayeredDepth();
+  initDepthScene();
   initNavigation();
   pageCleanup.push(initUISound());
   initMotion();
