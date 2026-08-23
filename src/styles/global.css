@@ -2451,3 +2451,103 @@ p {
   .site-loader { display: none !important; }
   .hero-image-scan { display: none; }
 }
+
+/* Layered depth pass: a restrained parallax plane for the existing editorial
+   composition. It only activates after the motion controller is ready, so a
+   failed script still receives the normal, readable document layout. */
+.endfield-flow.is-depth-ready {
+  --depth-ease: cubic-bezier(.22,1,.36,1);
+}
+
+@media (min-width: 960px) and (hover: hover) and (pointer: fine) {
+  .endfield-flow.is-depth-ready .hero-section {
+    perspective: 1200px;
+    perspective-origin: 53% 44%;
+  }
+
+  .endfield-flow.is-depth-ready .hero-image-zone {
+    transform-style: preserve-3d;
+    translate: var(--depth-zone-x, 0px) var(--depth-zone-y, 0px);
+    will-change: translate;
+  }
+
+  .endfield-flow.is-depth-ready .hero-image-frame {
+    transform: rotateX(var(--depth-frame-rx, 0deg)) rotateY(var(--depth-frame-ry, 0deg));
+    translate: 0 var(--depth-frame-scroll-y, 0%);
+    transform-origin: 58% 54%;
+    transform-style: preserve-3d;
+    will-change: transform;
+  }
+
+  .endfield-flow.is-depth-ready .hero-image-yellow {
+    translate: var(--depth-yellow-x, 0px) var(--depth-yellow-y, 0px);
+    transform-style: preserve-3d;
+    will-change: translate;
+  }
+
+  .endfield-flow.is-depth-ready .hero-title {
+    translate: var(--depth-title-x, 0px) var(--depth-title-y, 0px);
+    will-change: translate;
+  }
+
+  .endfield-flow.is-depth-ready .hero-role {
+    translate: var(--depth-role-x, 0px) var(--depth-role-y, 0px);
+    will-change: translate;
+  }
+
+  .endfield-flow.is-depth-ready .hero-image-frame::before {
+    position: absolute;
+    z-index: 2;
+    inset: 4% 7% 6% 7%;
+    border: 1px solid rgba(25,25,25,.2);
+    clip-path: polygon(0 0, 8% 0, 8% 1px, 0 1px, 0 8%, 1px 8%, 1px 0, 100% 0, 100% 8%, calc(100% - 1px) 8%, calc(100% - 1px) 1px, 92% 1px, 92% 0, 100% 0, 100% 100%, 92% 100%, 92% calc(100% - 1px), 100% calc(100% - 1px), 100% 92%, calc(100% - 1px) 92%, calc(100% - 1px) 100%, 0 100%, 0 92%, 1px 92%, 1px calc(100% - 1px), 8% calc(100% - 1px), 8% 100%, 0 100%);
+    content: "";
+    pointer-events: none;
+    transform: translateZ(16px);
+  }
+
+  .endfield-flow.is-depth-ready .project-media,
+  .endfield-flow.is-depth-ready .publication-image {
+    --media-rx: 0deg;
+    --media-ry: 0deg;
+    --media-lift: 0px;
+    transform: perspective(1250px) rotateX(var(--media-rx)) rotateY(var(--media-ry)) translateZ(var(--media-lift));
+    transform-origin: center center;
+    transform-style: preserve-3d;
+    transition: transform .42s var(--depth-ease), box-shadow .42s var(--depth-ease);
+    will-change: transform;
+  }
+
+  .endfield-flow.is-depth-ready .project-media:hover,
+  .endfield-flow.is-depth-ready .project-media:focus-visible,
+  .endfield-flow.is-depth-ready .publication-image:hover,
+  .endfield-flow.is-depth-ready .publication-image:focus-visible {
+    box-shadow: 12px 16px 0 rgba(25,25,25,.08);
+  }
+
+  .endfield-flow.is-depth-ready .project-media::before,
+  .endfield-flow.is-depth-ready .publication-image::before {
+    position: absolute;
+    z-index: 2;
+    inset: .8rem;
+    border: 1px solid rgba(255,255,255,.28);
+    content: "";
+    opacity: .46;
+    pointer-events: none;
+    transform: translateZ(10px);
+  }
+}
+
+@media (max-width: 959px), (prefers-reduced-motion: reduce) {
+  .endfield-flow.is-depth-ready .hero-image-zone,
+  .endfield-flow.is-depth-ready .hero-image-frame,
+  .endfield-flow.is-depth-ready .hero-image-yellow,
+  .endfield-flow.is-depth-ready .hero-title,
+  .endfield-flow.is-depth-ready .hero-role,
+  .endfield-flow.is-depth-ready .project-media,
+  .endfield-flow.is-depth-ready .publication-image {
+    translate: none;
+    transform: none;
+    box-shadow: none;
+  }
+}

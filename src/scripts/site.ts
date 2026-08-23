@@ -976,6 +976,138 @@ function initEndfieldFlow() {
   });
 }
 
+function initLayeredDepth() {
+  const flow = document.querySelector<HTMLElement>("[data-endfield-flow]");
+  if (!flow || window.matchMedia(REDUCED_MOTION).matches) return;
+
+  const pointerCapable = window.matchMedia("(hover: hover) and (pointer: fine)").matches;
+  const desktopLayout = window.matchMedia("(min-width: 960px)").matches;
+  const hero = flow.querySelector<HTMLElement>(".hero-section");
+  const heroZone = hero?.querySelector<HTMLElement>(".hero-image-zone");
+  const heroFrame = hero?.querySelector<HTMLElement>(".hero-image-frame");
+  const heroYellow = hero?.querySelector<HTMLElement>(".hero-image-yellow");
+  const heroTitle = hero?.querySelector<HTMLElement>(".hero-title");
+  const heroRole = hero?.querySelector<HTMLElement>(".hero-role");
+  const media = [...flow.querySelectorAll<HTMLElement>(".project-media, .publication-image")];
+  const cleanup: Array<() => void> = [];
+
+  flow.classList.add("is-depth-ready");
+
+  if (desktopLayout && hero && heroZone && heroFrame && heroYellow && heroTitle && heroRole) {
+    const targets = [heroZone, heroFrame, heroYellow, heroTitle, heroRole];
+    const pointer = { x: 0, y: 0 };
+    const current = { x: 0, y: 0 };
+    let frameId = 0;
+    let tracking = false;
+
+    const applyPointer = () => {
+      frameId = 0;
+      current.x += (pointer.x - current.x) * 0.12;
+      current.y += (pointer.y - current.y) * 0.12;
+      heroZone.style.setProperty("--depth-zone-x", `${current.x * 8}px`);
+      heroZone.style.setProperty("--depth-zone-y", `${current.y * 5}px`);
+      heroFrame.style.setProperty("--depth-frame-rx", `${current.y * -1.35}deg`);
+      heroFrame.style.setProperty("--depth-frame-ry", `${current.x * 1.8}deg`);
+      heroYellow.style.setProperty("--depth-yellow-x", `${current.x * -10}px`);
+      heroYellow.style.setProperty("--depth-yellow-y", `${current.y * -5}px`);
+      heroTitle.style.setProperty("--depth-title-x", `${current.x * -4}px`);
+      heroTitle.style.setProperty("--depth-title-y", `${current.y * -2}px`);
+      heroRole.style.setProperty("--depth-role-x", `${current.x * -2}px`);
+      heroRole.style.setProperty("--depth-role-y", `${current.y * -1}px`);
+
+      const settled = Math.abs(pointer.x - current.x) < 0.01 && Math.abs(pointer.y - current.y) < 0.01;
+      if (tracking || !settled) frameId = window.requestAnimationFrame(applyPointer);
+    };
+    const requestPointerFrame = () => {
+      if (!frameId) frameId = window.requestAnimationFrame(applyPointer);
+    };
+    const onPointerMove = (event: PointerEvent) => {
+      const bounds = hero.getBoundingClientRect();
+      pointer.x = ((event.clientX - bounds.left) / bounds.width) * 2 - 1;
+      pointer.y = ((event.clientY - bounds.top) / bounds.height) * 2 - 1;
+      tracking = true;
+      requestPointerFrame();
+    };
+    const onPointerLeave = () => {
+      pointer.x = 0;
+      pointer.y = 0;
+      tracking = false;
+      requestPointerFrame();
+    };
+
+    if (pointerCapable) {
+      hero.addEventListener("pointermove", onPointerMove, { passive: true });
+      hero.addEventListener("pointerleave", onPointerLeave, { passive: true });
+      cleanup.push(() => {
+        hero.removeEventListener("pointermove", onPointerMove);
+        hero.removeEventListener("pointerleave", onPointerLeave);
+      });
+    }
+
+    const scrollTargets = [
+      { element: heroYellow, yPercent: -4.5 },
+      { element: heroTitle, yPercent: -1.4 },
+    ];
+    const scrollContext = gsap.context(() => {
+      scrollTargets.forEach(({ element, yPercent }) => {
+        gsap.to(element, {
+          yPercent,
+          ease: "none",
+          scrollTrigger: { trigger: hero, start: "top top", end: "bottom top", scrub: 0.18 },
+        });
+      });
+      ScrollTrigger.create({
+        trigger: hero,
+        start: "top top",
+        end: "bottom top",
+        scrub: 0.18,
+        onUpdate: (self) => heroFrame.style.setProperty("--depth-frame-scroll-y", `${self.progress * 2.2}%`),
+      });
+    }, hero);
+    cleanup.push(() => scrollContext.revert());
+    cleanup.push(() => {
+      if (frameId) window.cancelAnimationFrame(frameId);
+      targets.forEach((element) => {
+        [
+          "--depth-zone-x", "--depth-zone-y", "--depth-frame-rx", "--depth-frame-ry", "--depth-frame-scroll-y",
+          "--depth-yellow-x", "--depth-yellow-y", "--depth-title-x", "--depth-title-y",
+          "--depth-role-x", "--depth-role-y",
+        ].forEach((property) => element.style.removeProperty(property));
+      });
+    });
+  }
+
+  if (pointerCapable && media.length) {
+    media.forEach((panel) => {
+      const onMove = (event: PointerEvent) => {
+        const bounds = panel.getBoundingClientRect();
+        const x = ((event.clientX - bounds.left) / bounds.width) * 2 - 1;
+        const y = ((event.clientY - bounds.top) / bounds.height) * 2 - 1;
+        panel.style.setProperty("--media-rx", `${y * -1.15}deg`);
+        panel.style.setProperty("--media-ry", `${x * 1.35}deg`);
+        panel.style.setProperty("--media-lift", "-3px");
+      };
+      const onLeave = () => {
+        panel.style.setProperty("--media-rx", "0deg");
+        panel.style.setProperty("--media-ry", "0deg");
+        panel.style.setProperty("--media-lift", "0px");
+      };
+      panel.addEventListener("pointermove", onMove, { passive: true });
+      panel.addEventListener("pointerleave", onLeave, { passive: true });
+      cleanup.push(() => {
+        panel.removeEventListener("pointermove", onMove);
+        panel.removeEventListener("pointerleave", onLeave);
+        onLeave();
+      });
+    });
+  }
+
+  pageCleanup.push(() => {
+    cleanup.forEach((dispose) => dispose());
+    flow.classList.remove("is-depth-ready");
+  });
+}
+
 function initMotion() {
   const reduceMotion = window.matchMedia(REDUCED_MOTION).matches;
   const mobileLayout = window.matchMedia(MOBILE_LAYOUT).matches;
@@ -1125,6 +1257,7 @@ async function bootstrap() {
   const completingRoute = routeTransition;
   if (completingRoute) await runRouteLoader();
   initEndfieldFlow();
+  initLayeredDepth();
   initNavigation();
   pageCleanup.push(initUISound());
   initMotion();
