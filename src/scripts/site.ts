@@ -425,6 +425,7 @@ function initEndfieldFlow() {
   }
 
   flow.classList.add("is-enhanced");
+  flow.classList.add("is-art-directed");
 
   context.add(() => {
     if (progress) {
@@ -970,6 +971,7 @@ function initEndfieldFlow() {
   pageCleanup.push(() => {
     context.revert();
     flow.classList.remove("is-enhanced");
+    flow.classList.remove("is-art-directed");
     flow.querySelector<HTMLElement>(".hero-section")?.classList.remove("is-idle-ready", "is-idle-visible");
     storySeek = null;
     playHeroIntro = null;

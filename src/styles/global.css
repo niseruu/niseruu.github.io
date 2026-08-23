@@ -2551,3 +2551,287 @@ p {
     box-shadow: none;
   }
 }
+
+/* Art-directed chapter pass. Each chapter keeps the same information
+   architecture, but gets a distinct operator-like surface so the long scroll
+   reads as a sequence of intentional screens instead of one repeated card
+   system. */
+.endfield-flow.is-art-directed .portfolio-section {
+  isolation: isolate;
+}
+
+.endfield-flow.is-art-directed .portfolio-section > .section-shell,
+.endfield-flow.is-art-directed .portfolio-section > .publication-watermark,
+.endfield-flow.is-art-directed .portfolio-section > .kinetic-marquee {
+  position: relative;
+  z-index: 1;
+}
+
+.endfield-flow.is-art-directed .projects-section {
+  background:
+    linear-gradient(135deg, rgba(255,250,0,.16) 0 8%, transparent 8% 100%),
+    linear-gradient(180deg, #f7f7f3 0%, #e8ebe8 100%);
+}
+
+.endfield-flow.is-art-directed .projects-section::before {
+  position: absolute;
+  top: 18%;
+  right: -.05em;
+  color: rgba(25,25,25,.045);
+  content: "01";
+  font-family: var(--font-display);
+  font-size: clamp(16rem, 38vw, 46rem);
+  font-variation-settings: "wdth" 145, "wght" 900;
+  letter-spacing: -.16em;
+  line-height: .68;
+  pointer-events: none;
+}
+
+.endfield-flow.is-art-directed .projects-section::after {
+  position: absolute;
+  top: 0;
+  right: 8%;
+  bottom: 0;
+  width: 1px;
+  background: linear-gradient(180deg, transparent, rgba(25,25,25,.18) 18%, rgba(25,25,25,.18) 82%, transparent);
+  content: "";
+  pointer-events: none;
+}
+
+.endfield-flow.is-art-directed .project-record-strip {
+  box-shadow: 8px 8px 0 rgba(25,25,25,.08);
+}
+
+.endfield-flow.is-art-directed .project-record-strip a {
+  background: rgba(255,255,255,.78);
+  transition: background .25s ease, color .25s ease, transform .25s var(--depth-ease, cubic-bezier(.22,1,.36,1));
+}
+
+.endfield-flow.is-art-directed .project-record-strip a:hover,
+.endfield-flow.is-art-directed .project-record-strip a:focus-visible,
+.endfield-flow.is-art-directed .project-record-strip a.is-active {
+  background: var(--ink);
+  color: var(--paper);
+  transform: translateY(-3px);
+}
+
+.endfield-flow.is-art-directed .project-feature {
+  position: relative;
+}
+
+.endfield-flow.is-art-directed .project-feature::before {
+  position: absolute;
+  z-index: 0;
+  top: 8%;
+  right: 5%;
+  bottom: 8%;
+  left: 5%;
+  border-top: 1px solid rgba(25,25,25,.16);
+  border-bottom: 1px solid rgba(25,25,25,.16);
+  content: "";
+  pointer-events: none;
+}
+
+.endfield-flow.is-art-directed .project-media {
+  z-index: 1;
+  box-shadow: 1.1rem 1.1rem 0 rgba(25,25,25,.12);
+}
+
+.endfield-flow.is-art-directed .project-copy {
+  box-shadow: 0 .8rem 0 rgba(25,25,25,.06);
+}
+
+.endfield-flow.is-art-directed .publication-section {
+  background:
+    linear-gradient(90deg, rgba(25,25,25,.035) 1px, transparent 1px) 0 0 / 5rem 100%,
+    linear-gradient(180deg, #ecefeb 0%, #f8f8f5 74%, #e6e9e6 100%);
+}
+
+.endfield-flow.is-art-directed .publication-section::before {
+  position: absolute;
+  top: 9%;
+  right: -1rem;
+  color: transparent;
+  content: "RS";
+  font-family: var(--font-display);
+  font-size: clamp(13rem, 31vw, 37rem);
+  font-variation-settings: "wdth" 145, "wght" 900;
+  letter-spacing: -.18em;
+  line-height: .7;
+  opacity: .1;
+  pointer-events: none;
+  -webkit-text-stroke: 1px var(--ink);
+}
+
+.endfield-flow.is-art-directed .publication-viewer,
+.endfield-flow.is-art-directed .publication-archive {
+  border-width: 2px;
+  box-shadow: .8rem .8rem 0 rgba(25,25,25,.08);
+}
+
+.endfield-flow.is-art-directed .publication-toolbar,
+.endfield-flow.is-art-directed .publication-archive-head {
+  min-height: 2.8rem;
+  letter-spacing: .11em;
+}
+
+.endfield-flow.is-art-directed .publication-record {
+  background: rgba(255,255,255,.8);
+}
+
+.endfield-flow.is-art-directed .journey-section {
+  background:
+    linear-gradient(90deg, transparent 0 12%, rgba(25,25,25,.055) 12% calc(12% + 1px), transparent calc(12% + 1px) 100%),
+    #f4f5f1;
+}
+
+.endfield-flow.is-art-directed .journey-section::before {
+  position: absolute;
+  right: -1rem;
+  bottom: 3%;
+  color: transparent;
+  content: "03";
+  font-family: var(--font-display);
+  font-size: clamp(15rem, 34vw, 42rem);
+  font-variation-settings: "wdth" 150, "wght" 900;
+  letter-spacing: -.18em;
+  line-height: .7;
+  opacity: .08;
+  pointer-events: none;
+  -webkit-text-stroke: 1px var(--ink);
+}
+
+.endfield-flow.is-art-directed .journey-axis {
+  width: 3px;
+  background: rgba(25,25,25,.24);
+}
+
+.endfield-flow.is-art-directed .journey-axis > i {
+  background: linear-gradient(180deg, var(--signal) 0 35%, var(--ink) 78%, var(--signal));
+}
+
+.endfield-flow.is-art-directed .journey-list li {
+  transition: background .28s ease, padding-left .28s var(--depth-ease, cubic-bezier(.22,1,.36,1));
+}
+
+.endfield-flow.is-art-directed .journey-list li[data-journey-state="active"],
+.endfield-flow.is-art-directed .journey-list li:hover {
+  background: linear-gradient(90deg, rgba(255,250,0,.24), rgba(255,250,0,.04) 58%, transparent);
+  padding-left: .7rem;
+}
+
+.endfield-flow.is-art-directed .stack-section {
+  background:
+    linear-gradient(135deg, transparent 0 54%, rgba(255,250,0,.34) 54% 56%, transparent 56% 100%),
+    #e9ece9;
+}
+
+.endfield-flow.is-art-directed .stack-section::before {
+  position: absolute;
+  top: 29%;
+  left: -1rem;
+  color: rgba(25,25,25,.045);
+  content: "04";
+  font-family: var(--font-display);
+  font-size: clamp(17rem, 38vw, 46rem);
+  font-variation-settings: "wdth" 145, "wght" 900;
+  letter-spacing: -.18em;
+  line-height: .7;
+  pointer-events: none;
+}
+
+.endfield-flow.is-art-directed .stack-ticker {
+  position: relative;
+  z-index: 2;
+  border-color: var(--ink);
+  background: rgba(255,255,255,.86);
+  box-shadow: 0 .55rem 0 rgba(25,25,25,.08);
+}
+
+.endfield-flow.is-art-directed .stack-category {
+  background: rgba(255,255,255,.88);
+  box-shadow: inset 0 1px 0 rgba(25,25,25,.1);
+}
+
+.endfield-flow.is-art-directed .stack-category header {
+  background: linear-gradient(135deg, rgba(25,25,25,.05), transparent 68%);
+}
+
+.endfield-flow.is-art-directed .stack-category:nth-child(2n) header {
+  background: linear-gradient(135deg, rgba(255,250,0,.23), transparent 68%);
+}
+
+.endfield-flow.is-art-directed .stack-item:not(.stack-item--empty) {
+  background: rgba(242,242,242,.86);
+}
+
+.endfield-flow.is-art-directed .stack-item:not(.stack-item--empty):hover {
+  color: var(--ink);
+  box-shadow: inset 0 -3px 0 var(--signal);
+}
+
+.endfield-flow.is-art-directed .scores-section {
+  background:
+    linear-gradient(135deg, transparent 0 48%, rgba(25,25,25,.09) 48% 48.2%, transparent 48.2% 100%),
+    var(--signal);
+}
+
+.endfield-flow.is-art-directed .scores-section::before {
+  position: absolute;
+  top: 18%;
+  right: -.04em;
+  color: rgba(25,25,25,.11);
+  content: "05";
+  font-family: var(--font-display);
+  font-size: clamp(16rem, 38vw, 46rem);
+  font-variation-settings: "wdth" 145, "wght" 900;
+  letter-spacing: -.18em;
+  line-height: .65;
+  pointer-events: none;
+}
+
+.endfield-flow.is-art-directed .score-card {
+  background: rgba(255,250,0,.62);
+  box-shadow: inset 0 -1px 0 rgba(25,25,25,.3);
+}
+
+.endfield-flow.is-art-directed .score-card:nth-child(2n) {
+  background: rgba(242,242,242,.22);
+}
+
+.endfield-flow.is-art-directed .score-card:hover {
+  background: var(--ink);
+  box-shadow: inset 0 0 0 4px var(--signal);
+}
+
+.endfield-flow.is-art-directed .contact-section::before {
+  position: absolute;
+  top: -12%;
+  right: 7%;
+  width: 1px;
+  height: 124%;
+  background: linear-gradient(180deg, transparent, var(--signal) 24%, var(--signal) 76%, transparent);
+  content: "";
+  opacity: .52;
+  pointer-events: none;
+  transform: rotate(19deg);
+  transform-origin: center;
+}
+
+.endfield-flow.is-art-directed .contact-form-shell {
+  clip-path: polygon(0 0, calc(100% - 1.4rem) 0, 100% 1.4rem, 100% 100%, 0 100%);
+  box-shadow: .85rem .85rem 0 rgba(0,0,0,.3);
+}
+
+@media (max-width: 959px) {
+  .endfield-flow.is-art-directed .projects-section::after,
+  .endfield-flow.is-art-directed .contact-section::before { display: none; }
+  .endfield-flow.is-art-directed .project-feature::before { right: 0; left: 0; }
+  .endfield-flow.is-art-directed .publication-section::before,
+  .endfield-flow.is-art-directed .journey-section::before,
+  .endfield-flow.is-art-directed .stack-section::before,
+  .endfield-flow.is-art-directed .scores-section::before { opacity: .045; }
+  .endfield-flow.is-art-directed .project-record-strip { box-shadow: 0 5px 0 rgba(25,25,25,.08); }
+  .endfield-flow.is-art-directed .journey-list li[data-journey-state="active"],
+  .endfield-flow.is-art-directed .journey-list li:hover { padding-left: .35rem; }
+}
