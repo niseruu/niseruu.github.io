@@ -2460,6 +2460,21 @@ p {
 }
 
 @media (min-width: 960px) and (hover: hover) and (pointer: fine) {
+  .endfield-flow.is-depth-ready .hero-title {
+    right: auto;
+    width: min(66%, 74rem);
+  }
+
+  .endfield-flow.is-depth-ready .hero-title-line--second {
+    padding-right: 0;
+    padding-left: 1vw;
+    text-align: left;
+  }
+
+  .endfield-flow.is-depth-ready .hero-title-line--second > span {
+    font-size: .56em;
+  }
+
   .endfield-flow.is-depth-ready .hero-section {
     perspective: 1200px;
     perspective-origin: 53% 44%;
@@ -2467,8 +2482,10 @@ p {
 
   .endfield-flow.is-depth-ready .hero-image-zone {
     transform-style: preserve-3d;
-    translate: var(--depth-zone-x, 0px) var(--depth-zone-y, 0px);
-    will-change: translate;
+    right: calc(clamp(-1.5rem, -1vw, 0rem) - var(--depth-zone-x, 0px));
+    bottom: calc(-7% - var(--depth-zone-y, 0px));
+    translate: none;
+    will-change: right, bottom;
   }
 
   .endfield-flow.is-depth-ready .hero-image-frame {
