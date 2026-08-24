@@ -2465,17 +2465,17 @@ p {
     --media-rx: 0deg;
     --media-ry: 0deg;
     --media-lift: 0px;
-    transform: perspective(1250px) rotateX(var(--media-rx)) rotateY(var(--media-ry)) translateZ(var(--media-lift));
+    contain: paint;
+    transform: none;
     transform-origin: center center;
-    transform-style: preserve-3d;
     transition: transform .42s var(--depth-ease), box-shadow .42s var(--depth-ease);
-    will-change: transform;
   }
 
-  .endfield-flow.is-depth-ready .project-media:hover,
-  .endfield-flow.is-depth-ready .project-media:focus-visible,
-  .endfield-flow.is-depth-ready .publication-image:hover,
-  .endfield-flow.is-depth-ready .publication-image:focus-visible {
+  .endfield-flow.is-depth-ready .project-media.is-depth-active,
+  .endfield-flow.is-depth-ready .publication-image.is-depth-active {
+    transform: perspective(1250px) rotateX(var(--media-rx)) rotateY(var(--media-ry)) translateZ(var(--media-lift));
+    transform-style: preserve-3d;
+    will-change: transform;
     box-shadow: 12px 16px 0 rgba(25,25,25,.08);
   }
 
@@ -2488,6 +2488,11 @@ p {
     content: "";
     opacity: .46;
     pointer-events: none;
+    transform: none;
+  }
+
+  .endfield-flow.is-depth-ready .project-media.is-depth-active::before,
+  .endfield-flow.is-depth-ready .publication-image.is-depth-active::before {
     transform: translateZ(10px);
   }
 }

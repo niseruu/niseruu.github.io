@@ -989,25 +989,70 @@ function initLayeredDepth() {
   flow.classList.add("is-depth-ready");
 
   if (pointerCapable && media.length) {
+    const states = new Map<HTMLElement, { bounds: DOMRect | null; x: number; y: number; frame: number }>();
+
+    const invalidateBounds = () => {
+      states.forEach((state) => { state.bounds = null; });
+    };
+
+    window.addEventListener("resize", invalidateBounds, { passive: true });
+    window.addEventListener("scroll", invalidateBounds, { passive: true });
+    cleanup.push(() => {
+      window.removeEventListener("resize", invalidateBounds);
+      window.removeEventListener("scroll", invalidateBounds);
+    });
+
     media.forEach((panel) => {
-      const onMove = (event: PointerEvent) => {
-        const bounds = panel.getBoundingClientRect();
-        const x = ((event.clientX - bounds.left) / bounds.width) * 2 - 1;
-        const y = ((event.clientY - bounds.top) / bounds.height) * 2 - 1;
+      const state = { bounds: null as DOMRect | null, x: 0, y: 0, frame: 0 };
+      states.set(panel, state);
+
+      const applyPointer = () => {
+        state.frame = 0;
+        const bounds = state.bounds ?? panel.getBoundingClientRect();
+        state.bounds = bounds;
+        const x = ((state.x - bounds.left) / Math.max(bounds.width, 1)) * 2 - 1;
+        const y = ((state.y - bounds.top) / Math.max(bounds.height, 1)) * 2 - 1;
         panel.style.setProperty("--media-rx", `${y * -1.15}deg`);
         panel.style.setProperty("--media-ry", `${x * 1.35}deg`);
         panel.style.setProperty("--media-lift", "-3px");
       };
+
+      const schedulePointer = () => {
+        if (!state.frame) state.frame = window.requestAnimationFrame(applyPointer);
+      };
+
+      const onEnter = (event: PointerEvent) => {
+        state.bounds = panel.getBoundingClientRect();
+        state.x = event.clientX;
+        state.y = event.clientY;
+        panel.classList.add("is-depth-active");
+        schedulePointer();
+      };
+
+      const onMove = (event: PointerEvent) => {
+        state.x = event.clientX;
+        state.y = event.clientY;
+        schedulePointer();
+      };
+
       const onLeave = () => {
+        if (state.frame) window.cancelAnimationFrame(state.frame);
+        state.frame = 0;
+        state.bounds = null;
+        panel.classList.remove("is-depth-active");
         panel.style.setProperty("--media-rx", "0deg");
         panel.style.setProperty("--media-ry", "0deg");
         panel.style.setProperty("--media-lift", "0px");
       };
+
+      panel.addEventListener("pointerenter", onEnter, { passive: true });
       panel.addEventListener("pointermove", onMove, { passive: true });
       panel.addEventListener("pointerleave", onLeave, { passive: true });
       cleanup.push(() => {
+        panel.removeEventListener("pointerenter", onEnter);
         panel.removeEventListener("pointermove", onMove);
         panel.removeEventListener("pointerleave", onLeave);
+        states.delete(panel);
         onLeave();
       });
     });
