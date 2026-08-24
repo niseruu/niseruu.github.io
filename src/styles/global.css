@@ -2460,69 +2460,6 @@ p {
 }
 
 @media (min-width: 960px) and (hover: hover) and (pointer: fine) {
-  .endfield-flow.is-depth-ready .hero-title {
-    right: auto;
-    width: min(66%, 74rem);
-  }
-
-  .endfield-flow.is-depth-ready .hero-title-line--second {
-    padding-right: 0;
-    padding-left: 1vw;
-    text-align: left;
-  }
-
-  .endfield-flow.is-depth-ready .hero-title-line--second > span {
-    font-size: .56em;
-  }
-
-  .endfield-flow.is-depth-ready .hero-section {
-    perspective: 1200px;
-    perspective-origin: 53% 44%;
-  }
-
-  .endfield-flow.is-depth-ready .hero-image-zone {
-    transform-style: preserve-3d;
-    right: calc(clamp(-1.5rem, -1vw, 0rem) - var(--depth-zone-x, 0px));
-    bottom: calc(-7% - var(--depth-zone-y, 0px));
-    translate: none;
-    will-change: right, bottom;
-  }
-
-  .endfield-flow.is-depth-ready .hero-image-frame {
-    transform: rotateX(var(--depth-frame-rx, 0deg)) rotateY(var(--depth-frame-ry, 0deg));
-    translate: 0 var(--depth-frame-scroll-y, 0%);
-    transform-origin: 58% 54%;
-    transform-style: preserve-3d;
-    will-change: transform;
-  }
-
-  .endfield-flow.is-depth-ready .hero-image-yellow {
-    translate: var(--depth-yellow-x, 0px) var(--depth-yellow-y, 0px);
-    transform-style: preserve-3d;
-    will-change: translate;
-  }
-
-  .endfield-flow.is-depth-ready .hero-title {
-    translate: var(--depth-title-x, 0px) var(--depth-title-y, 0px);
-    will-change: translate;
-  }
-
-  .endfield-flow.is-depth-ready .hero-role {
-    translate: var(--depth-role-x, 0px) var(--depth-role-y, 0px);
-    will-change: translate;
-  }
-
-  .endfield-flow.is-depth-ready .hero-image-frame::before {
-    position: absolute;
-    z-index: 2;
-    inset: 4% 7% 6% 7%;
-    border: 1px solid rgba(25,25,25,.2);
-    clip-path: polygon(0 0, 8% 0, 8% 1px, 0 1px, 0 8%, 1px 8%, 1px 0, 100% 0, 100% 8%, calc(100% - 1px) 8%, calc(100% - 1px) 1px, 92% 1px, 92% 0, 100% 0, 100% 100%, 92% 100%, 92% calc(100% - 1px), 100% calc(100% - 1px), 100% 92%, calc(100% - 1px) 92%, calc(100% - 1px) 100%, 0 100%, 0 92%, 1px 92%, 1px calc(100% - 1px), 8% calc(100% - 1px), 8% 100%, 0 100%);
-    content: "";
-    pointer-events: none;
-    transform: translateZ(16px);
-  }
-
   .endfield-flow.is-depth-ready .project-media,
   .endfield-flow.is-depth-ready .publication-image {
     --media-rx: 0deg;
@@ -2556,14 +2493,8 @@ p {
 }
 
 @media (max-width: 959px), (prefers-reduced-motion: reduce) {
-  .endfield-flow.is-depth-ready .hero-image-zone,
-  .endfield-flow.is-depth-ready .hero-image-frame,
-  .endfield-flow.is-depth-ready .hero-image-yellow,
-  .endfield-flow.is-depth-ready .hero-title,
-  .endfield-flow.is-depth-ready .hero-role,
   .endfield-flow.is-depth-ready .project-media,
   .endfield-flow.is-depth-ready .publication-image {
-    translate: none;
     transform: none;
     box-shadow: none;
   }
@@ -2840,29 +2771,7 @@ p {
   box-shadow: .85rem .85rem 0 rgba(0,0,0,.3);
 }
 
-/* Lightweight pseudo-3D scene layer. The canvas is a decorative perspective
-   field only; it never owns interaction or content, and stays hidden until
-   its controller has measured the hero successfully. */
-.hero-depth-canvas {
-  display: none;
-}
-
-@media (min-width: 960px) {
-  .endfield-flow.is-art-directed .hero-section.is-depth-scene .hero-depth-canvas {
-    position: absolute;
-    z-index: 1;
-    inset: 0;
-    display: block;
-    width: 100%;
-    height: 100%;
-    mix-blend-mode: multiply;
-    opacity: .72;
-    pointer-events: none;
-  }
-}
-
 @media (max-width: 959px) {
-  .hero-depth-canvas { display: none !important; }
   .endfield-flow.is-art-directed .projects-section::after,
   .endfield-flow.is-art-directed .contact-section::before { display: none; }
   .endfield-flow.is-art-directed .project-feature::before { right: 0; left: 0; }
