@@ -425,6 +425,7 @@ function initEndfieldFlow() {
   }
 
   flow.classList.add("is-enhanced");
+  flow.classList.add("is-art-directed");
 
   context.add(() => {
     if (progress) {
@@ -970,9 +971,96 @@ function initEndfieldFlow() {
   pageCleanup.push(() => {
     context.revert();
     flow.classList.remove("is-enhanced");
+    flow.classList.remove("is-art-directed");
     flow.querySelector<HTMLElement>(".hero-section")?.classList.remove("is-idle-ready", "is-idle-visible");
     storySeek = null;
     playHeroIntro = null;
+  });
+}
+
+function initLayeredDepth() {
+  const flow = document.querySelector<HTMLElement>("[data-endfield-flow]");
+  if (!flow || window.matchMedia(REDUCED_MOTION).matches) return;
+
+  const pointerCapable = window.matchMedia("(hover: hover) and (pointer: fine)").matches;
+  const media = [...flow.querySelectorAll<HTMLElement>(".project-media, .publication-image")];
+  const cleanup: Array<() => void> = [];
+
+  flow.classList.add("is-depth-ready");
+
+  if (pointerCapable && media.length) {
+    const states = new Map<HTMLElement, { bounds: DOMRect | null; x: number; y: number; frame: number }>();
+
+    const invalidateBounds = () => {
+      states.forEach((state) => { state.bounds = null; });
+    };
+
+    window.addEventListener("resize", invalidateBounds, { passive: true });
+    window.addEventListener("scroll", invalidateBounds, { passive: true });
+    cleanup.push(() => {
+      window.removeEventListener("resize", invalidateBounds);
+      window.removeEventListener("scroll", invalidateBounds);
+    });
+
+    media.forEach((panel) => {
+      const state = { bounds: null as DOMRect | null, x: 0, y: 0, frame: 0 };
+      states.set(panel, state);
+
+      const applyPointer = () => {
+        state.frame = 0;
+        const bounds = state.bounds ?? panel.getBoundingClientRect();
+        state.bounds = bounds;
+        const x = ((state.x - bounds.left) / Math.max(bounds.width, 1)) * 2 - 1;
+        const y = ((state.y - bounds.top) / Math.max(bounds.height, 1)) * 2 - 1;
+        panel.style.setProperty("--media-rx", `${y * -1.15}deg`);
+        panel.style.setProperty("--media-ry", `${x * 1.35}deg`);
+        panel.style.setProperty("--media-lift", "-3px");
+      };
+
+      const schedulePointer = () => {
+        if (!state.frame) state.frame = window.requestAnimationFrame(applyPointer);
+      };
+
+      const onEnter = (event: PointerEvent) => {
+        state.bounds = panel.getBoundingClientRect();
+        state.x = event.clientX;
+        state.y = event.clientY;
+        panel.classList.add("is-depth-active");
+        schedulePointer();
+      };
+
+      const onMove = (event: PointerEvent) => {
+        state.x = event.clientX;
+        state.y = event.clientY;
+        schedulePointer();
+      };
+
+      const onLeave = () => {
+        if (state.frame) window.cancelAnimationFrame(state.frame);
+        state.frame = 0;
+        state.bounds = null;
+        panel.classList.remove("is-depth-active");
+        panel.style.setProperty("--media-rx", "0deg");
+        panel.style.setProperty("--media-ry", "0deg");
+        panel.style.setProperty("--media-lift", "0px");
+      };
+
+      panel.addEventListener("pointerenter", onEnter, { passive: true });
+      panel.addEventListener("pointermove", onMove, { passive: true });
+      panel.addEventListener("pointerleave", onLeave, { passive: true });
+      cleanup.push(() => {
+        panel.removeEventListener("pointerenter", onEnter);
+        panel.removeEventListener("pointermove", onMove);
+        panel.removeEventListener("pointerleave", onLeave);
+        states.delete(panel);
+        onLeave();
+      });
+    });
+  }
+
+  pageCleanup.push(() => {
+    cleanup.forEach((dispose) => dispose());
+    flow.classList.remove("is-depth-ready");
   });
 }
 
@@ -1125,10 +1213,7 @@ async function bootstrap() {
   const completingRoute = routeTransition;
   if (completingRoute) await runRouteLoader();
   initEndfieldFlow();
-  if (document.querySelector("[data-game-ui]")) {
-    const { initGameInterface } = await import("./game-interface");
-    pageCleanup.push(initGameInterface());
-  }
+  initLayeredDepth();
   initNavigation();
   pageCleanup.push(initUISound());
   initMotion();

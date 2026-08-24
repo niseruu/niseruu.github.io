@@ -8,6 +8,7 @@ const projects = (await getCollection("projects"))
   .filter((project) => project.data.featured)
   .sort((a, b) => a.data.order - b.data.order);
 const projectAnchors = ["project-malaria", "project-visionserve", "project-sentiment"];
+const projectShortLabels = ["MALARIA", "VISION", "SENTIMENT"];
 ---
 
 <section
@@ -31,7 +32,7 @@ const projectAnchors = ["project-malaria", "project-visionserve", "project-senti
       {projects.map((project, index) => (
         <a href={`#${projectAnchors[index]}`} data-project-jump={index}>
           <small>{String(index + 1).padStart(2, "0")}</small>
-          <span>{project.data.title}</span>
+          <span data-short-label={projectShortLabels[index]}>{project.data.title}</span>
           <i aria-hidden="true"></i>
         </a>
       ))}
@@ -52,6 +53,7 @@ const projectAnchors = ["project-malaria", "project-visionserve", "project-senti
             width={1200}
             class="project-image"
             loading="eager"
+            decoding="async"
             data-loader-image
           />
           <span class="project-media-index">0{index + 1}</span>
