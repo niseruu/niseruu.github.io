@@ -25,7 +25,7 @@ test("the canonical profile identity is reused by the homepage metadata and hero
   const index = await read("src/pages/index.astro");
   const hero = await read("src/components/Hero.astro");
 
-  assert.match(profile, /canonicalTitle:\s*"Computer Vision & NLP Engineer"/);
+  assert.match(profile, /canonicalTitle:\s*"AI Engineer"/);
   assert.match(layout, /profile\.canonicalTitle|canonicalTitle/);
   assert.match(index, /profile\.canonicalTitle/);
   assert.match(hero, /profile\.canonicalTitle/);
@@ -101,7 +101,21 @@ test("CV rebuild path and unresolved biography decisions are documented", async 
 test("the CV keeps a clearly labelled ATS-friendly skills section", async () => {
   const cv = await read("cv/m-shafri-syamsuddin.tex");
   assert.match(cv, /\\section\*\{Skills\}/);
-  assert.match(cv, /Programming\s*\\&\s*ML/);
+  assert.match(cv, /AI Engineering/);
+});
+
+test("the capability matrix foregrounds the current AI engineering workflow", async () => {
+  const profile = await read("src/data/profile.ts");
+  const stack = await read("src/data/techStack.ts");
+  const tech = await read("src/components/TechStack.astro");
+
+  assert.match(profile, /AI Engineer/);
+  assert.match(stack, /AI Product Engineering/);
+  assert.match(stack, /RAG|retrieval|document/i);
+  assert.match(stack, /React/);
+  assert.match(stack, /Jenkins/);
+  assert.doesNotMatch(stack, /Other Tools/);
+  assert.doesNotMatch(tech, /OPEN SLOT/);
 });
 
 test("the CV build script is present", async () => {

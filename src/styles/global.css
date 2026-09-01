@@ -2475,6 +2475,80 @@ p {
   .hero-image-scan { display: none; }
 }
 
+/* Desktop hero dossier: use the open middle field for a low, horizontal
+   identity plate instead of letting a tall column obscure the outlined name. */
+/* The portrait occupies more of the canvas at narrower desktop widths, so
+   keep the plate compact enough that its copy never sits beneath the subject. */
+@media (min-width: 1200px) and (max-width: 1499px) {
+  .endfield-flow .hero-role {
+    width: min(48rem, 46vw);
+    bottom: clamp(7rem, 13vh, 9rem);
+    background: rgba(242,242,242,.92);
+    padding: .65rem 1rem .75rem 0;
+  }
+
+  .endfield-flow .hero-dossier-primary {
+    display: grid;
+    grid-template-columns: minmax(14rem, .72fr) minmax(0, 1.28fr);
+    column-gap: clamp(1rem, 1.5vw, 1.5rem);
+    row-gap: .34rem;
+  }
+
+  .endfield-flow .hero-dossier-primary > span { grid-column: 1 / -1; }
+  .endfield-flow .hero-dossier-primary > strong {
+    grid-column: 1;
+    grid-row: 2 / span 3;
+    align-self: start;
+    margin: 0;
+    font-size: clamp(2.45rem, 2.75vw, 3.4rem);
+  }
+  .endfield-flow .hero-dossier-primary > p:not(.hero-framing),
+  .endfield-flow .hero-dossier-primary > .hero-framing,
+  .endfield-flow .hero-dossier-primary > .hero-proof { grid-column: 2; }
+  .endfield-flow .hero-dossier-primary > p { max-width: 34rem; }
+  .endfield-flow .hero-dossier-primary > .hero-proof { margin-top: .08rem; }
+
+  .endfield-flow .hero-dossier-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    margin-top: .7rem;
+  }
+}
+
+@media (min-width: 1500px) {
+  .endfield-flow .hero-role {
+    width: min(60rem, 56vw);
+    bottom: clamp(7rem, 13vh, 9rem);
+    background: rgba(242,242,242,.92);
+    padding: .65rem 1rem .75rem 0;
+  }
+
+  .endfield-flow .hero-dossier-primary {
+    display: grid;
+    grid-template-columns: minmax(14rem, .72fr) minmax(0, 1.28fr);
+    column-gap: clamp(1rem, 1.5vw, 1.5rem);
+    row-gap: .34rem;
+  }
+
+  .endfield-flow .hero-dossier-primary > span { grid-column: 1 / -1; }
+  .endfield-flow .hero-dossier-primary > strong {
+    grid-column: 1;
+    grid-row: 2 / span 3;
+    align-self: start;
+    margin: 0;
+    font-size: clamp(2.45rem, 2.75vw, 3.4rem);
+  }
+  .endfield-flow .hero-dossier-primary > p:not(.hero-framing),
+  .endfield-flow .hero-dossier-primary > .hero-framing,
+  .endfield-flow .hero-dossier-primary > .hero-proof { grid-column: 2; }
+  .endfield-flow .hero-dossier-primary > p { max-width: 34rem; }
+  .endfield-flow .hero-dossier-primary > .hero-proof { margin-top: .08rem; }
+
+  .endfield-flow .hero-dossier-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    margin-top: .7rem;
+  }
+}
+
 /* Layered depth pass: a restrained parallax plane for the existing editorial
    composition. It only activates after the motion controller is ready, so a
    failed script still receives the normal, readable document layout. */

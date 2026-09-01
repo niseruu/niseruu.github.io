@@ -4,7 +4,6 @@ import { techStack } from "../data/techStack";
 
 const allItems = techStack.flatMap((category) => category.items);
 const toolCount = allItems.length;
-const moduleCapacity = Math.max(...techStack.map((category) => category.items.length));
 ---
 
 <section
@@ -27,9 +26,9 @@ const moduleCapacity = Math.max(...techStack.map((category) => category.items.le
   <div class="section-shell">
     <SectionHeading
       index="04"
-      eyebrow="Capability Modules / Tech Stack"
-      title="The machinery behind the work."
-      description="A practical stack spanning model development, evaluation, serving, automation, and analytical communication."
+      eyebrow="AI Engineering / Tech Stack"
+      title="AI systems, end to end."
+      description="A practical stack for retrieval, document intelligence, model development, evaluation, serving, and analytical communication."
     />
 
     <div class="stack-matrix-head" data-stack-head aria-hidden="true">
@@ -57,13 +56,6 @@ const moduleCapacity = Math.max(...techStack.map((category) => category.items.le
                 <small>{String(itemIndex + 1).padStart(2, "0")}</small>
                 <img src={`/icons/${item.icon}`} alt="" width="24" height="24" />
                 <b>{item.name}</b>
-              </span>
-            ))}
-            {Array.from({ length: moduleCapacity - category.items.length }, (_, slotIndex) => (
-              <span class="stack-item stack-item--empty" data-stack-item aria-hidden="true">
-                <small>{String(category.items.length + slotIndex + 1).padStart(2, "0")}</small>
-                <i aria-hidden="true">+</i>
-                <b>OPEN SLOT</b>
               </span>
             ))}
           </div>
