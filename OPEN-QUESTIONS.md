@@ -1,15 +1,14 @@
-# Open questions before synchronising biographical details
+# Confirmed biography decisions
 
-The credibility pass intentionally does not choose between conflicting facts. These decisions belong to Shafri; changing them without confirmation would make the portfolio less trustworthy.
+These values were confirmed by Shafri on 2026-09-01 and are now synchronized across the portfolio and CV. No biography choices remain open from the credibility pass.
 
-1. **Location:** the CV says `Semarang, Indonesia 50273`; the site says `Jakarta / ID`. Which location should be public on both surfaces?
-2. **Current-role history (updated):** you confirmed `AssistX Enterprise` as the employer from `Jan 2026`. I added a descriptive `AI Platform Engineering` entry using work visible in the repositories, while keeping internal product and customer names out of the public description. The site still retains `Research Assistant, Universitas Gadjah Mada (Remote Part Time), Sep 2025 – Present` because no end date was provided. Was that role concurrent, or should you give it an end date/remove it? Please also provide the official AssistX job title if you want it shown instead of the descriptive label.
-3. **CreativeBox Tech:** the site lists `Junior Game Developer, 2021–2022`, but the CV does not. Should it be added to the CV, removed from the site, or retained only as a portfolio detail?
-4. **JIWANA title:** the CV says `CEO & Product Lead`; the site says `Product Lead`. `Product Lead` is the more defensible title for a university-incubator project; please confirm which title is accurate.
-5. **JIWANA dates:** the CV says `Jun 2022 – Dec 2023`; the site says `2022 – 2023`. Please confirm the precise public range.
-6. **Nanjing Xiaozhuang dates:** the CV says `2020 – 2021`; the site says `2020 – 2022`. Please confirm the precise public range.
-7. **NXU GPA:** the site lists `3.68/4.00`, while the CV has no NXU GPA and the UII GPA is also `3.68/4.00`. Please verify whether the NXU GPA is genuine before it is retained or added; it has not been changed here.
-8. **Public phone number:** the linked CV publicly exposes `+62 831 3719 0178`. Removing it would reduce unsolicited contact risk, but I have not removed it without approval.
-9. **Canonical title:** the public positioning now leads with `AI Engineer`, with computer vision, NLP, retrieval, and document intelligence described as the working focus. Please confirm that this is the title you want used everywhere.
+1. **Location:** Jakarta, Indonesia.
+2. **AssistX Enterprise:** AI Engineer, starting January 2026 and continuing in the present.
+3. **Universitas Gadjah Mada research:** Research Assistant, September 2025 through December 2025; the role was part-time and remote, and project details remain confidential.
+4. **CreativeBox Tech:** Junior Game Developer, 2021–2022; included in the CV.
+5. **JIWANA:** Product Lead at the university-incubator startup, June 2022 through December 2023.
+6. **Nanjing Xiaozhuang University (NXU):** Double-degree programme, 2020–2022, with a confirmed GPA of 3.68/4.00.
+7. **Public phone number:** retained on the public CV at Shafri’s request.
+8. **Canonical title:** AI Engineer across the site, metadata, and CV.
 
-The current role description remains unchanged until question 2 is answered. No location, employer, title, date, GPA, or phone-number conflict was silently resolved.
+The AssistX case study continues to use only employer-published product context and approved public links; internal product names, customer data, private endpoints, and private repository details remain excluded.

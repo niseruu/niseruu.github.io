@@ -41,17 +41,20 @@ test("the CV summary uses the same canonical title as the site profile", async (
   assert.match(cv, new RegExp(escapedTitle));
 });
 
-test("the enterprise experience keeps the employer and uses public AssistX Suite context", async () => {
+test("the enterprise experience keeps the employer, title, and public AssistX Suite context", async () => {
   const journey = await read("src/data/journey.ts");
   const cv = await read("cv/m-shafri-syamsuddin.tex");
   const project = await read("src/content/projects/enterprise-ai-platform.mdx");
   const readme = await read("README.md");
 
   assert.match(journey, /Jan 2026 - Present/);
-  assert.match(journey, /AssistX Enterprise/);
+  assert.match(journey, /AI Engineer, AssistX Enterprise/);
+  assert.match(journey, /Sep 2025 - Dec 2025/);
   assert.match(journey, /VLM\/PDF ingestion|structured extraction/);
-  assert.match(cv, /AI Platform Engineering.*Jan 2026 -- Present/s);
+  assert.match(cv, /AI Engineer.*Jan 2026 -- Present/s);
   assert.match(cv, /AssistX Enterprise/);
+  assert.match(cv, /Research Assistant.*Sep 2025 -- Dec 2025/s);
+  assert.match(cv, /Junior Game Developer.*2021 -- 2022/s);
   assert.match(cv, /enterprise RAG.*agent-ingestion platform/);
   assert.match(cv, /tenant-scoped RFM\/persona segmentation/);
   assert.match(project, /Confidential/);
@@ -98,7 +101,7 @@ test("the contact panel does not advertise table-stakes encryption", async () =>
   assert.doesNotMatch(contact, /ENCRYPTION\s*\/\/\s*TLS/);
 });
 
-test("CV rebuild path and unresolved biography decisions are documented", async () => {
+test("CV rebuild path and confirmed biography decisions are documented", async () => {
   const packageJson = await read("package.json");
   const readme = await read("README.md");
   const questions = await read("OPEN-QUESTIONS.md");
@@ -106,10 +109,10 @@ test("CV rebuild path and unresolved biography decisions are documented", async 
   assert.match(packageJson, /"cv"\s*:/);
   assert.match(readme, /npm run cv/);
   assert.match(readme, /LaTeX|latexmk|pdflatex/i);
-  assert.match(questions, /Semarang|Jakarta/);
-  assert.match(questions, /Nanjing Xiaozhuang|3\.68/);
-  assert.match(questions, /JIWANA|Product Lead|CEO/);
-  assert.match(questions, /mobile number|phone/i);
+  assert.match(questions, /Jakarta/);
+  assert.match(questions, /Nanjing Xiaozhuang.*2020.?2022/s);
+  assert.match(questions, /Product Lead/);
+  assert.match(questions, /phone.*retained/i);
 });
 
 test("the CV keeps a clearly labelled ATS-friendly skills section", async () => {

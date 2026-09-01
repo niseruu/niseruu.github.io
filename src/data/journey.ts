@@ -8,13 +8,13 @@ export type JourneyEntry = {
 export const journey: JourneyEntry[] = [
   {
     period: "Jan 2026 - Present",
-    title: "AssistX Enterprise — AI Platform Engineering",
+    title: "AI Engineer, AssistX Enterprise",
     description:
       "Contribute to and harden enterprise AI workflows for retrieval, document intelligence, and customer analytics, spanning ingestion, structured extraction, evaluation, observability, and operator-facing React tools.",
     kind: "ROLE",
   },
   {
-    period: "Sep 2025 - Present",
+    period: "Sep 2025 - Dec 2025",
     title: "Research Assistant, Universitas Gadjah Mada (Remote Part Time)",
     description:
       "Enhancing medical imagery and training YOLOv11 models for an ongoing medical-imaging research project; further project details are confidential.",
