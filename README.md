@@ -18,6 +18,16 @@ npm run preview   # preview the production build
 - `src/assets/images/` — photos/screenshots optimized via `astro:assets`.
 - `public/` — static files served as-is (icons, PDFs, favicon).
 
+## CV rebuild
+
+`cv/m-shafri-syamsuddin.tex` is the editable CV source and `public/docs/m-shafri-syamsuddin-cv.pdf` is the file linked by the site. After editing the source, run:
+
+```bash
+npm run cv
+```
+
+The command uses `latexmk` when available, or falls back to `pdflatex` (two passes), then copies the generated PDF into `public/docs/`. A LaTeX toolchain is required; this environment does not currently have `latexmk` or `pdflatex`, so `npm run cv` reports that prerequisite instead of pretending to rebuild the PDF.
+
 ## Deployment (Cloudflare Pages)
 
 Connect the repository through **Workers & Pages → Create application → Pages → Import an existing Git repository** with:

@@ -1,11 +1,12 @@
 ---
 import { socials } from "../data/socials";
+import { profile } from "../data/profile";
 const year = new Date().getFullYear();
 ---
 
 <footer class="site-footer">
   <div class="footer-mark"><strong>MS</strong><span>M SHAFRI SYAMSUDDIN</span></div>
-  <p>© {year} / COMPUTER VISION & NLP ENGINEER</p>
+  <p>© {year} / {profile.canonicalTitle.toUpperCase()}</p>
   <div class="footer-links">
     {socials.map((social) => (
       <a href={social.href} target="_blank" rel="noopener">{social.label} ↗</a>

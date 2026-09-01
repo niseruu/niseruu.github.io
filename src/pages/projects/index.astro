@@ -4,6 +4,7 @@ import { getImage } from "astro:assets";
 import BaseLayout from "../../layouts/BaseLayout.astro";
 import ProjectFilter from "../../components/ProjectFilter.tsx";
 import KineticMarquee from "../../components/KineticMarquee.astro";
+import { profile } from "../../data/profile";
 
 const allProjects = (await getCollection("projects")).sort((a, b) => a.data.order - b.data.order);
 const projects = await Promise.all(
@@ -23,8 +24,8 @@ const projects = await Promise.all(
 ---
 
 <BaseLayout
-  title="Case Studies | M Shafri Syamsuddin"
-  description="Computer vision and NLP case studies by M Shafri Syamsuddin, covering diagnostic imaging, MLOps deployment, and NLP analytics pipelines."
+  title={`Case Studies | ${profile.name}`}
+  description={`${profile.canonicalTitle} case studies by ${profile.name}, covering diagnostic imaging, MLOps deployment, and NLP analytics pipelines.`}
 >
   <section id="projects" class="archive-hero">
     <div class="archive-hero-grid" aria-hidden="true"></div>

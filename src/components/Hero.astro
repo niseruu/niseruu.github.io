@@ -3,6 +3,7 @@ import { Image } from "astro:assets";
 import { getCollection } from "astro:content";
 import portrait from "../assets/images/portrait-cutout-v2.png";
 import { publications } from "../data/publications";
+import { profile } from "../data/profile";
 import KineticMarquee from "./KineticMarquee.astro";
 
 const featuredProjectCount = (await getCollection("projects")).filter(
@@ -33,7 +34,7 @@ const formatCount = (count: number) => String(count).padStart(2, "0");
 
   <div class="hero-topline" data-flow-panel="metadata">
     <p data-hero-reveal>PORTFOLIO / 2026</p>
-    <p data-hero-reveal>COMPUTER VISION · NLP · APPLIED AI</p>
+    <p data-hero-reveal>{profile.canonicalTitle.toUpperCase()}</p>
     <p data-hero-reveal>STATUS / AVAILABLE <span class="status-dot"></span></p>
   </div>
 
@@ -72,8 +73,20 @@ const formatCount = (count: number) => String(count).padStart(2, "0");
 
     <div class="hero-dossier-primary">
       <span>ROLE / SPECIALISATION</span>
-      <strong>AI ENGINEER</strong>
-      <p>Building production-aware vision and language systems from research to deployment.</p>
+      <strong>{profile.canonicalTitle}</strong>
+      <p>{profile.summary}</p>
+      <p class="hero-framing">{profile.framing}</p>
+      <a
+        class="hero-proof"
+        href={publications[0]?.linkHref}
+        target="_blank"
+        rel="noopener"
+        aria-label={`Read ${publications[0]?.title ?? "IEEE publication"}`}
+      >
+        <span>IEEE / {publications[0]?.year ?? "2025"}</span>
+        <strong>{publications[0]?.title ?? "Published research"}</strong>
+        <b>↗</b>
+      </a>
     </div>
 
     <dl class="hero-dossier-grid">

@@ -129,7 +129,7 @@ function showLoader(mode: "full" | "route") {
   const loader = getLoader();
   if (!loader) return;
   loaderExitToken += 1;
-  loader.classList.add("is-resetting");
+  loader.classList.add("is-active", "is-resetting");
   loader.classList.remove("is-leaving", "is-hidden");
   void loader.offsetWidth;
   loader.classList.remove("is-resetting");
@@ -154,7 +154,7 @@ function hideLoader() {
       window.clearTimeout(fallback);
       if (token === loaderExitToken) {
         loader.classList.add("is-hidden");
-        loader.classList.remove("is-leaving", "is-route");
+        loader.classList.remove("is-active", "is-leaving", "is-route");
         loader.setAttribute("aria-hidden", "true");
         document.body.classList.remove("is-loading");
       }
@@ -1209,6 +1209,9 @@ function teardownPage() {
 async function bootstrap() {
   if (pageInitialized) return;
   pageInitialized = true;
+  // The loader is opt-in. If this module cannot execute, the static document
+  // remains visible instead of being trapped behind a full-screen curtain.
+  document.documentElement.classList.add("has-js");
   await runFullLoader();
   const completingRoute = routeTransition;
   if (completingRoute) await runRouteLoader();
