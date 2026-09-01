@@ -2516,7 +2516,7 @@ p {
 
 @media (min-width: 1500px) {
   .endfield-flow .hero-role {
-    width: min(60rem, 56vw);
+    width: clamp(50rem, 50vw, 60rem);
     bottom: clamp(7rem, 13vh, 9rem);
     background: rgba(242,242,242,.92);
     padding: .65rem 1rem .75rem 0;
