@@ -41,6 +41,18 @@ test("the CV summary uses the same canonical title as the site profile", async (
   assert.match(cv, new RegExp(escapedTitle));
 });
 
+test("the AssistX experience is represented in the site and CV with evidence-based scope", async () => {
+  const journey = await read("src/data/journey.ts");
+  const cv = await read("cv/m-shafri-syamsuddin.tex");
+
+  assert.match(journey, /Jan 2026 - Present/);
+  assert.match(journey, /AssistX Enterprise/);
+  assert.match(journey, /VLM\/PDF ingestion|structured extraction/);
+  assert.match(cv, /AI Platform Engineering.*Jan 2026 -- Present/s);
+  assert.match(cv, /RAG and agent-ingestion workflows/);
+  assert.match(cv, /tenant-scoped RFM\/persona segmentation/);
+});
+
 test("project metric slots contain measurements or concrete deliverables, not filler labels", async () => {
   const sources = await Promise.all([
     read("src/content/projects/malaria-parasite-detection.mdx"),
