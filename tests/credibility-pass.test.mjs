@@ -50,6 +50,7 @@ test("the enterprise experience keeps the employer, title, and public AssistX Su
   assert.match(journey, /Jan 2026 - Present/);
   assert.match(journey, /AI Engineer, AssistX Enterprise/);
   assert.match(journey, /Sep 2025 - Dec 2025/);
+  assert.match(journey, /Jun 2022 - Dec 2023/);
   assert.match(journey, /VLM\/PDF ingestion|structured extraction/);
   assert.match(cv, /AI Engineer.*Jan 2026 -- Present/s);
   assert.match(cv, /AssistX Enterprise/);

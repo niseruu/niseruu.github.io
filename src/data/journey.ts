@@ -35,7 +35,7 @@ export const journey: JourneyEntry[] = [
     kind: "ROLE",
   },
   {
-    period: "2022 - 2023",
+    period: "Jun 2022 - Dec 2023",
     title: "Product Lead, JIWANA (UBIC Incubation)",
     description:
       "Guided a mental-health chatbot initiative, aligning stakeholders, shaping product direction, and contributing to UX and model prototyping.",
