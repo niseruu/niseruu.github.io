@@ -41,9 +41,9 @@ class UISoundEngine {
 
   constructor() {
     try {
-      this.soundEnabled = window.localStorage.getItem(SOUND_PREFERENCE_KEY) !== "muted";
+      this.soundEnabled = window.localStorage.getItem(SOUND_PREFERENCE_KEY) === "enabled";
     } catch {
-      this.soundEnabled = true;
+      this.soundEnabled = false;
     }
   }
 

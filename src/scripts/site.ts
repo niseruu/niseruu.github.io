@@ -164,7 +164,7 @@ function hideLoader() {
       if (event.target === loader && event.propertyName === "transform") finish();
     };
     loader.addEventListener("transitionend", onTransitionEnd);
-    fallback = window.setTimeout(finish, 820);
+    fallback = window.setTimeout(finish, 620);
     loader.classList.add("is-leaving");
   });
 }
@@ -246,11 +246,14 @@ function runFullLoader() {
   if (fullLoaderPromise) return fullLoaderPromise;
   fullLoaderPromise = (async () => {
     const seen = sessionStorage.getItem(LOADER_KEY) === "1";
-    showLoader(seen ? "route" : "full");
+    const isHome = (window.location.pathname === "/" || window.location.pathname === "")
+      && !window.location.hash;
+    const mode = seen || !isHome ? "route" : "full";
+    showLoader(mode);
     await waitForPageAssets({
-      minimum: seen ? 400 : 1200,
-      maximum: 3000,
-      start: seen ? 28 : 4,
+      minimum: mode === "route" ? 280 : 800,
+      maximum: mode === "route" ? 1800 : 2400,
+      start: mode === "route" ? 28 : 4,
       end: 94,
     });
     sessionStorage.setItem(LOADER_KEY, "1");
@@ -259,7 +262,7 @@ function runFullLoader() {
 }
 
 function runRouteLoader() {
-  return waitForPageAssets({ minimum: 400, maximum: 3000, start: 28, end: 94 });
+  return waitForPageAssets({ minimum: 280, maximum: 1800, start: 28, end: 94 });
 }
 
 function closeMobileMenu() {

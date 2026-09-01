@@ -10,14 +10,14 @@ export const journey: JourneyEntry[] = [
     period: "Jan 2026 - Present",
     title: "AssistX Enterprise — AI Platform Engineering",
     description:
-      "Contributed to AssistX Enterprise's enterprise AI products spanning retrieval-augmented generation, intelligent document processing, and customer intelligence: extended VLM/PDF ingestion, chunk compatibility, structured extraction and scoring, evaluation and observability, provider administration, and tenant-scoped segmentation and eligibility workflows.",
+      "Contribute to and harden enterprise AI workflows for retrieval, document intelligence, and customer analytics, spanning ingestion, structured extraction, evaluation, observability, and operator-facing React tools.",
     kind: "ROLE",
   },
   {
     period: "Sep 2025 - Present",
     title: "Research Assistant, Universitas Gadjah Mada (Remote Part Time)",
     description:
-      "Feature enhancement of medical images and training YOLOv11 with it. Further details can't be mentioned.",
+      "Enhancing medical imagery and training YOLOv11 models for an ongoing medical-imaging research project; further project details are confidential.",
     kind: "ROLE",
   },
   {

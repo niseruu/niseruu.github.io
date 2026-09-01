@@ -41,7 +41,7 @@ test("the CV summary uses the same canonical title as the site profile", async (
   assert.match(cv, new RegExp(escapedTitle));
 });
 
-test("the confidential enterprise experience keeps the employer and omits internal product names", async () => {
+test("the enterprise experience keeps the employer and uses public AssistX Suite context", async () => {
   const journey = await read("src/data/journey.ts");
   const cv = await read("cv/m-shafri-syamsuddin.tex");
   const project = await read("src/content/projects/enterprise-ai-platform.mdx");
@@ -56,12 +56,15 @@ test("the confidential enterprise experience keeps the employer and omits intern
   assert.match(cv, /tenant-scoped RFM\/persona segmentation/);
   assert.match(project, /Confidential/);
   assert.match(project, /RAG|intelligent document processing|customer intelligence/i);
-  assert.match(project, /links:\s*\[\]/);
+  assert.match(project, /assistx-enterprise-logo\.png/);
+  assert.match(project, /assistxenterprise\.ai\/product\/assistx-suite/);
+  assert.match(project, /analyzes document structure.*classifies inputs.*extracts validated fields.*automates downstream workflows/is);
+  assert.doesNotMatch(project, /cifar-confusion/i);
   assert.match(readme, /Confidential work/);
   assert.match(readme, /Git history is not a secrecy boundary/);
 
-  for (const source of [journey, cv, project]) {
-    assert.doesNotMatch(source, /AssistX Suite|Papyrus|CIPF/);
+  for (const source of [journey, cv]) {
+    assert.doesNotMatch(source, /Papyrus|CIPF/);
   }
 });
 
@@ -77,6 +80,17 @@ test("project metric slots contain measurements or concrete deliverables, not fi
   assert.doesNotMatch(combined, /value:\s*"CPU"/);
   assert.doesNotMatch(combined, /value:\s*"Zero-shot"/);
   assert.doesNotMatch(combined, /value:\s*"Config"/);
+});
+
+test("project copy does not overclaim model calibration or non-metric counts", async () => {
+  const visionServe = await read("src/content/projects/visionserve-cifar10-api.mdx");
+  const sentiment = await read("src/content/projects/zero-shot-sentiment-pipeline.mdx");
+
+  assert.doesNotMatch(visionServe, /confidence-calibrated/i);
+  assert.doesNotMatch(visionServe, /predictions are confidence-calibrated/i);
+  assert.match(visionServe, /class probabilities and confidence scores/i);
+  assert.doesNotMatch(sentiment, /value:\s*"0"/);
+  assert.doesNotMatch(sentiment, /value:\s*"3"/);
 });
 
 test("the contact panel does not advertise table-stakes encryption", async () => {
@@ -116,6 +130,18 @@ test("the capability matrix foregrounds the current AI engineering workflow", as
   assert.match(stack, /Jenkins/);
   assert.doesNotMatch(stack, /Other Tools/);
   assert.doesNotMatch(tech, /OPEN SLOT/);
+});
+
+test("interface sound is opt-in and the loader keeps direct visits short", async () => {
+  const nav = await read("src/components/Nav.astro");
+  const sound = await read("src/scripts/ui-sound.ts");
+  const site = await read("src/scripts/site.ts");
+
+  assert.doesNotMatch(nav, /data-sound-enabled="true"/);
+  assert.match(nav, /data-sound-enabled="false"/);
+  assert.match(sound, /getItem\(SOUND_PREFERENCE_KEY\) === "enabled"/);
+  assert.match(site, /minimum:\s*mode === "route" \? 280 : 800/);
+  assert.match(site, /maximum:\s*mode === "route" \? 1800 : 2400/);
 });
 
 test("the CV build script is present", async () => {

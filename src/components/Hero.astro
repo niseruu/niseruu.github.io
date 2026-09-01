@@ -35,7 +35,7 @@ const formatCount = (count: number) => String(count).padStart(2, "0");
   <div class="hero-topline" data-flow-panel="metadata">
     <p data-hero-reveal>PORTFOLIO / 2026</p>
     <p data-hero-reveal>{profile.canonicalTitle.toUpperCase()}</p>
-    <p data-hero-reveal>STATUS / AVAILABLE <span class="status-dot"></span></p>
+    <p data-hero-reveal>OPEN TO AI ROLES <span class="status-dot"></span></p>
   </div>
 
   <div class="hero-title" aria-label="Shafri Syamsuddin" data-flow-panel="title">
@@ -43,6 +43,14 @@ const formatCount = (count: number) => String(count).padStart(2, "0");
       <span class="hero-title-line hero-title-line--first"><span data-hero-reveal>SHAFRI</span></span>
       <span class="hero-title-line hero-title-line--second"><span data-hero-reveal>SYAMSUDDIN</span></span>
     </h1>
+  </div>
+
+  <div class="hero-mobile-proof" data-hero-reveal aria-label="AI engineering focus and research proof">
+    <span>AI ENGINEER / CURRENT FOCUS</span>
+    <strong>RAG · VISION · NLP</strong>
+    <a href={publications[0]?.linkHref} target="_blank" rel="noopener">
+      IEEE / {publications[0]?.year ?? "2025"} ↗
+    </a>
   </div>
 
   <div class="hero-image-zone" data-flow-panel="subject">
@@ -67,8 +75,8 @@ const formatCount = (count: number) => String(count).padStart(2, "0");
 
   <div class="hero-role" data-hero-reveal data-flow-panel="stats">
     <div class="hero-dossier-header">
-      <span>PROFILE RECORD // MSS-001</span>
-      <b>AVAILABLE</b>
+      <span>ASSISTX ENTERPRISE / JAN 2026—PRESENT</span>
+      <b>OPEN TO ROLES</b>
     </div>
 
     <div class="hero-dossier-primary">

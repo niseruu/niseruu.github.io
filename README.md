@@ -18,9 +18,11 @@ npm run preview   # preview the production build
 - `src/assets/images/` — photos/screenshots optimized via `astro:assets`.
 - `public/` — static files served as-is (icons, PDFs, favicon).
 
+The AssistX case study uses a cropped copy of the public AssistX wordmark published on [assistxenterprise.ai](https://assistxenterprise.ai/); it does not expose internal product artwork or customer material.
+
 ### Confidential work
 
-For employer work covered by confidentiality obligations, keep the public case study capability-focused: name the product category and your contribution, but omit internal product names, customer data, private URLs, repository identifiers, and screenshots. Use `links: []`; the case-study template renders an access-restricted note instead of an empty resource block. A public repository's existing Git history is not a secrecy boundary, so review history before publishing any branch that previously contained sensitive wording.
+For employer work covered by confidentiality obligations, keep the public case study capability-focused: public product names and material already published by the employer (such as the [AssistX Suite overview](https://assistxenterprise.ai/product/assistx-suite)) may be linked, but omit internal product names, customer data, private URLs, repository identifiers, and screenshots. Use `links: []` when a case has no approved public resources; the case-study template renders an access-restricted note instead of an empty resource block. A public repository's existing Git history is not a secrecy boundary, so review history before publishing any branch that previously contained sensitive wording.
 
 ## CV rebuild
 

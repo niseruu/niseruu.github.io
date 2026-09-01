@@ -109,7 +109,7 @@ p {
   overflow: hidden;
   background: var(--canvas);
   color: var(--ink);
-  transition: transform 0.68s cubic-bezier(0.76, 0, 0.24, 1);
+  transition: transform 0.52s cubic-bezier(0.76, 0, 0.24, 1);
   animation: loader-failsafe 0s linear 4.5s forwards;
 }
 
@@ -123,6 +123,7 @@ p {
 
 .site-loader.is-route {
   visibility: visible;
+  transition-duration: .36s;
   animation: none;
 }
 
@@ -941,6 +942,8 @@ p {
 .hero-title-line--second { padding-right: 1.5vw; text-align: right; }
 .hero-title-line--second > span { color: transparent; font-size: .72em; line-height: .9; -webkit-text-stroke: 2px var(--ink); }
 
+.hero-mobile-proof { display: none; }
+
 .hero-image-zone {
   position: absolute;
   /* Keep the wrapper out of the stacking context so its three visual planes
@@ -1293,6 +1296,10 @@ p {
 .project-media::after { position: absolute; inset: 0; background: linear-gradient(135deg, transparent 60%, rgba(255,250,0,0.28)); content: ""; opacity: 0; transition: opacity 0.35s ease; }
 .project-media:hover::after { opacity: 1; }
 .project-image { width: 100%; height: 100%; min-height: inherit; object-fit: cover; filter: grayscale(0) contrast(1.04); transition: transform 0.75s cubic-bezier(0.22,1,0.36,1), filter 0.45s ease; }
+.project-media--brand { display: grid; place-items: center; background: linear-gradient(135deg, #f4f5f2 0%, #e0e4df 56%, #fffa00 56%, #fffa00 100%); }
+.project-media--brand .project-image { height: auto; min-height: 0; padding: clamp(2rem, 5vw, 5rem); object-fit: contain; }
+.project-media--brand:hover .project-image,
+.project-media--brand:focus-visible .project-image { transform: scale(1.025); }
 .project-media:hover .project-image,
 .project-media:focus-visible .project-image { transform: scale(1.035); filter: grayscale(0) contrast(1.05); }
 .project-media-index { position: absolute; z-index: 2; top: 0; left: 0; background: var(--signal); padding: 0.55rem 0.8rem; font-family: var(--font-display); font-size: 1.35rem; font-variation-settings: "wdth" 130, "wght" 850; }
@@ -1689,6 +1696,9 @@ p {
 .case-summary p { margin: 0; font-size: clamp(.95rem,1.4vw,1.2rem); }
 .case-image { position: relative; width: calc(100% - clamp(2rem,8vw,10rem)); height: min(70vw,58rem); margin: clamp(3rem,7vw,7rem) auto; overflow: hidden; background: #ddd; }
 .case-image img { width: 100%; height: 100%; object-fit: cover; filter: grayscale(0) contrast(1.03); transition: transform .75s cubic-bezier(.22,1,.36,1),filter .45s; }
+.case-image--brand { display: grid; place-items: center; background: linear-gradient(135deg, #f4f5f2 0%, #e0e4df 56%, #fffa00 56%, #fffa00 100%); }
+.case-image--brand img { height: auto; object-fit: contain; padding: clamp(3rem, 8vw, 9rem); }
+.case-image--brand:hover img { transform: scale(1.018); }
 .case-image:hover img { transform: scale(1.025); filter: grayscale(0) contrast(1.04); }
 .case-image-code { position: absolute; right: 0; bottom: 0; background: var(--signal); padding: .6rem .85rem; font-size: .58rem; font-weight: 700; letter-spacing: .08em; }
 .case-metrics { display: grid; width: calc(100% - clamp(2rem,8vw,10rem)); margin: 0 auto clamp(5rem,10vw,10rem); grid-template-columns: repeat(3,minmax(0,1fr)); border-top: 2px solid var(--ink); border-left: 1px solid var(--line); }
@@ -2082,6 +2092,7 @@ p {
 /* Cases: a compact roster, dominant visual, and dense result rack. */
 .endfield-flow .projects-section { padding-top: clamp(4rem,6vw,6rem); background: var(--paper); }
 .endfield-flow .projects-section .section-heading { margin-bottom: clamp(2rem,3.5vw,3.2rem); }
+.endfield-flow .projects-section .section-heading h2 { font-size: clamp(3.2rem,5.7vw,7.2rem); }
 .project-record-strip {
   position: sticky;
   z-index: 18;
@@ -2140,6 +2151,8 @@ p {
   background: var(--ink);
 }
 .endfield-flow .project-image { object-fit: cover; object-position: center; }
+.endfield-flow .project-media--brand { background: linear-gradient(135deg, #f4f5f2 0%, #e0e4df 56%, #fffa00 56%, #fffa00 100%); }
+.endfield-flow .project-media--brand .project-image { height: auto; min-height: 0; object-fit: contain; padding: clamp(2rem, 5vw, 5rem); }
 .endfield-flow .project-copy {
   z-index: 3;
   margin-left: -3.2rem;
@@ -2195,9 +2208,9 @@ p {
 /* Diagnostics: a deliberate yellow inversion with two dominant measurements. */
 .endfield-flow .scores-section { min-height: 100svh; padding-block: clamp(4rem,6vw,6rem); }
 .endfield-flow .scores-section .section-heading { margin-bottom: clamp(1.5rem,2.5vw,2.5rem); }
-.endfield-flow .scores-section .section-heading h2 { font-size: clamp(3.6rem,6.6vw,8rem); }
-.endfield-flow .scores-grid { min-height: min(61svh,42rem); }
-.endfield-flow .score-card { min-height: min(61svh,42rem); }
+.endfield-flow .scores-section .section-heading h2 { font-size: clamp(3.1rem,5.4vw,6.6rem); }
+.endfield-flow .scores-grid { min-height: min(48svh,32rem); }
+.endfield-flow .score-card { min-height: min(48svh,32rem); }
 
 /* Contact: one terminal scene containing the title, channels, and working form. */
 .endfield-flow .contact-section {
@@ -2284,6 +2297,8 @@ p {
   .endfield-flow .hero-actions { right: auto; bottom: auto; left: auto; }
 
   .endfield-flow .projects-section { padding-top: 4rem; }
+  .endfield-flow .projects-section .section-heading { margin-bottom: 1.8rem; }
+  .endfield-flow .projects-section .section-heading h2 { font-size: clamp(2.4rem,10.5vw,4rem); }
   .project-record-strip { top: calc(5.05rem + 2px); margin-inline: -1rem; margin-bottom: 2.6rem; border-inline: 0; grid-template-columns: repeat(4,minmax(0,1fr)); }
   .project-record-strip a { min-height: 2.55rem; grid-template-columns: 1fr; place-items: center; padding: .25rem; }
   .project-record-strip small { color: var(--ink); font-size: .54rem; }
@@ -2424,6 +2439,41 @@ p {
   .endfield-flow .hero-section { padding-inline: 1rem; }
   .endfield-flow .hero-title h1 { font-size: clamp(3.1rem,16vw,4.5rem); }
   .endfield-flow .hero-title-line--second > span { font-size: .64em; font-variation-settings: "wdth" 102, "wght" 760; }
+  .endfield-flow .hero-mobile-proof {
+    position: relative;
+    z-index: 7;
+    display: grid;
+    grid-template-columns: minmax(0,1fr) auto;
+    align-items: center;
+    gap: .35rem .75rem;
+    margin: .9rem 0 -1.55rem;
+    border-block: 1px solid var(--line);
+    padding: .45rem 0;
+  }
+  .endfield-flow .hero-mobile-proof span {
+    grid-column: 1 / -1;
+    color: var(--muted);
+    font-size: .46rem;
+    font-weight: 800;
+    letter-spacing: .09em;
+  }
+  .endfield-flow .hero-mobile-proof strong {
+    min-width: 0;
+    font-family: var(--font-display);
+    font-size: .82rem;
+    font-variation-settings: "wdth" 108, "wght" 800;
+    letter-spacing: -.03em;
+    line-height: 1;
+  }
+  .endfield-flow .hero-mobile-proof a {
+    border-bottom: 1px solid currentColor;
+    padding-bottom: .08rem;
+    font-size: .47rem;
+    font-weight: 800;
+    letter-spacing: .06em;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
   .endfield-flow .hero-image-zone {
     width: 112%;
     max-width: none;

@@ -31,7 +31,7 @@ const caseNumber = String(currentIndex + 1).padStart(2, "0");
       <div class="case-summary"><span>PROJECT BRIEF</span><p>{project.data.summary}</p></div>
     </header>
 
-    <div class="case-image" data-image-reveal>
+    <div class:list={["case-image", project.id === "enterprise-ai-platform" && "case-image--brand"]} data-image-reveal>
       <Image src={project.data.heroImage} alt={project.data.heroImageAlt} width={1800} loading="eager" decoding="async" data-loader-image />
       <span class="case-image-code">FIG // {caseNumber}.A</span>
     </div>
