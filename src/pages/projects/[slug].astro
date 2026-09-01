@@ -36,11 +36,13 @@ const caseNumber = String(currentIndex + 1).padStart(2, "0");
       <span class="case-image-code">FIG // {caseNumber}.A</span>
     </div>
 
-    <section class="case-metrics" aria-label="Project metrics">
-      {project.data.metrics.map((metric, index) => (
-        <div data-reveal><span>METRIC / 0{index + 1}</span><strong>{metric.value}</strong><p>{metric.label}</p></div>
-      ))}
-    </section>
+    {project.data.metrics.length > 0 && (
+      <section class="case-metrics" aria-label="Project metrics">
+        {project.data.metrics.map((metric, index) => (
+          <div data-reveal><span>METRIC / 0{index + 1}</span><strong>{metric.value}</strong><p>{metric.label}</p></div>
+        ))}
+      </section>
+    )}
 
     <KineticMarquee text={`${project.data.title} / CASE ${caseNumber}`} reverse />
 
@@ -49,14 +51,21 @@ const caseNumber = String(currentIndex + 1).padStart(2, "0");
       <div class="prose prose-case"><Content /></div>
     </section>
 
-    <section class="case-links">
-      <span>EXTERNAL RESOURCES</span>
-      <div>
-        {project.data.links.map((link) => (
-          <a href={link.href} target="_blank" rel="noopener" class="action-button"><span>{link.label}</span><b>↗</b></a>
-        ))}
-      </div>
-    </section>
+    {project.data.links.length > 0 ? (
+      <section class="case-links">
+        <span>EXTERNAL RESOURCES</span>
+        <div>
+          {project.data.links.map((link) => (
+            <a href={link.href} target="_blank" rel="noopener" class="action-button"><span>{link.label}</span><b>↗</b></a>
+          ))}
+        </div>
+      </section>
+    ) : (
+      <section class="case-links case-links--private" aria-label="Project access">
+        <span>ACCESS // RESTRICTED</span>
+        <p>This work is confidential; the public case study stays at capability level.</p>
+      </section>
+    )}
 
     <a href={`/projects/${nextProject.id}`} class="next-case">
       <span>NEXT CASE STUDY // {String((currentIndex + 1) % sorted.length + 1).padStart(2, "0")}</span>

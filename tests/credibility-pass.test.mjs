@@ -41,16 +41,28 @@ test("the CV summary uses the same canonical title as the site profile", async (
   assert.match(cv, new RegExp(escapedTitle));
 });
 
-test("the AssistX experience is represented in the site and CV with evidence-based scope", async () => {
+test("the confidential enterprise experience keeps the employer and omits internal product names", async () => {
   const journey = await read("src/data/journey.ts");
   const cv = await read("cv/m-shafri-syamsuddin.tex");
+  const project = await read("src/content/projects/enterprise-ai-platform.mdx");
+  const readme = await read("README.md");
 
   assert.match(journey, /Jan 2026 - Present/);
   assert.match(journey, /AssistX Enterprise/);
   assert.match(journey, /VLM\/PDF ingestion|structured extraction/);
   assert.match(cv, /AI Platform Engineering.*Jan 2026 -- Present/s);
-  assert.match(cv, /RAG and agent-ingestion workflows/);
+  assert.match(cv, /AssistX Enterprise/);
+  assert.match(cv, /enterprise RAG.*agent-ingestion platform/);
   assert.match(cv, /tenant-scoped RFM\/persona segmentation/);
+  assert.match(project, /Confidential/);
+  assert.match(project, /RAG|intelligent document processing|customer intelligence/i);
+  assert.match(project, /links:\s*\[\]/);
+  assert.match(readme, /Confidential work/);
+  assert.match(readme, /Git history is not a secrecy boundary/);
+
+  for (const source of [journey, cv, project]) {
+    assert.doesNotMatch(source, /AssistX Suite|Papyrus|CIPF/);
+  }
 });
 
 test("project metric slots contain measurements or concrete deliverables, not filler labels", async () => {

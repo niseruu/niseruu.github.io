@@ -1710,6 +1710,8 @@ p {
 .case-links { display: flex; width: calc(100% - clamp(2rem,8vw,10rem)); align-items: start; justify-content: space-between; gap: 2rem; margin: 0 auto clamp(5rem,10vw,9rem); border-top: 2px solid var(--ink); padding-top: 1rem; }
 .case-links > span { font-size: .58rem; font-weight: 700; letter-spacing: .08em; }
 .case-links > div { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: .75rem; }
+.case-links--private { align-items: baseline; }
+.case-links--private p { max-width: 36rem; margin: 0; color: var(--muted); font-size: .78rem; line-height: 1.5; text-align: right; }
 .next-case { position: relative; display: grid; min-height: 24rem; align-content: center; overflow: hidden; border-top: 1px solid var(--ink); background: var(--signal); padding: clamp(2rem,5vw,6rem); }
 .next-case > span { margin-bottom: 1.5rem; font-size: .62rem; font-weight: 700; letter-spacing: .08em; }
 .next-case strong { max-width: 14ch; font-family: var(--font-display); font-size: clamp(3rem,8vw,9.5rem); font-variation-settings: "wdth" 98,"wght" 850; letter-spacing: -.07em; line-height: .8; text-transform: uppercase; transition: font-variation-settings .35s; }
@@ -2085,7 +2087,7 @@ p {
   z-index: 18;
   top: .8rem;
   display: grid;
-  grid-template-columns: repeat(3,minmax(0,1fr));
+  grid-template-columns: repeat(4,minmax(0,1fr));
   margin-bottom: clamp(2rem,4vw,4rem);
   border: 1px solid var(--ink);
   background: rgba(255,255,255,.98);
@@ -2282,7 +2284,7 @@ p {
   .endfield-flow .hero-actions { right: auto; bottom: auto; left: auto; }
 
   .endfield-flow .projects-section { padding-top: 4rem; }
-  .project-record-strip { top: calc(5.05rem + 2px); margin-inline: -1rem; margin-bottom: 2.6rem; border-inline: 0; }
+  .project-record-strip { top: calc(5.05rem + 2px); margin-inline: -1rem; margin-bottom: 2.6rem; border-inline: 0; grid-template-columns: repeat(4,minmax(0,1fr)); }
   .project-record-strip a { min-height: 2.55rem; grid-template-columns: 1fr; place-items: center; padding: .25rem; }
   .project-record-strip small { color: var(--ink); font-size: .54rem; }
   .project-record-strip span {
@@ -2302,6 +2304,8 @@ p {
     text-overflow: ellipsis;
     white-space: nowrap;
   }
+  .case-links--private { align-items: flex-start; flex-direction: column; gap: .8rem; }
+  .case-links--private p { max-width: none; text-align: left; }
   .endfield-flow .project-list { gap: 5rem; }
   .endfield-flow .project-feature,
   .endfield-flow .project-feature--reverse {

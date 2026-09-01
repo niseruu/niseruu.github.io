@@ -7,8 +7,8 @@ import KineticMarquee from "./KineticMarquee.astro";
 const projects = (await getCollection("projects"))
   .filter((project) => project.data.featured)
   .sort((a, b) => a.data.order - b.data.order);
-const projectAnchors = ["project-malaria", "project-visionserve", "project-sentiment"];
-const projectShortLabels = ["MALARIA", "VISION", "SENTIMENT"];
+const projectAnchors = ["project-malaria", "project-visionserve", "project-sentiment", "project-enterprise-ai"];
+const projectShortLabels = ["MALARIA", "VISION", "SENTIMENT", "ENTERPRISE AI"];
 ---
 
 <section
@@ -92,7 +92,7 @@ const projectShortLabels = ["MALARIA", "VISION", "SENTIMENT"];
     </div>
 
     <div class="section-end-action" data-reveal data-flow-panel="archive">
-      <span>03 PROJECTS / FULL ARCHIVE</span>
+      <span>{String(projects.length).padStart(2, "0")} PROJECTS / FULL ARCHIVE</span>
       <a href="/projects" class="action-button action-button--yellow"><span>View all case studies</span><b>↗</b></a>
     </div>
   </div>

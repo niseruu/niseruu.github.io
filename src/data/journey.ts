@@ -10,7 +10,7 @@ export const journey: JourneyEntry[] = [
     period: "Jan 2026 - Present",
     title: "AssistX Enterprise — AI Platform Engineering",
     description:
-      "Contributed to AssistX Suite, Papyrus, and customer-intelligence products: extended VLM/PDF ingestion, chunk compatibility, structured extraction and scoring, Langfuse evaluation, provider administration, and tenant-scoped segmentation and eligibility workflows.",
+      "Contributed to AssistX Enterprise's enterprise AI products spanning retrieval-augmented generation, intelligent document processing, and customer intelligence: extended VLM/PDF ingestion, chunk compatibility, structured extraction and scoring, evaluation and observability, provider administration, and tenant-scoped segmentation and eligibility workflows.",
     kind: "ROLE",
   },
   {
