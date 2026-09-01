@@ -32,7 +32,7 @@ For employer work covered by confidentiality obligations, keep the public case s
 npm run cv
 ```
 
-The command uses `latexmk` when available, or falls back to `pdflatex` (two passes), then copies the generated PDF into `public/docs/`. A LaTeX toolchain is required; this environment does not currently have `latexmk` or `pdflatex`, so `npm run cv` reports that prerequisite instead of pretending to rebuild the PDF.
+The command uses `latexmk` when available, falls back to `pdflatex` (two passes), or uses the self-contained `tectonic` engine. It then copies the generated PDF into `public/docs/`. Install a system TeX distribution, or use `cargo install tectonic --locked`; the builder also discovers Cargo's default `~/.cargo/bin` location.
 
 ## Deployment (Cloudflare Pages)
 
