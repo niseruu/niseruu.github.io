@@ -3,12 +3,25 @@ import { getCollection } from "astro:content";
 import { Image } from "astro:assets";
 import SectionHeading from "./SectionHeading.astro";
 import KineticMarquee from "./KineticMarquee.astro";
+import assistxLogo from "../assets/images/assistx-enterprise-logo.png";
 
 const projects = (await getCollection("projects"))
   .filter((project) => project.data.featured)
   .sort((a, b) => a.data.order - b.data.order);
-const projectAnchors = ["project-malaria", "project-visionserve", "project-sentiment"];
-const projectShortLabels = ["MALARIA", "VISION", "SENTIMENT"];
+const projectAnchors: Record<string, string> = {
+  "enterprise-ai-platform": "project-enterprise-ai",
+  "malaria-parasite-detection": "project-malaria",
+  "visionserve-cifar10-api": "project-visionserve",
+  "zero-shot-sentiment-pipeline": "project-sentiment",
+};
+const projectShortLabels: Record<string, string> = {
+  "enterprise-ai-platform": "ENTERPRISE AI",
+  "malaria-parasite-detection": "MALARIA",
+  "visionserve-cifar10-api": "VISION",
+  "zero-shot-sentiment-pipeline": "SENTIMENT",
+};
+const projectAnchorFor = (id: string) => projectAnchors[id] ?? `project-${id}`;
+const projectShortLabelFor = (id: string) => projectShortLabels[id] ?? id;
 ---
 
 <section
@@ -24,15 +37,15 @@ const projectShortLabels = ["MALARIA", "VISION", "SENTIMENT"];
     <SectionHeading
       index="01"
       eyebrow="Selected Case Studies"
-      title="Research engineered for the real world."
-      description="Applied machine-learning systems built with deployment, reproducibility, and measurable outcomes in mind."
+      title="Applied AI, built to ship."
+      description="Current enterprise work first, then published research and production-pattern demonstrations across vision, NLP, and data science."
     />
 
     <nav class="project-record-strip" aria-label="Selected case studies" data-flow-panel="records">
       {projects.map((project, index) => (
-        <a href={`#${projectAnchors[index]}`} data-project-jump={index}>
+        <a href={`#${projectAnchorFor(project.id)}`} data-project-jump={index}>
           <small>{String(index + 1).padStart(2, "0")}</small>
-          <span data-short-label={projectShortLabels[index]}>{project.data.title}</span>
+          <span data-short-label={projectShortLabelFor(project.id)}>{project.data.title}</span>
           <i aria-hidden="true"></i>
         </a>
       ))}
@@ -41,12 +54,17 @@ const projectShortLabels = ["MALARIA", "VISION", "SENTIMENT"];
     <div class="project-list">
       {projects.map((project, index) => (
         <article
-          id={projectAnchors[index]}
+          id={projectAnchorFor(project.id)}
           class:list={["project-feature", index % 2 === 1 && "project-feature--reverse"]}
           data-flow-record
           data-flow-record-index={index}
         >
-          <a href={`/projects/${project.id}`} class="project-media" data-image-reveal data-flow-panel="media">
+          <a
+            href={`/projects/${project.id}`}
+            class:list={["project-media", project.id === "enterprise-ai-platform" && "project-media--brand"]}
+            data-image-reveal
+            data-flow-panel="media"
+          >
           <Image
             src={project.data.heroImage}
             alt={project.data.heroImageAlt}
@@ -56,6 +74,20 @@ const projectShortLabels = ["MALARIA", "VISION", "SENTIMENT"];
             decoding="async"
             data-loader-image
           />
+          {project.id === "enterprise-ai-platform" && (
+            <Image
+              src={assistxLogo}
+              alt=""
+              width={320}
+              class="project-brand-watermark"
+              loading="eager"
+              decoding="async"
+              aria-hidden="true"
+            />
+          )}
+          {project.data.contextLabel && (
+            <span class="project-media-context">{project.data.contextLabel}</span>
+          )}
           <span class="project-media-index">0{index + 1}</span>
           <span class="project-media-arrow">↗</span>
           <span class="project-media-grid" aria-hidden="true"></span>
@@ -66,6 +98,12 @@ const projectShortLabels = ["MALARIA", "VISION", "SENTIMENT"];
               <span>CASE // 0{index + 1}</span>
               <span>{project.data.eyebrow}</span>
             </div>
+            {project.data.scope.length > 0 && (
+              <div class="project-scope" aria-label="My engineering scope">
+                <small>MY SCOPE</small>
+                <span>{project.data.scope.join(" · ")}</span>
+              </div>
+            )}
             <h3>
               <a href={`/projects/${project.id}`} class="project-title-link">
                 <span data-flow-title>{project.data.title}</span>
@@ -73,15 +111,17 @@ const projectShortLabels = ["MALARIA", "VISION", "SENTIMENT"];
             </h3>
             <p>{project.data.summary}</p>
 
-            <div class="project-metrics">
-              {project.data.metrics.map((metric, metricIndex) => (
-                <div data-flow-metric>
-                  <small>0{metricIndex + 1}</small>
-                  <strong>{metric.value}</strong>
-                  <span>{metric.label}</span>
-                </div>
-              ))}
-            </div>
+            {project.data.metrics.length > 0 && (
+              <div class="project-metrics">
+                {project.data.metrics.map((metric, metricIndex) => (
+                  <div data-flow-metric>
+                    <small>0{metricIndex + 1}</small>
+                    <strong>{metric.value}</strong>
+                    <span>{metric.label}</span>
+                  </div>
+                ))}
+              </div>
+            )}
 
             <a href={`/projects/${project.id}`} class="inline-link"><span>Open case study</span><b>↗</b></a>
           </div>
@@ -90,7 +130,7 @@ const projectShortLabels = ["MALARIA", "VISION", "SENTIMENT"];
     </div>
 
     <div class="section-end-action" data-reveal data-flow-panel="archive">
-      <span>03 PROJECTS / FULL ARCHIVE</span>
+      <span>{String(projects.length).padStart(2, "0")} PROJECTS / FULL ARCHIVE</span>
       <a href="/projects" class="action-button action-button--yellow"><span>View all case studies</span><b>↗</b></a>
     </div>
   </div>

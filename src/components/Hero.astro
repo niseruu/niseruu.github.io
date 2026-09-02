@@ -3,6 +3,7 @@ import { Image } from "astro:assets";
 import { getCollection } from "astro:content";
 import portrait from "../assets/images/portrait-cutout-v2.png";
 import { publications } from "../data/publications";
+import { profile } from "../data/profile";
 import KineticMarquee from "./KineticMarquee.astro";
 
 const featuredProjectCount = (await getCollection("projects")).filter(
@@ -33,8 +34,8 @@ const formatCount = (count: number) => String(count).padStart(2, "0");
 
   <div class="hero-topline" data-flow-panel="metadata">
     <p data-hero-reveal>PORTFOLIO / 2026</p>
-    <p data-hero-reveal>COMPUTER VISION · NLP · APPLIED AI</p>
-    <p data-hero-reveal>STATUS / AVAILABLE <span class="status-dot"></span></p>
+    <p data-hero-reveal>{profile.canonicalTitle.toUpperCase()} / APPLIED AI</p>
+    <p data-hero-reveal>ASSISTX ENTERPRISE / OPEN TO AI ROLES <span class="status-dot"></span></p>
   </div>
 
   <div class="hero-title" aria-label="Shafri Syamsuddin" data-flow-panel="title">
@@ -42,6 +43,15 @@ const formatCount = (count: number) => String(count).padStart(2, "0");
       <span class="hero-title-line hero-title-line--first"><span data-hero-reveal>SHAFRI</span></span>
       <span class="hero-title-line hero-title-line--second"><span data-hero-reveal>SYAMSUDDIN</span></span>
     </h1>
+  </div>
+
+  <div class="hero-mobile-proof" data-hero-reveal aria-label="AI engineering focus and research proof">
+    <span>AI ENGINEER / ASSISTX ENTERPRISE</span>
+    <strong>{profile.primaryFocus}</strong>
+    <small>{profile.supportingFocus}</small>
+    <a href={publications[0]?.linkHref} target="_blank" rel="noopener">
+      IEEE / {publications[0]?.year ?? "2025"} ↗
+    </a>
   </div>
 
   <div class="hero-image-zone" data-flow-panel="subject">
@@ -66,14 +76,28 @@ const formatCount = (count: number) => String(count).padStart(2, "0");
 
   <div class="hero-role" data-hero-reveal data-flow-panel="stats">
     <div class="hero-dossier-header">
-      <span>PROFILE RECORD // MSS-001</span>
-      <b>AVAILABLE</b>
+      <span>ASSISTX ENTERPRISE / JAN 2026—PRESENT</span>
+      <b>OPEN TO AI ENGINEERING ROLES</b>
     </div>
 
     <div class="hero-dossier-primary">
-      <span>ROLE / SPECIALISATION</span>
-      <strong>AI ENGINEER</strong>
-      <p>Building production-aware vision and language systems from research to deployment.</p>
+      <span>ROLE / PRIMARY FOCUS</span>
+      <strong>{profile.canonicalTitle}</strong>
+      <p class="hero-focus-line">{profile.primaryFocus}</p>
+      <p>{profile.summary}</p>
+      <p class="hero-framing">{profile.framing}</p>
+      <p class="hero-supporting-focus"><b>SUPPORTING PRACTICE</b> / {profile.supportingFocus}</p>
+      <a
+        class="hero-proof"
+        href={publications[0]?.linkHref}
+        target="_blank"
+        rel="noopener"
+        aria-label={`Read ${publications[0]?.title ?? "IEEE publication"}`}
+      >
+        <span>IEEE / {publications[0]?.year ?? "2025"}</span>
+        <strong>{publications[0]?.title ?? "Published research"}</strong>
+        <b>↗</b>
+      </a>
     </div>
 
     <dl class="hero-dossier-grid">
@@ -82,8 +106,8 @@ const formatCount = (count: number) => String(count).padStart(2, "0");
         <dd>JAKARTA / ID</dd>
       </div>
       <div>
-        <dt>FOCUS</dt>
-        <dd>VISION + NLP</dd>
+        <dt>PRIMARY FOCUS</dt>
+        <dd>RETRIEVAL / DOCS</dd>
       </div>
       <div>
         <dt>PROJECT FILES</dt>
@@ -107,4 +131,4 @@ const formatCount = (count: number) => String(count).padStart(2, "0");
   </a>
 </section>
 
-<KineticMarquee text="VISION / LANGUAGE / DEPLOY" />
+<KineticMarquee text="AI SYSTEMS / VISION / LANGUAGE / DEPLOY" />

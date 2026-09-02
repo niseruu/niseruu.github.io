@@ -26,7 +26,7 @@ export const publications: Publication[] = [
   {
     title: "Conference Proceedings & Certificate",
     description:
-      "Official documentation from the AMLDS 2025 proceedings, supporting ongoing IP work on malaria parasite detection tooling.",
+      "Official documentation from the AMLDS 2025 proceedings and certificate for the malaria parasite detection research.",
     image: "/publications/amlds-certificate.jpg",
     kind: "Certificate",
     source: "AMLDS 2025",

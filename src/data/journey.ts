@@ -7,10 +7,17 @@ export type JourneyEntry = {
 
 export const journey: JourneyEntry[] = [
   {
-    period: "Sep 2025 - Present",
+    period: "Jan 2026 - Present",
+    title: "AI Engineer, AssistX Enterprise",
+    description:
+      "Contribute to and harden enterprise AI workflows for retrieval, document intelligence, and customer analytics, spanning ingestion, structured extraction, evaluation, observability, and operator-facing React tools.",
+    kind: "ROLE",
+  },
+  {
+    period: "Sep 2025 - Dec 2025",
     title: "Research Assistant, Universitas Gadjah Mada (Remote Part Time)",
     description:
-      "Feature enhancement of medical images and training YOLOv11 with it. Further details can't be mentioned.",
+      "Enhancing medical imagery and training YOLOv11 models for an ongoing medical-imaging research project; further project details are confidential.",
     kind: "ROLE",
   },
   {
@@ -28,7 +35,7 @@ export const journey: JourneyEntry[] = [
     kind: "ROLE",
   },
   {
-    period: "2022 - 2023",
+    period: "Jun 2022 - Dec 2023",
     title: "Product Lead, JIWANA (UBIC Incubation)",
     description:
       "Guided a mental-health chatbot initiative, aligning stakeholders, shaping product direction, and contributing to UX and model prototyping.",

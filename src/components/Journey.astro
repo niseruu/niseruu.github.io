@@ -1,6 +1,8 @@
 ---
 import SectionHeading from "./SectionHeading.astro";
 import { journey } from "../data/journey";
+
+const currentYear = new Date().getFullYear();
 ---
 
 <section
@@ -18,11 +20,11 @@ import { journey } from "../data/journey";
         index="03"
         eyebrow="Service Record / Experience & Education"
         title="A path through code, research, and product."
-        description="From game development and product leadership to graduate research and applied machine learning."
+        description="From model development and product leadership to enterprise AI platforms and graduate research."
       />
 
       <div class="journey-direction" aria-hidden="true">
-        <span>PRESENT / 2025</span>
+        <span>PRESENT / {currentYear}</span>
         <i></i>
         <span>ORIGIN / 2018</span>
       </div>
@@ -32,7 +34,7 @@ import { journey } from "../data/journey";
       <div class="journey-toolbar" data-journey-toolbar>
         <span>{String(journey.length).padStart(2, "0")} RECORDS</span>
         <span>REVERSE CHRONOLOGY</span>
-        <span>SYNC // COMPLETE</span>
+        <span>UPDATED / {currentYear}</span>
       </div>
       <span class="journey-axis" aria-hidden="true"><i data-journey-axis></i></span>
       <span class="journey-boundary journey-boundary--present" aria-hidden="true">LIVE RECORD</span>

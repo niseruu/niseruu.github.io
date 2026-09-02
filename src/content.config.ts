@@ -10,6 +10,9 @@ const projects = defineCollection({
       summary: z.string(),
       heroImage: image(),
       heroImageAlt: z.string(),
+      contextLabel: z.string().optional(),
+      scope: z.array(z.string()).default([]),
+      outcomes: z.array(z.string()).default([]),
       metrics: z.array(
         z.object({
           value: z.string(),

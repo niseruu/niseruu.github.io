@@ -1,18 +1,13 @@
 ---
 title: "VisionServe: CIFAR-10 Inference API"
-eyebrow: "MLOps · API Deployment"
-summary: "A Dockerised FastAPI service demonstrating production-aware model serving with reproducible training, artifact tracking, and confidence-calibrated predictions."
+eyebrow: "AI Engineering · Inference Systems"
+contextLabel: "PRODUCTION-PATTERN DEMONSTRATION"
+summary: "A production-pattern demonstration: Dockerised FastAPI model serving with reproducible training, artifact tracking, and class probabilities with confidence scores."
 heroImage: "../../assets/images/cifar-confusion.png"
 heroImageAlt: "Confusion matrix from CIFAR-10 inference API"
 featured: true
 order: 2
-metrics:
-  - value: "10"
-    label: "CIFAR-10 classes served behind a single inference endpoint"
-  - value: "1"
-    label: "CLI command spans preprocessing, training, metrics, and artifact export"
-  - value: "CPU"
-    label: "Container ships CPU-friendly PyTorch wheels for easy portability"
+metrics: []
 links:
   - label: "View GitHub"
     href: "https://github.com/Shafriii/Cifar-10-Inference-API-Docker"
@@ -27,7 +22,7 @@ Most image-classification tutorials stop at a trained model in a notebook. Shipp
 VisionServe wraps a CIFAR-10 classifier in a **FastAPI** service, with the surrounding tooling treated as first-class rather than an afterthought:
 
 - A single CLI handles the full lifecycle: preprocessing, training, metrics export, and artifact versioning, so a run is reproducible from one command instead of a chain of ad-hoc scripts.
-- Predictions are confidence-calibrated rather than raw softmax outputs, so downstream consumers get a more honest signal about how much to trust a given classification.
+- Predictions return class probabilities and confidence scores so downstream consumers can inspect the model's output rather than receiving only a hard label.
 - A confusion matrix and metrics summary are generated automatically per run, giving a fast QA check before anything ships.
 
 ## Architecture

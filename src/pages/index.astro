@@ -8,11 +8,12 @@ import TechStack from "../components/TechStack.astro";
 import Scores from "../components/Scores.astro";
 import Contact from "../components/Contact.astro";
 import EndfieldFlow from "../components/EndfieldFlow.astro";
+import { profile } from "../data/profile";
 ---
 
 <BaseLayout
-  title="M Shafri Syamsuddin | Computer Vision & NLP Engineer"
-  description="Portfolio of M Shafri Syamsuddin - computer vision and NLP engineer building applied AI products."
+  title={`${profile.name} | ${profile.canonicalTitle}`}
+  description={profile.metaDescription}
 >
   <EndfieldFlow>
     <Hero />

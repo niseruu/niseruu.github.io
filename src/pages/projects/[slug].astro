@@ -3,6 +3,10 @@ import { getCollection, render } from "astro:content";
 import { Image } from "astro:assets";
 import BaseLayout from "../../layouts/BaseLayout.astro";
 import KineticMarquee from "../../components/KineticMarquee.astro";
+import { profile } from "../../data/profile";
+import assistxLogo from "../../assets/images/assistx-enterprise-logo.png";
+import assistxDocumentFlow from "../../assets/images/assistx-document-flow.png";
+import assistxExtractionFlow from "../../assets/images/assistx-extraction-flow.png";
 
 export async function getStaticPaths() {
   const projects = await getCollection("projects");
@@ -15,9 +19,10 @@ const sorted = [...allProjects].sort((a, b) => a.data.order - b.data.order);
 const currentIndex = sorted.findIndex((entry) => entry.id === project.id);
 const nextProject = sorted[(currentIndex + 1) % sorted.length];
 const caseNumber = String(currentIndex + 1).padStart(2, "0");
+const isAssistX = project.id === "enterprise-ai-platform";
 ---
 
-<BaseLayout title={`${project.data.title} | M Shafri Syamsuddin`} description={project.data.summary}>
+<BaseLayout title={`${project.data.title} | ${profile.canonicalTitle}`} description={project.data.summary}>
   <article class="case-page">
     <header class="case-hero">
       <div class="case-hero-grid" aria-hidden="true"></div>
@@ -26,20 +31,108 @@ const caseNumber = String(currentIndex + 1).padStart(2, "0");
         <span>CASE // {caseNumber}</span>
       </div>
       <p class="case-eyebrow">{project.data.eyebrow}</p>
+      {project.data.contextLabel && <span class="case-context-label">{project.data.contextLabel}</span>}
       <h1 data-kinetic>{project.data.title}</h1>
       <div class="case-summary"><span>PROJECT BRIEF</span><p>{project.data.summary}</p></div>
     </header>
 
-    <div class="case-image" data-image-reveal>
+    <div class:list={["case-image", isAssistX && "case-image--brand"]} data-image-reveal>
       <Image src={project.data.heroImage} alt={project.data.heroImageAlt} width={1800} loading="eager" decoding="async" data-loader-image />
+      {isAssistX && (
+        <Image
+          src={assistxLogo}
+          alt=""
+          width={520}
+          class="case-brand-watermark"
+          loading="eager"
+          decoding="async"
+          aria-hidden="true"
+        />
+      )}
       <span class="case-image-code">FIG // {caseNumber}.A</span>
     </div>
 
-    <section class="case-metrics" aria-label="Project metrics">
-      {project.data.metrics.map((metric, index) => (
-        <div data-reveal><span>METRIC / 0{index + 1}</span><strong>{metric.value}</strong><p>{metric.label}</p></div>
-      ))}
-    </section>
+    {project.data.scope.length > 0 || project.data.outcomes.length > 0 ? (
+      <section class="case-contribution" aria-labelledby="case-contribution-title">
+        <div class="case-contribution__intro">
+          <span>MY CONTRIBUTION / {caseNumber}</span>
+          <h2 id="case-contribution-title">Engineering scope, made legible.</h2>
+          <p>
+            A recruiter should be able to see the boundary between the public product and the work represented here. These are the systems and outcomes I can discuss without exposing internal names, customer data, or private implementation details.
+          </p>
+        </div>
+        <div class="case-contribution__grid">
+          {project.data.scope.length > 0 && (
+            <div>
+              <small>SCOPE</small>
+              <ul>
+                {project.data.scope.map((item) => <li>{item}</li>)}
+              </ul>
+            </div>
+          )}
+          {project.data.outcomes.length > 0 && (
+            <div>
+              <small>DELIVERED</small>
+              <ul>
+                {project.data.outcomes.map((item) => <li>{item}</li>)}
+              </ul>
+            </div>
+          )}
+        </div>
+      </section>
+    ) : null}
+
+    {isAssistX && (
+      <section class="case-public-visuals" aria-labelledby="assistx-public-visuals-title">
+        <div class="case-public-visuals__intro">
+          <div>
+            <span>PUBLIC PRODUCT CONTEXT / ASSISTX SUITE</span>
+            <h2 id="assistx-public-visuals-title">From documents to validated actions.</h2>
+          </div>
+          <p>
+            These employer-published diagrams make the workflow legible: visual document understanding, structured extraction, confidence checks, and downstream automation. They are product context, not individual deliverables. <a href="https://assistxenterprise.ai/product/assistx-suite" target="_blank" rel="noopener">View the public overview ↗</a>
+          </p>
+        </div>
+        <div class="case-public-visuals__grid">
+          <figure class="case-public-visual case-public-visual--wide">
+            <div class="case-public-visual__media">
+              <Image
+                src={assistxDocumentFlow}
+                alt="AssistX public flow showing perception, intelligence, extraction, and activation stages"
+                width={1800}
+                loading="eager"
+                decoding="async"
+                data-loader-image
+              />
+              <Image src={assistxLogo} alt="" width={360} class="case-public-visual__watermark" loading="eager" decoding="async" aria-hidden="true" />
+            </div>
+            <figcaption>01 / Public document intelligence flow — perception, intelligence, extraction, activation.</figcaption>
+          </figure>
+          <figure class="case-public-visual">
+            <div class="case-public-visual__media">
+              <Image
+                src={assistxExtractionFlow}
+                alt="AssistX public extraction flow showing document fields and confidence scores"
+                width={1400}
+                loading="eager"
+                decoding="async"
+                data-loader-image
+              />
+              <Image src={assistxLogo} alt="" width={300} class="case-public-visual__watermark" loading="eager" decoding="async" aria-hidden="true" />
+            </div>
+            <figcaption>02 / Public extraction view — fields, validation, and confidence handoff.</figcaption>
+          </figure>
+        </div>
+      </section>
+    )}
+
+    {project.data.metrics.length > 0 && (
+      <section class="case-metrics" aria-label="Project metrics">
+        {project.data.metrics.map((metric, index) => (
+          <div data-reveal><span>METRIC / 0{index + 1}</span><strong>{metric.value}</strong><p>{metric.label}</p></div>
+        ))}
+      </section>
+    )}
 
     <KineticMarquee text={`${project.data.title} / CASE ${caseNumber}`} reverse />
 
@@ -48,14 +141,21 @@ const caseNumber = String(currentIndex + 1).padStart(2, "0");
       <div class="prose prose-case"><Content /></div>
     </section>
 
-    <section class="case-links">
-      <span>EXTERNAL RESOURCES</span>
-      <div>
-        {project.data.links.map((link) => (
-          <a href={link.href} target="_blank" rel="noopener" class="action-button"><span>{link.label}</span><b>↗</b></a>
-        ))}
-      </div>
-    </section>
+    {project.data.links.length > 0 ? (
+      <section class="case-links">
+        <span>EXTERNAL RESOURCES</span>
+        <div>
+          {project.data.links.map((link) => (
+            <a href={link.href} target="_blank" rel="noopener" class="action-button"><span>{link.label}</span><b>↗</b></a>
+          ))}
+        </div>
+      </section>
+    ) : (
+      <section class="case-links case-links--private" aria-label="Project access">
+        <span>ACCESS // RESTRICTED</span>
+        <p>This work is confidential; the public case study stays at capability level.</p>
+      </section>
+    )}
 
     <a href={`/projects/${nextProject.id}`} class="next-case">
       <span>NEXT CASE STUDY // {String((currentIndex + 1) % sorted.length + 1).padStart(2, "0")}</span>

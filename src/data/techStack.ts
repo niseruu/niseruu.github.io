@@ -3,57 +3,65 @@ export type StackCategory = {
   title: string;
   domain: string;
   status: "LOADED";
+  tier: "CORE" | "SUPPORTING";
   items: StackItem[];
 };
 
 export const techStack: StackCategory[] = [
   {
-    title: "Modeling & Data Science",
-    domain: "MODEL DEVELOPMENT",
+    title: "AI Product Engineering",
+    domain: "RAG / DOCUMENT INTELLIGENCE",
     status: "LOADED",
+    tier: "CORE",
+    items: [
+      { name: "FastAPI", icon: "fastapi.svg" },
+      { name: "React", icon: "react.svg" },
+      { name: "PostgreSQL", icon: "postgresql.svg" },
+      { name: "SQL", icon: "sql.svg" },
+      { name: "Docker", icon: "docker.svg" },
+      { name: "Git", icon: "git.svg" },
+    ],
+  },
+  {
+    title: "AI Model Development",
+    domain: "COMPUTER VISION / NLP / DATA SCIENCE",
+    status: "LOADED",
+    tier: "CORE",
     items: [
       { name: "Python", icon: "python.svg" },
       { name: "PyTorch", icon: "pytorch.svg" },
+      { name: "Hugging Face Transformers", icon: "hugging-face.svg" },
+      { name: "scikit-learn", icon: "scikit-learn.svg" },
       { name: "TensorFlow", icon: "tensorflow.svg" },
       { name: "Keras", icon: "keras.svg" },
-      { name: "scikit-learn", icon: "scikit-learn.svg" },
-      { name: "Hugging Face", icon: "hugging-face.svg" },
     ],
   },
   {
-    title: "Serving & MLOps",
-    domain: "DEPLOYMENT & OPERATIONS",
+    title: "Evaluation & Delivery",
+    domain: "TESTING / OBSERVABILITY",
     status: "LOADED",
+    tier: "CORE",
     items: [
-      { name: "FastAPI", icon: "fastapi.svg" },
-      { name: "Docker", icon: "docker.svg" },
-      { name: "Flask", icon: "flask.svg" },
       { name: "MLflow", icon: "mlflow.svg" },
+      { name: "Jenkins", icon: "jenkins.svg" },
       { name: "GitHub Actions", icon: "github-actions.svg" },
-      { name: "Airflow", icon: "apache-airflow.svg" },
+      { name: "Apache Airflow", icon: "apache-airflow.svg" },
+      { name: "Flask", icon: "flask.svg" },
+      { name: "ONNX", icon: "onnx.svg" },
     ],
   },
   {
-    title: "Data Platforms & Analytics",
-    domain: "DATA & REPORTING",
+    title: "Applied AI Surfaces",
+    domain: "VISION / ANALYTICS",
     status: "LOADED",
+    tier: "SUPPORTING",
     items: [
-      { name: "PostgreSQL", icon: "postgresql.svg" },
-      { name: "SQL", icon: "sql.svg" },
-      { name: "Power BI", icon: "power-bi.svg" },
-      { name: "Plotly", icon: "plotly.svg" },
-      { name: "Tableau", icon: "tableau.svg" },
+      { name: "OpenCV", icon: "opencv.svg" },
       { name: "Streamlit", icon: "streamlit.svg" },
-    ],
-  },
-  {
-    title: "Other Tools",
-    domain: "CREATIVE & COLLABORATION",
-    status: "LOADED",
-    items: [
+      { name: "Plotly", icon: "plotly.svg" },
+      { name: "Power BI", icon: "power-bi.svg" },
+      { name: "Tableau", icon: "tableau.svg" },
       { name: "Unity (VR/AR)", icon: "unity.svg" },
-      { name: "Figma", icon: "figma.svg" },
-      { name: "Git", icon: "git.svg" },
     ],
   },
 ];
