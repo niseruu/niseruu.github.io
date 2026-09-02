@@ -77,6 +77,7 @@ test("the enterprise experience keeps the employer, title, and public AssistX Su
   assert.match(cv, /enterprise RAG.*agent-ingestion platform/);
   assert.match(cv, /tenant-scoped RFM\/persona segmentation/);
   assert.match(project, /Confidential/);
+  assert.match(project, /title:\s*"AssistX Suite Platform Engineering"/);
   assert.match(project, /RAG|intelligent document processing|customer intelligence/i);
   assert.match(project, /assistx-suite-flow\.png/);
   assert.match(project, /assistxenterprise\.ai\/product\/assistx-suite/);
@@ -192,6 +193,24 @@ test("the CV keeps a clearly labelled ATS-friendly skills section", async () => 
   const cv = await read("cv/m-shafri-syamsuddin.tex");
   assert.match(cv, /\\section\*\{Skills\}/);
   assert.match(cv, /AI Engineering/);
+});
+
+test("public profile links use the current GitHub identity and portfolio URL", async () => {
+  const cv = await read("cv/m-shafri-syamsuddin.tex");
+  const socials = await read("src/data/socials.ts");
+  const nav = await read("src/components/Nav.astro");
+  const projects = await Promise.all([
+    read("src/content/projects/malaria-parasite-detection.mdx"),
+    read("src/content/projects/visionserve-cifar10-api.mdx"),
+    read("src/content/projects/zero-shot-sentiment-pipeline.mdx"),
+  ]);
+
+  assert.match(cv, /github\.com\/niseruu/);
+  assert.match(cv, /shafri\.pages\.dev/);
+  assert.match(cv, /AssistX Suite Platform/);
+  assert.match(socials, /github\.com\/niseruu/);
+  assert.match(nav, /github\.com\/niseruu/);
+  assert.doesNotMatch([cv, socials, nav, ...projects].join("\n"), /github\.com\/Shafriii/);
 });
 
 test("the capability matrix foregrounds the current AI engineering workflow", async () => {
