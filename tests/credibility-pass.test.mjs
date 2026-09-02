@@ -103,6 +103,18 @@ test("the enterprise experience keeps the employer, title, and public AssistX Su
   }
 });
 
+test("the confirmed assistant lecturer role stays synchronized across the site and CV", async () => {
+  const journey = await read("src/data/journey.ts");
+  const cv = await read("cv/m-shafri-syamsuddin.tex");
+  const questions = await read("OPEN-QUESTIONS.md");
+
+  assert.match(journey, /Sep 2019 - Sep 2020/);
+  assert.match(journey, /Assistant Lecturer, Universitas Islam Indonesia/);
+  assert.match(cv, /Assistant Lecturer.*Sep 2019 -- Sep 2020/s);
+  assert.match(cv, /Universitas Islam Indonesia/);
+  assert.match(questions, /Assistant Lecturer.*Universitas Islam Indonesia/s);
+});
+
 test("project cards distinguish published research from demonstrations", async () => {
   const malaria = await read("src/content/projects/malaria-parasite-detection.mdx");
   const visionServe = await read("src/content/projects/visionserve-cifar10-api.mdx");

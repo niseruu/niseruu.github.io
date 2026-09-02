@@ -56,6 +56,13 @@ export const journey: JourneyEntry[] = [
     kind: "LEADERSHIP",
   },
   {
+    period: "Sep 2019 - Sep 2020",
+    title: "Assistant Lecturer, Universitas Islam Indonesia",
+    description:
+      "Held an assistant lecturer role alongside undergraduate study at Universitas Islam Indonesia.",
+    kind: "ROLE",
+  },
+  {
     period: "2020 - 2022",
     title: "Bachelor of Engineering in Informatics, Double Degree Scholar, Nanjing Xiaozhuang University (NXU)",
     description:
