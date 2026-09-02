@@ -1,6 +1,6 @@
 # Confirmed biography decisions
 
-These values were confirmed by Shafri on 2026-09-01 and are now synchronized across the portfolio and CV. No biography choices remain open from the credibility pass.
+These values were confirmed by Shafri on 2026-09-01 and are now synchronized across the portfolio and CV. The core biography choices from the credibility pass are closed; the verification questions below remain intentionally unresolved rather than guessed.
 
 1. **Location:** Jakarta, Indonesia.
 2. **AssistX Enterprise:** AI Engineer, starting January 2026 and continuing in the present.
@@ -12,3 +12,9 @@ These values were confirmed by Shafri on 2026-09-01 and are now synchronized acr
 8. **Canonical title:** AI Engineer across the site, metadata, and CV.
 
 The AssistX case study continues to use only employer-published product context and approved public links; internal product names, customer data, private endpoints, and private repository details remain excluded.
+
+## Verify before the next application export
+
+1. **NXU credential wording:** What exact English degree title appears on the Nanjing Xiaozhuang diploma or transcript? The site currently says “Bachelor of Engineering in Informatics”; the CV says “Information Engineering.” Use the official wording in both places.
+2. **Malaria project status:** Is the malaria project genuinely active through the present, or should its CV period end in 2025? Do not change `2024 -- Present` until confirmed.
+3. **AssistX ownership and outcomes:** Which of the public-safe AssistX contributions were owned, co-owned, or contributed to, and is any aggregate scale or outcome approved for publication? Add only confirmed evidence.

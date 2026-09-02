@@ -13,12 +13,12 @@ npm run preview   # preview the production build
 
 ## Content
 
-- `src/content/projects/*.mdx` — case studies (frontmatter defines metrics/links, body is the narrative).
+- `src/content/projects/*.mdx` — case studies (frontmatter defines context labels, contribution scope, outcomes, metrics, and links; body is the narrative).
 - `src/data/*.ts` — journey timeline, tech stack, scores, publications, socials.
 - `src/assets/images/` — photos/screenshots optimized via `astro:assets`.
 - `public/` — static files served as-is (icons, PDFs, favicon).
 
-The AssistX case study uses a cropped copy of the public AssistX wordmark published on [assistxenterprise.ai](https://assistxenterprise.ai/); it does not expose internal product artwork or customer material.
+The AssistX case study uses optimized local copies of the public Suite flow diagrams and wordmark published on [assistxenterprise.ai](https://assistxenterprise.ai/). The diagrams provide product context; the wordmark is used only as a subdued watermark. No internal product artwork or customer material is included.
 
 ### Confidential work
 

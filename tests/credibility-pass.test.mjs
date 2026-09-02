@@ -31,6 +31,22 @@ test("the canonical profile identity is reused by the homepage metadata and hero
   assert.match(hero, /profile\.canonicalTitle/);
 });
 
+test("the hero leads with AI engineering while keeping adjacent disciplines visible", async () => {
+  const profile = await read("src/data/profile.ts");
+  const hero = await read("src/components/Hero.astro");
+  const cv = await read("cv/m-shafri-syamsuddin.tex");
+
+  assert.match(profile, /primaryFocus:/);
+  assert.match(profile, /Retrieval.*Document Intelligence.*Applied AI/);
+  assert.match(profile, /supportingFocus:/);
+  assert.match(profile, /Computer Vision.*NLP.*Data Science/);
+  assert.match(hero, /profile\.primaryFocus/);
+  assert.match(hero, /profile\.supportingFocus/);
+  assert.match(hero, /ASSISTX ENTERPRISE/);
+  assert.match(cv, /retrieval.*document-intelligence.*applied AI/i);
+  assert.match(cv, /Computer Vision.*NLP.*Data Science/i);
+});
+
 test("the CV summary uses the same canonical title as the site profile", async () => {
   const profile = await read("src/data/profile.ts");
   const cv = await read("cv/m-shafri-syamsuddin.tex");
@@ -45,6 +61,8 @@ test("the enterprise experience keeps the employer, title, and public AssistX Su
   const journey = await read("src/data/journey.ts");
   const cv = await read("cv/m-shafri-syamsuddin.tex");
   const project = await read("src/content/projects/enterprise-ai-platform.mdx");
+  const projectIndex = await read("src/components/ProjectsBento.astro");
+  const projectPage = await read("src/pages/projects/[slug].astro");
   const readme = await read("README.md");
 
   assert.match(journey, /Jan 2026 - Present/);
@@ -60,9 +78,22 @@ test("the enterprise experience keeps the employer, title, and public AssistX Su
   assert.match(cv, /tenant-scoped RFM\/persona segmentation/);
   assert.match(project, /Confidential/);
   assert.match(project, /RAG|intelligent document processing|customer intelligence/i);
-  assert.match(project, /assistx-enterprise-logo\.png/);
+  assert.match(project, /assistx-suite-flow\.png/);
   assert.match(project, /assistxenterprise\.ai\/product\/assistx-suite/);
+  assert.match(project, /contextLabel:\s*"PUBLIC PRODUCT CONTEXT"/);
+  assert.match(project, /scope:/);
+  assert.match(project, /outcomes:/);
+  assert.match(project, /order:\s*0/);
   assert.match(project, /analyzes document structure.*classifies inputs.*extracts validated fields.*automates downstream workflows/is);
+  assert.match(projectIndex, /project-brand-watermark/);
+  assert.match(projectIndex, /contextLabel/);
+  assert.match(projectIndex, /project-media-context/);
+  assert.match(projectPage, /assistx-document-flow\.png/);
+  assert.match(projectPage, /assistx-extraction-flow\.png/);
+  assert.match(projectPage, /case-public-visuals/);
+  assert.match(projectPage, /case-contribution/);
+  assert.match(projectPage, /MY CONTRIBUTION/);
+  assert.match(projectPage, /assistx-enterprise-logo\.png|assistxLogo/);
   assert.doesNotMatch(project, /cifar-confusion/i);
   assert.match(readme, /Confidential work/);
   assert.match(readme, /Git history is not a secrecy boundary/);
@@ -70,6 +101,35 @@ test("the enterprise experience keeps the employer, title, and public AssistX Su
   for (const source of [journey, cv]) {
     assert.doesNotMatch(source, /Papyrus|CIPF/);
   }
+});
+
+test("project cards distinguish published research from demonstrations", async () => {
+  const malaria = await read("src/content/projects/malaria-parasite-detection.mdx");
+  const visionServe = await read("src/content/projects/visionserve-cifar10-api.mdx");
+  const sentiment = await read("src/content/projects/zero-shot-sentiment-pipeline.mdx");
+  const archive = await read("src/pages/projects/index.astro");
+  const filter = await read("src/components/ProjectFilter.tsx");
+
+  assert.match(malaria, /contextLabel:\s*"PUBLISHED RESEARCH"/);
+  assert.match(visionServe, /contextLabel:\s*"PRODUCTION-PATTERN DEMONSTRATION"/);
+  assert.match(sentiment, /contextLabel:\s*"APPLIED PIPELINE DEMONSTRATION"/);
+  assert.match(archive, /contextLabel/);
+  assert.match(filter, /contextLabel/);
+});
+
+test("featured project anchors stay attached to the project identity", async () => {
+  const bento = await read("src/components/ProjectsBento.astro");
+
+  assert.match(bento, /projectAnchors:\s*Record<string, string>/);
+  assert.match(bento, /projectAnchors\[id\]/);
+  assert.match(bento, /projectShortLabels\[id\]/);
+});
+
+test("the project archive stays visible before React hydration", async () => {
+  const filter = await read("src/components/ProjectFilter.tsx");
+
+  assert.match(filter, /initial=\{false\}/);
+  assert.doesNotMatch(filter, /initial=\{\{\s*opacity:\s*0/);
 });
 
 test("project metric slots contain measurements or concrete deliverables, not filler labels", async () => {
@@ -129,11 +189,14 @@ test("the capability matrix foregrounds the current AI engineering workflow", as
 
   assert.match(profile, /AI Engineer/);
   assert.match(stack, /AI Product Engineering/);
+  assert.match(stack, /tier:\s*"CORE"/);
+  assert.match(stack, /tier:\s*"SUPPORTING"/);
   assert.match(stack, /RAG|retrieval|document/i);
   assert.match(stack, /React/);
   assert.match(stack, /Jenkins/);
   assert.doesNotMatch(stack, /Other Tools/);
   assert.doesNotMatch(tech, /OPEN SLOT/);
+  assert.match(tech, /CORE STACK|SUPPORTING PRACTICE/);
 });
 
 test("interface sound is opt-in and the loader keeps direct visits short", async () => {

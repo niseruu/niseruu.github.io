@@ -1,9 +1,11 @@
 export const profile = {
   name: "M Shafri Syamsuddin",
   canonicalTitle: "AI Engineer",
+  primaryFocus: "Retrieval · Document Intelligence · Applied AI",
+  supportingFocus: "Computer Vision · NLP · Data Science",
   summary:
-    "AI Engineer building production-aware systems across computer vision, NLP, retrieval-augmented generation, and intelligent document processing.",
+    "AI Engineer building production-aware retrieval, document-intelligence, and applied AI systems, with experience across computer vision, NLP, and data science.",
   metaDescription:
-    "Portfolio of M Shafri Syamsuddin — AI Engineer building applied AI systems across computer vision, NLP, and enterprise platforms.",
+    "Portfolio of M Shafri Syamsuddin — AI Engineer building retrieval, document-intelligence, and applied AI systems, with computer vision, NLP, and data-science experience.",
   framing: "MSc graduate with an IEEE publication, now building enterprise AI platforms from ingestion to evaluation and deployment.",
 } as const;

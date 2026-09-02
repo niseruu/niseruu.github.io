@@ -1,6 +1,7 @@
 ---
 import SectionHeading from "./SectionHeading.astro";
 import { techStack } from "../data/techStack";
+import { profile } from "../data/profile";
 
 const allItems = techStack.flatMap((category) => category.items);
 const toolCount = allItems.length;
@@ -28,11 +29,11 @@ const toolCount = allItems.length;
       index="04"
       eyebrow="AI Engineering / Tech Stack"
       title="AI systems, end to end."
-      description="A practical stack for retrieval, document intelligence, model development, evaluation, serving, and analytical communication."
+      description={`${profile.primaryFocus}. Supporting practice across ${profile.supportingFocus.toLowerCase()}.`}
     />
 
     <div class="stack-matrix-head" data-stack-head aria-hidden="true">
-      <span>CAPABILITY MATRIX / ACTIVE</span>
+      <span>CORE STACK / SUPPORTING PRACTICE</span>
       <i></i>
       <span>{String(techStack.length).padStart(2, "0")} MODULES</span>
       <span>{String(toolCount).padStart(2, "0")} TOOLS</span>
@@ -43,7 +44,7 @@ const toolCount = allItems.length;
         <article class="stack-category" data-reveal data-stack-module data-stack-domain={category.domain}>
           <i class="stack-module-rule" data-stack-rule aria-hidden="true"></i>
           <header>
-            <span>[CP-{String(index + 1).padStart(2, "0")}]</span>
+            <span>[CP-{String(index + 1).padStart(2, "0")}] / {category.tier}</span>
             <div>
               <small>{category.domain}</small>
               <h3>{category.title}</h3>

@@ -3,27 +3,16 @@ export type StackCategory = {
   title: string;
   domain: string;
   status: "LOADED";
+  tier: "CORE" | "SUPPORTING";
   items: StackItem[];
 };
 
 export const techStack: StackCategory[] = [
   {
-    title: "AI Model Development",
-    domain: "VISION / LANGUAGE MODELS",
-    status: "LOADED",
-    items: [
-      { name: "Python", icon: "python.svg" },
-      { name: "PyTorch", icon: "pytorch.svg" },
-      { name: "Hugging Face Transformers", icon: "hugging-face.svg" },
-      { name: "scikit-learn", icon: "scikit-learn.svg" },
-      { name: "TensorFlow", icon: "tensorflow.svg" },
-      { name: "Keras", icon: "keras.svg" },
-    ],
-  },
-  {
     title: "AI Product Engineering",
-    domain: "RAG / DOCUMENT SYSTEMS",
+    domain: "RAG / DOCUMENT INTELLIGENCE",
     status: "LOADED",
+    tier: "CORE",
     items: [
       { name: "FastAPI", icon: "fastapi.svg" },
       { name: "React", icon: "react.svg" },
@@ -34,9 +23,24 @@ export const techStack: StackCategory[] = [
     ],
   },
   {
+    title: "AI Model Development",
+    domain: "COMPUTER VISION / NLP / DATA SCIENCE",
+    status: "LOADED",
+    tier: "CORE",
+    items: [
+      { name: "Python", icon: "python.svg" },
+      { name: "PyTorch", icon: "pytorch.svg" },
+      { name: "Hugging Face Transformers", icon: "hugging-face.svg" },
+      { name: "scikit-learn", icon: "scikit-learn.svg" },
+      { name: "TensorFlow", icon: "tensorflow.svg" },
+      { name: "Keras", icon: "keras.svg" },
+    ],
+  },
+  {
     title: "Evaluation & Delivery",
     domain: "TESTING / OBSERVABILITY",
     status: "LOADED",
+    tier: "CORE",
     items: [
       { name: "MLflow", icon: "mlflow.svg" },
       { name: "Jenkins", icon: "jenkins.svg" },
@@ -50,6 +54,7 @@ export const techStack: StackCategory[] = [
     title: "Applied AI Surfaces",
     domain: "VISION / ANALYTICS",
     status: "LOADED",
+    tier: "SUPPORTING",
     items: [
       { name: "OpenCV", icon: "opencv.svg" },
       { name: "Streamlit", icon: "streamlit.svg" },

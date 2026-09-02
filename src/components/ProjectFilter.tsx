@@ -5,6 +5,7 @@ type ProjectCard = {
   id: string;
   title: string;
   eyebrow: string;
+  contextLabel?: string;
   category: string;
   summary: string;
   imageSrc: string;
@@ -43,7 +44,7 @@ export default function ProjectFilter({ projects }: { projects: ProjectCard[] })
                 key={project.id}
                 layout
                 href={`/projects/${project.id}`}
-                initial={{ opacity: 0, y: 28 }}
+                initial={false}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, scale: 0.97 }}
                 transition={{ duration: 0.38, ease: [0.22, 1, 0.36, 1] }}
@@ -55,6 +56,7 @@ export default function ProjectFilter({ projects }: { projects: ProjectCard[] })
                   <span>↗</span>
                 </div>
                 <div className="archive-card-copy">
+                  {project.contextLabel && <p className="archive-card-context">{project.contextLabel}</p>}
                   <p>{project.eyebrow}</p>
                   <h2>{project.title}</h2>
                   <div><span>{project.summary}</span><b>OPEN CASE ↗</b></div>
