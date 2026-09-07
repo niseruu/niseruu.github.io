@@ -34,6 +34,8 @@ npm run cv
 
 The command uses `latexmk` when available, falls back to `pdflatex` (two passes), or uses the self-contained `tectonic` engine. It then copies the generated PDF into `public/docs/`. Install a system TeX distribution, or use `cargo install tectonic --locked`; the builder also discovers Cargo's default `~/.cargo/bin` location.
 
+The rebuild records SHA-256 fingerprints of the source and PDF in `cv/build-manifest.json`. Commit all three files together. `npm run build` runs `npm run cv:check` first and refuses to deploy if either file has changed since that rebuild. Cloudflare needs only Node.js for this check, not LaTeX. `npm run test:cv` verifies that stale source and PDF files are rejected. This guards the generated document against drift; it does not verify biographical facts or replace visual PDF review.
+
 ## Deployment (Cloudflare Pages)
 
 Connect the repository through **Workers & Pages → Create application → Pages → Import an existing Git repository** with:

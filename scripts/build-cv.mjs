@@ -5,6 +5,7 @@ import { fileURLToPath } from "node:url";
 import { spawnSync } from "node:child_process";
 import { existsSync } from "node:fs";
 import { homedir } from "node:os";
+import { recordCvBuild } from "./cv-integrity.mjs";
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const source = resolve(root, "cv/m-shafri-syamsuddin.tex");
@@ -47,6 +48,7 @@ if (!latexmk && !pdflatex && !tectonic) {
 
     const generated = resolve(outputDirectory, "m-shafri-syamsuddin.pdf");
     await copyFile(generated, destination);
+    await recordCvBuild(root);
     console.log(`CV written to ${destination}`);
   } finally {
     await rm(outputDirectory, { recursive: true, force: true });

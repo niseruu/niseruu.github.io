@@ -39,7 +39,7 @@ export default function ProjectFilter({ projects }: { projects: ProjectCard[] })
       <LayoutGroup>
         <motion.div layout className="archive-grid">
           <AnimatePresence mode="popLayout">
-            {visible.map((project, index) => (
+            {visible.map((project) => (
               <motion.a
                 key={project.id}
                 layout
@@ -52,7 +52,7 @@ export default function ProjectFilter({ projects }: { projects: ProjectCard[] })
               >
                 <div className="archive-card-image">
                   <img src={project.imageSrc} alt={project.imageAlt} loading="eager" decoding="async" data-loader-image />
-                  <strong>{String(index + 1).padStart(2, "0")}</strong>
+                  <strong>{String(projects.findIndex((entry) => entry.id === project.id) + 1).padStart(2, "0")}</strong>
                   <span>↗</span>
                 </div>
                 <div className="archive-card-copy">

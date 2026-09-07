@@ -98,18 +98,18 @@ const projectShortLabelFor = (id: string) => projectShortLabels[id] ?? id;
               <span>CASE // 0{index + 1}</span>
               <span>{project.data.eyebrow}</span>
             </div>
-            {project.data.scope.length > 0 && (
-              <div class="project-scope" aria-label="My engineering scope">
-                <small>MY SCOPE</small>
-                <span>{project.data.scope.join(" · ")}</span>
-              </div>
-            )}
             <h3>
               <a href={`/projects/${project.id}`} class="project-title-link">
                 <span data-flow-title>{project.data.title}</span>
               </a>
             </h3>
             <p>{project.data.summary}</p>
+
+            {project.data.outcomes.length > 0 && (
+              <ul class="project-contributions" aria-label="My contributions">
+                {project.data.outcomes.map((outcome) => <li>{outcome}</li>)}
+              </ul>
+            )}
 
             {project.data.metrics.length > 0 && (
               <div class="project-metrics">

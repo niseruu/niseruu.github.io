@@ -1,5 +1,6 @@
 export type Publication = {
   title: string;
+  venue?: string;
   description: string;
   image: string;
   kind: "Paper" | "Certificate";
@@ -12,7 +13,8 @@ export type Publication = {
 
 export const publications: Publication[] = [
   {
-    title: "AMLDS 2025 · Tokyo",
+    title: "Exploring the Impact of Colour Space in Malaria Parasite Detection using Deep Learning",
+    venue: "AMLDS 2025 · Tokyo · IEEE Xplore",
     description:
       "Presented findings on LAB color-space augmentation for malaria diagnostics, alongside the YOLO + Faster R-CNN ensemble workflow.",
     image: "/publications/amlds-doc-2.jpg",

@@ -4,7 +4,7 @@ export const profile = {
   primaryFocus: "Retrieval · Document Intelligence · Applied AI",
   supportingFocus: "Computer Vision · NLP · Data Science",
   summary:
-    "AI Engineer building production-aware retrieval, document-intelligence, and applied AI systems, with experience across computer vision, NLP, and data science.",
+    "I build AI systems that turn documents and data into usable information — from ingestion and model evaluation to deployment.",
   metaDescription:
     "Portfolio of M Shafri Syamsuddin — AI Engineer building retrieval, document-intelligence, and applied AI systems, with computer vision, NLP, and data-science experience.",
   framing: "MSc graduate with an IEEE publication, now building enterprise AI platforms from ingestion to evaluation and deployment.",

@@ -5,7 +5,6 @@ import { motion, AnimatePresence } from "framer-motion";
 type Status = "idle" | "sending" | "success" | "error";
 type RelayResponse = { success?: boolean | string; message?: string };
 type ApiResponse = { ok?: boolean; error?: string };
-type DeliveryChannel = "api" | "relay";
 
 const CONTACT_EMAIL = "shafrisyamsuddin@gmail.com";
 const FORM_ACTION = `https://formsubmit.co/${CONTACT_EMAIL}`;
@@ -43,7 +42,6 @@ export default function ContactForm() {
   const [status, setStatus] = useState<Status>("idle");
   const [errorMessage, setErrorMessage] = useState("");
   const [fallbackHref, setFallbackHref] = useState(createMailto());
-  const [deliveryChannel, setDeliveryChannel] = useState<DeliveryChannel | null>(null);
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -64,16 +62,13 @@ export default function ContactForm() {
 
     setStatus("sending");
     setErrorMessage("");
-    setDeliveryChannel(null);
 
     const contactPayload = { name, email, message, company: honeypot };
 
     try {
-      let deliveredBy: DeliveryChannel = "api";
       const apiResult = await postJson("/api/contact", contactPayload).catch(() => null);
 
       if (!apiResult?.response.ok || !(apiResult.body as ApiResponse | null)?.ok) {
-        deliveredBy = "relay";
         const relayResult = await postJson(FORM_AJAX_ENDPOINT, {
           name,
           email,
@@ -88,21 +83,20 @@ export default function ContactForm() {
         if (!relayResult.response.ok || rejected) throw new Error("No delivery channel confirmed the message.");
       }
 
-      setDeliveryChannel(deliveredBy);
       setStatus("success");
       form.reset();
       setFallbackHref(createMailto());
     } catch {
       setStatus("error");
-      setErrorMessage("THE API AND BACKUP RELAY COULDN'T CONFIRM DELIVERY. YOUR MESSAGE IS STILL HERE—USE THE DIRECT EMAIL LINK BELOW.");
+      setErrorMessage("Your message couldn’t be confirmed as delivered. It’s still here — use the email link below to send it directly.");
     }
   };
 
   const statusCode = {
-    idle: "COMMS // READY",
-    sending: "COMMS // TRANSMITTING",
-    success: "COMMS // DELIVERED",
-    error: "COMMS // FALLBACK READY",
+    idle: "Ready to send",
+    sending: "Sending your message",
+    success: "Message received",
+    error: "Try email instead",
   }[status];
 
   return (
@@ -131,18 +125,18 @@ export default function ContactForm() {
 
       <div className="form-submit-row">
         <motion.button whileTap={{ scale: 0.98 }} type="submit" disabled={status === "sending"}>
-          <span>{status === "sending" ? "TRANSMITTING..." : "TRANSMIT"}</span><b>↗</b>
+          <span>{status === "sending" ? "SENDING..." : "SEND MESSAGE"}</span><b>↗</b>
         </motion.button>
         <span className="form-status-code">{statusCode}</span>
       </div>
 
       <AnimatePresence mode="wait">
-        {status === "success" && <motion.p key="success" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} role="status" className="form-message form-message--success">MESSAGE DELIVERED VIA {deliveryChannel === "api" ? "CLOUDFLARE API" : "BACKUP RELAY"}. I'LL GET BACK TO YOU SOON.</motion.p>}
+        {status === "success" && <motion.p key="success" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} role="status" className="form-message form-message--success">Thanks for getting in touch. I’ll get back to you soon.</motion.p>}
         {status === "error" && <motion.p key="error" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} role="alert" className="form-message form-message--error">{errorMessage}</motion.p>}
       </AnimatePresence>
 
       <div className="form-fallback-row">
-        <span>RELAY BACKUP // MESSAGE-SAFE</span>
+        <span>Prefer your email app?</span>
         <a href={fallbackHref}>EMAIL DIRECTLY ↗</a>
       </div>
     </form>

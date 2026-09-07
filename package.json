@@ -5,10 +5,12 @@
   "private": true,
   "scripts": {
     "dev": "astro dev",
-    "build": "astro build",
+    "build": "npm run cv:check && astro build",
     "preview": "astro preview",
     "astro": "astro",
     "cv": "node scripts/build-cv.mjs",
+    "cv:check": "node scripts/check-cv.mjs",
+    "test:cv": "node --test tests/cv-integrity.test.mjs",
     "test:credibility": "node --test tests/credibility-pass.test.mjs"
   },
   "dependencies": {

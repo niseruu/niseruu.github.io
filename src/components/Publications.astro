@@ -56,7 +56,7 @@ const archivePublications = publications.slice(1);
 
         <div class="publication-copy" data-publication-copy>
           <div class="publication-meta">
-            <span>PRIMARY RESEARCH OUTPUT</span>
+            <span>{featuredPublication.venue ?? featuredPublication.source}</span>
             <span>{featuredPublication.year}</span>
           </div>
           <h3>{featuredPublication.title}</h3>

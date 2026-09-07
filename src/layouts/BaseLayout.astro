@@ -4,6 +4,7 @@ import Nav from "../components/Nav.astro";
 import Footer from "../components/Footer.astro";
 import LoadingScreen from "../components/LoadingScreen.astro";
 import { profile } from "../data/profile";
+import { socials } from "../data/socials";
 import "../styles/global.css";
 
 interface Props {
@@ -14,6 +15,15 @@ interface Props {
 const { title, description } = Astro.props;
 const pageTitle = title ?? `${profile.name} | ${profile.canonicalTitle}`;
 const pageDescription = description ?? profile.metaDescription;
+const canonicalURL = new URL(Astro.url.pathname, Astro.site ?? "https://shafri.pages.dev");
+const person = {
+  "@context": "https://schema.org",
+  "@type": "Person",
+  name: profile.name,
+  jobTitle: profile.canonicalTitle,
+  url: Astro.site?.href ?? "https://shafri.pages.dev/",
+  sameAs: socials.map((social) => social.href),
+};
 ---
 
 <!doctype html>
@@ -24,6 +34,16 @@ const pageDescription = description ?? profile.metaDescription;
     <meta name="description" content={pageDescription} />
     <meta name="theme-color" content="#f2f2f2" />
     <title>{pageTitle}</title>
+    <link rel="canonical" href={canonicalURL} />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content={profile.name} />
+    <meta property="og:title" content={pageTitle} />
+    <meta property="og:description" content={pageDescription} />
+    <meta property="og:url" content={canonicalURL.href} />
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content={pageTitle} />
+    <meta name="twitter:description" content={pageDescription} />
+    {Astro.url.pathname === "/" && <script is:inline type="application/ld+json" set:html={JSON.stringify(person).replace(/</g, "\\u003c")} />}
     <link rel="icon" type="image/svg+xml" href="/icons/favicon.svg" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -34,10 +54,11 @@ const pageDescription = description ?? profile.metaDescription;
     <ClientRouter fallback="swap" />
   </head>
   <body>
+    <a href="#main-content" class="skip-link">Skip to content</a>
     <LoadingScreen />
     <Nav />
     <div class="page-shell">
-      <main>
+      <main id="main-content" tabindex="-1">
         <slot />
       </main>
       <Footer />

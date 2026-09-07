@@ -5,26 +5,28 @@
 \usepackage{hyperref}
 \usepackage{titlesec}
 \usepackage{tabularx}
-\usepackage{multicol}
-\usepackage{setspace}
+\usepackage{lmodern}
+\renewcommand{\familydefault}{\sfdefault}
 
 \hypersetup{
   colorlinks=true,
-  urlcolor=blue,
+  urlcolor=black,
   linkcolor=black
 }
 
-\setlist[itemize]{leftmargin=*,topsep=0pt,itemsep=0pt,parsep=0pt}
+\setlist[itemize]{leftmargin=*,topsep=1pt,itemsep=1pt,parsep=0pt}
 \setlength{\parindent}{0pt}
-\setlength{\parskip}{1.5pt}
+\setlength{\parskip}{2pt}
 \setlength{\emergencystretch}{2em}
 
 \titleformat{\section}{\large\bfseries}{\thesection}{0.5em}{}
-\titlespacing*{\section}{0pt}{6pt}{2pt}
+\titlespacing*{\section}{0pt}{8pt}{3pt}
+\raggedright
 
 \begin{document}
 
 {\LARGE \textbf{M Shafri Syamsuddin}}\\[2pt]
+{\large AI Engineer}\\[4pt]
 \begin{tabularx}{\textwidth}{@{}X X@{}}
 Jakarta, Indonesia & \href{mailto:shafrisyamsuddin@gmail.com}{shafrisyamsuddin@gmail.com}\\
 \href{tel:+6283137190178}{+62 831 3719 0178} & \href{https://www.linkedin.com/in/shafrisyamsuddin/}{linkedin.com/in/shafrisyamsuddin} \\
@@ -33,15 +35,21 @@ Jakarta, Indonesia & \href{mailto:shafrisyamsuddin@gmail.com}{shafrisyamsuddin@g
 \end{tabularx}
 
 \section*{Summary}
-AI Engineer building production-aware retrieval, document-intelligence, and applied AI systems across enterprise platforms. Currently contributing to AssistX Enterprise's enterprise AI platforms for RAG, document intelligence, and customer intelligence. Experience across Computer Vision, NLP, and Data Science, including YOLO-based malaria diagnostics, zero-shot sentiment analytics, and Docker-first inference services. Comfortable driving projects end-to-end: data strategy, modelling, MLOps, and stakeholder alignment.
+AI Engineer at AssistX Enterprise building retrieval, document-intelligence, and applied AI systems. MSc graduate with an IEEE publication on malaria detection and experience across Computer Vision, NLP, and Data Science. Work spans ingestion, model evaluation, operations tooling, and deployment.
+
+\section*{Skills}
+\textbf{AI Engineering:} Python, PyTorch, Hugging Face Transformers, scikit-learn, TensorFlow, Keras, YOLOv8, OpenCV, ONNX\\
+\textbf{AI Applications:} RAG systems, VLM/PDF ingestion, structured extraction, React, FastAPI, SQL, PostgreSQL\\
+\textbf{Evaluation \& Delivery:} Docker, MLflow, Jenkins, GitHub Actions, Apache Airflow, Flask, Git\\
+\textbf{Additional Tools:} Power BI, Tableau, Plotly, Streamlit, Unity, Figma
 
 \section*{Experience}
 \textbf{AI Engineer} \hfill Jan 2026 -- Present\\
 AssistX Enterprise
 \begin{itemize}
-  \item Extended an enterprise RAG and agent-ingestion platform across mixed inputs and provider workflows, adding custom-node compatibility, VLM/PDF parsing, chunk normalization, parser batching, structured dataset views, and provider administration.
-  \item Expanded intelligent-document-processing services and their React console with nested-list extraction, scoring-table sorting/filtering/column selection, and document-review tooling that makes complex outputs easier to inspect.
-  \item Built customer-intelligence platform services and console workflows for structured ingestion, tenant-scoped RFM/persona segmentation, explainable product eligibility, data operations, privacy-safe previews, and observability.
+  \item Extended an enterprise RAG and agent-ingestion platform with VLM/PDF parsing, chunk normalization, parser batching, custom-node compatibility, and provider administration.
+  \item Built document-review tooling and React console workflows for nested extraction, structured dataset views, and scoring-table filtering, sorting, and column selection.
+  \item Built customer-intelligence workflows for tenant-scoped RFM/persona segmentation, explainable product eligibility, structured ingestion, privacy-safe previews, and observability.
   \item Hardened delivery paths with automated tests, Docker/Jenkins deployment updates, and server-side credential handling.
 \end{itemize}
 
@@ -54,17 +62,15 @@ Universitas Gadjah Mada, Remote Part Time
 \textbf{Data Scientist Trainee} \hfill Oct 2024 -- Mar 2025\\
 Rakamin Academy, Remote
 \begin{itemize}
-  \item Completed intensive programme covering DBMS, SQL, Python (NumPy, pandas), statistics, scikit-learn, classical ML, ensemble methods, and deep learning.
+  \item Trained in SQL, Python, statistics, classical ML, deep learning, experiment tracking, and deployment-readiness documentation.
   \item Delivered an automated CV summarisation pipeline using NLP techniques to evaluate applicants on academic, social, and professional criteria.
-  \item Practised end-to-end MLOps fundamentals: experiment tracking, evaluation, and deployment-readiness documentation.
 \end{itemize}
 
 \textbf{Product Lead} \hfill Jun 2022 -- Dec 2023\\
 JIWANA (Startup at UBIC Incubation), Yogyakarta, ID
 \begin{itemize}
-  \item Represented the mental-health chatbot startup across incubation events, forging partnerships and securing mentorship support.
-  \item Directed product roadmap and team coordination, translating user research into actionable requirements.
-  \item Co-designed conversational flows and spearheaded prototype experimentation to validate technical feasibility.
+  \item Directed the mental-health chatbot's roadmap, team coordination, conversational flows, and prototype experiments, translating user research into requirements.
+  \item Represented the startup at incubation events, building partnerships and securing mentorship support.
 \end{itemize}
 
 \textbf{Junior Game Developer} \hfill 2021 -- 2022\\
@@ -76,8 +82,7 @@ CreativeBox Tech
 \textbf{Human Resource Development Staff} \hfill Sep 2020 -- Jun 2022\\
 Ikatan Mahasiswa Indonesia Xiaozhuang (IMIX), Yogyakarta, ID
 \begin{itemize}
-  \item Designed and delivered capability-building programmes covering technical and soft skills for student members.
-  \item Managed performance assessments, feedback loops, and events to sustain an inclusive, high-performing community.
+  \item Delivered technical and soft-skills programmes for student members; managed assessments, feedback, and community events.
 \end{itemize}
 
 \textbf{Assistant Lecturer} \hfill Sep 2019 -- Sep 2020\\
@@ -86,10 +91,12 @@ Universitas Islam Indonesia, Yogyakarta, ID
   \item Held an assistant lecturer role alongside undergraduate study at Universitas Islam Indonesia.
 \end{itemize}
 
+\newpage
 \section*{Selected Projects}
 \textbf{AssistX Suite Platform Engineering} \hfill 2026 -- Present
 \begin{itemize}
-  \item Public-safe case study of retrieval-augmented generation, document intelligence, customer-intelligence workflows, and delivery tooling at AssistX Enterprise; implementation details remain confidential.
+  \item Engineering contributions across retrieval, document intelligence, customer-intelligence workflows, and delivery tooling at AssistX Enterprise. Public product diagrams distinguish product context from my work; implementation details remain confidential.
+  \item \href{https://shafri.pages.dev/projects/enterprise-ai-platform}{Case study: shafri.pages.dev/projects/enterprise-ai-platform}
 \end{itemize}
 
 \textbf{Malaria Parasite Stage Detection} \hfill 2024 -- Present
@@ -101,22 +108,18 @@ Universitas Islam Indonesia, Yogyakarta, ID
 
 \textbf{VisionServe: CIFAR-10 Inference API} \hfill 2025
 \begin{itemize}
-  \item Dockerised FastAPI microservice serving CNN predictions with reproducible training pipelines and artifact versioning.
-  \item Implemented single-command automation for preprocessing, training, metrics export, and QA artefacts (confusion matrix, history).
-  \item Returned class probabilities and confidence scores, with model artefacts mounted at runtime for lean deployment.
+  \item Dockerised FastAPI demonstration serving CNN class probabilities and confidence scores, with reproducible training, versioned artefacts, and automated preprocessing, metrics, and QA exports.
 \end{itemize}
 
 \textbf{Zero-shot Sentiment Intelligence Pipeline} \hfill 2025
 \begin{itemize}
-  \item Config-driven orchestration using \texttt{facebook/bart-large-mnli} to score public comments without domain-specific fine-tuning.
-  \item Generated dashboards-ready outputs: sentiment trendlines, label share analyses, and confidence diagnostics.
-  \item Structured pipeline for rapid migration into APIs or scheduled batch processing with minimal refactoring.
+  \item Config-driven \texttt{facebook/bart-large-mnli} pipeline for sentiment trends, label shares, and confidence diagnostics without domain-specific fine-tuning; structured for API or batch use.
 \end{itemize}
 
 \section*{Education}
 \textbf{Universitas Gadjah Mada} \hfill Aug 2023 -- Jul 2025\\
 Master of Computer Science (GPA 3.73/4.00) \\
-Thesis: Feature Insertion and Colour Space Transformation for Malaria Parasite Detection in Thin Blood Smear Images using YOLO \& Faster R-CNN.\\
+Thesis: Feature Insertion and Colour Space Transformation for Malaria Parasite Detection in Thin Blood Smear Images using YOLO \& Faster R-CNN.
 \begin{itemize}
   \item Built research publication trend warehouse from Springer metadata to surface emerging topics with advanced visual analytics.
   \item Led hotel price trend mining across Booking.com, Traveloka, and Tiket.com via Octoparse; analysed pricing vs. city-centre proximity.
@@ -139,11 +142,5 @@ Syamsuddin, M. S., et al. \textit{Exploring the Impact of Colour Space in Malari
   \item TPA Online -- Score: 591 (Pusat Layanan Tes Indonesia, Jun 2025)
   \item Data Scientist Programme, Rakamin Academy -- Completed Oct 2024 to Mar 2025
 \end{itemize}
-
-\section*{Skills}
-\textbf{AI Engineering:} Python, PyTorch, Hugging Face Transformers, scikit-learn, TensorFlow, Keras, YOLOv8, OpenCV, ONNX\\
-\textbf{AI Applications:} RAG systems, VLM/PDF ingestion, structured extraction, React, FastAPI, SQL, PostgreSQL\\
-\textbf{Evaluation \& Delivery:} Docker, MLflow, Jenkins, GitHub Actions, Apache Airflow, Flask\\
-\textbf{Analytics \& Tools:} Power BI, Tableau, Plotly, Streamlit, Unity, Figma, Git
 
 \end{document}
