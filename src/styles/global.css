@@ -397,6 +397,47 @@ p {
   border-top: 1px solid var(--line);
 }
 
+.rail-tools {
+  display: flex;
+  width: 13rem;
+  height: 3rem;
+  align-items: center;
+  border-bottom: 1px solid var(--line);
+  transition: background .2s ease;
+}
+
+.rail-tools:hover,
+.rail-tools.is-active { background: #e8e8e5; }
+.rail-tools.is-active { box-shadow: inset 0 -2px 0 var(--signal); }
+
+.rail-tools-icon {
+  display: grid;
+  width: var(--rail);
+  flex: 0 0 var(--rail);
+  place-items: center;
+}
+
+.rail-tools-icon svg {
+  width: 1.15rem;
+  height: 1.15rem;
+}
+
+.rail-tools-label {
+  white-space: nowrap;
+  font-size: .62rem;
+  font-weight: 700;
+  letter-spacing: .1em;
+  opacity: 0;
+  transform: translateX(-.4rem);
+  transition: opacity .22s .08s, transform .3s .06s;
+}
+
+.desktop-rail:hover .rail-tools-label,
+.desktop-rail:focus-within .rail-tools-label {
+  opacity: 1;
+  transform: translateX(0);
+}
+
 .sound-toggle {
   position: relative;
   border: 0;

@@ -49,13 +49,6 @@ const links = [
     code: "06",
     icon: '<path d="M3 5h18v14H3z"/><path d="m4 6 8 7 8-7"/>',
   },
-  {
-    href: "/tools",
-    section: "tools",
-    label: "Tools",
-    code: "07",
-    icon: '<path d="M5 6h14M5 12h14M5 18h14"/><path d="M9 4v4M15 10v4M8 16v4"/>',
-  },
 ];
 ---
 
@@ -77,6 +70,15 @@ const links = [
     </nav>
 
     <div class="rail-utilities">
+      <a href="/tools" class="rail-tools" data-nav-section="tools">
+        <span class="rail-tools-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="square">
+            <path d="M5 6h14M5 12h14M5 18h14" />
+            <path d="M9 4v4M15 10v4M8 16v4" />
+          </svg>
+        </span>
+        <span class="rail-tools-label">TOOLS</span>
+      </a>
       <button
         type="button"
         class="sound-toggle sound-toggle--rail"
@@ -152,7 +154,7 @@ const links = [
 
 <nav id="mobile-menu" class="mobile-menu" data-open="false" aria-label="Mobile navigation" transition:persist="mobile-menu">
   <div class="mobile-menu-grid" aria-hidden="true"></div>
-  <p class="mobile-menu-kicker">SELECT DESTINATION // 00—07</p>
+  <p class="mobile-menu-kicker">SELECT DESTINATION // 00—06</p>
   <div class="mobile-menu-links">
     {links.map((link) => (
       <a href={link.href} data-nav-section={link.section}>
@@ -161,6 +163,7 @@ const links = [
     ))}
   </div>
   <div class="mobile-menu-foot">
+    <a href="/tools" data-nav-section="tools">TOOLS</a>
     <a href="mailto:shafrisyamsuddin@gmail.com">EMAIL</a>
     <a href="https://github.com/niseruu" target="_blank" rel="noopener">GITHUB</a>
     <a href="https://www.linkedin.com/in/shafrisyamsuddin/" target="_blank" rel="noopener">LINKEDIN</a>

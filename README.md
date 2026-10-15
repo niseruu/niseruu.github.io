@@ -22,7 +22,7 @@ The AssistX case study uses optimized local copies of the public Suite flow diag
 
 ### Tools section
 
-The `/tools` page (nav item `07 Tools`, not part of the home-page scroll) lists small side projects that sit outside the main case studies, in the same style as `/projects`. Entries live in `src/data/tools.ts` (name, description, tags, link, source link, preview image in `src/assets/images/`).
+The `/tools` page (linked from the rail's utility group above the sound toggle, and from the mobile menu footer; not a numbered chapter and not part of the home-page scroll) lists small side projects that sit outside the main case studies, in the same style as `/projects`. Entries live in `src/data/tools.ts` (name, description, tags, link, source link, preview image in `src/assets/images/`).
 
 Each tool is a self-contained static page under `public/tools/<name>/`, served as-is at `/tools/<name>/` with no build step. Links to them use `data-astro-reload` so the Astro client router does a full page load instead of trying to swap the page. The Safe Listening Calculator is developed in [niseruu/Safe-Audio](https://github.com/niseruu/Safe-Audio); `public/tools/safe-listening/` is a copy of its files with a back link to `/tools` added, so re-copy `index.html`, `style.css`, `app.js` and `curves.js` after changing it there and re-apply the back link.
 
