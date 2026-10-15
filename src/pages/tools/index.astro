@@ -1,0 +1,46 @@
+---
+import { Image } from "astro:assets";
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import KineticMarquee from "../../components/KineticMarquee.astro";
+import { profile } from "../../data/profile";
+import { tools } from "../../data/tools";
+---
+
+<BaseLayout
+  title={`Tools | ${profile.name}`}
+  description={`Small, lightweight browser tools built on the side by ${profile.name}. They run in the browser and collect nothing.`}
+>
+  <section id="tools" class="archive-hero">
+    <div class="archive-hero-grid" aria-hidden="true"></div>
+    <div class="archive-hero-meta"><span>[07] SIDE PROJECTS / TOOLS</span><span>{String(tools.length).padStart(2, "0")} RECORDS</span></div>
+    <h1 data-kinetic>TOOLS</h1>
+    <div class="archive-hero-bottom">
+      <p>Lightweight utilities I build when the one I need doesn't exist. They run in the browser and collect nothing. They sit outside my AI engineering work, but I build them with the same care.</p>
+      <span>SCROLL TO BROWSE ↓</span>
+    </div>
+  </section>
+  <KineticMarquee text="BROWSER TOOLS / NO SIGN-UP / NOTHING COLLECTED" dark />
+  <section class="archive-section tools-archive">
+    <div class="tools-grid">
+      {tools.map((tool, index) => (
+        <article class="tool-card">
+          <div class="tool-card-body">
+            <div class="tool-card-top"><span>TOOL / {String(index + 1).padStart(2, "0")}</span><span>LIVE</span></div>
+            <h2>{tool.name}</h2>
+            <p>{tool.description}</p>
+            <ul class="tool-tags">
+              {tool.tags.map((tag) => <li>{tag}</li>)}
+            </ul>
+            <div class="tool-card-links">
+              <a href={tool.href} data-astro-reload>Open tool <span>↗</span></a>
+              <a href={tool.sourceHref} target="_blank" rel="noopener">Source <span>↗</span></a>
+            </div>
+          </div>
+          <a class="tool-card-preview" href={tool.href} data-astro-reload tabindex="-1" aria-hidden="true">
+            <Image src={tool.preview} alt="" widths={[640, 960, 1280]} sizes="(min-width: 62rem) 55vw, 100vw" loading="lazy" />
+          </a>
+        </article>
+      ))}
+    </div>
+  </section>
+</BaseLayout>
