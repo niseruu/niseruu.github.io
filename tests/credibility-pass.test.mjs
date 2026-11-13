@@ -37,13 +37,13 @@ test("the hero leads with AI engineering while keeping adjacent disciplines visi
   const cv = await read("cv/m-shafri-syamsuddin.tex");
 
   assert.match(profile, /primaryFocus:/);
-  assert.match(profile, /Retrieval.*Document Intelligence.*Applied AI/);
+  assert.match(profile, /RAG.*Agentic AI.*Backend Engineering/);
   assert.match(profile, /supportingFocus:/);
   assert.match(profile, /Computer Vision.*NLP.*Data Science/);
   assert.match(hero, /profile\.primaryFocus/);
   assert.match(hero, /profile\.supportingFocus/);
   assert.match(hero, /ASSISTX ENTERPRISE/);
-  assert.match(cv, /retrieval.*document-intelligence.*applied AI/i);
+  assert.match(cv, /RAG, agentic AI, and backend systems/i);
   assert.match(cv, /Computer Vision.*NLP.*Data Science/i);
 });
 
@@ -74,7 +74,7 @@ test("the enterprise experience keeps the employer, title, and public AssistX Su
   assert.match(cv, /AssistX Enterprise/);
   assert.match(cv, /Research Assistant.*Sep 2025 -- Dec 2025/s);
   assert.match(cv, /Junior Game Developer.*2021 -- 2022/s);
-  assert.match(cv, /enterprise RAG.*agent-ingestion platform/);
+  assert.match(cv, /enterprise RAG and document-intelligence platform/);
   assert.match(cv, /tenant-scoped RFM\/persona segmentation/);
   assert.match(project, /Confidential/);
   assert.match(project, /title:\s*"AssistX Suite Platform Engineering"/);

@@ -35,11 +35,12 @@ Jakarta, Indonesia & \href{mailto:shafrisyamsuddin@gmail.com}{shafrisyamsuddin@g
 \end{tabularx}
 
 \section*{Summary}
-AI Engineer at AssistX Enterprise building retrieval, document-intelligence, and applied AI systems. MSc graduate with an IEEE publication on malaria detection and experience across Computer Vision, NLP, and Data Science. Work spans ingestion, model evaluation, operations tooling, and deployment.
+AI Engineer at AssistX Enterprise building RAG, agentic AI, and backend systems for document intelligence and CRM. MSc graduate with an IEEE publication on malaria detection and experience across Computer Vision, NLP, and Data Science.
 
 \section*{Skills}
 \textbf{AI Engineering:} Python, PyTorch, Hugging Face Transformers, scikit-learn, TensorFlow, Keras, YOLOv8, OpenCV, ONNX\\
-\textbf{AI Applications:} RAG systems, VLM/PDF ingestion, structured extraction, React, FastAPI, SQL, PostgreSQL\\
+\textbf{AI Applications:} RAG, agentic AI, Pydantic AI, MCP, LiteLLM, vLLM, VLM/PDF ingestion\\
+\textbf{Backend \& Frontend:} FastAPI, PostgreSQL, pgvector, Redis, MinIO, SQLAlchemy, SQL, React, TypeScript\\
 \textbf{Evaluation \& Delivery:} Docker, MLflow, Jenkins, GitHub Actions, Apache Airflow, Flask, Git\\
 \textbf{Additional Tools:} Power BI, Tableau, Plotly, Streamlit, Unity, Figma
 
@@ -47,10 +48,11 @@ AI Engineer at AssistX Enterprise building retrieval, document-intelligence, and
 \textbf{AI Engineer} \hfill Jan 2026 -- Present\\
 AssistX Enterprise
 \begin{itemize}
-  \item Extended an enterprise RAG and agent-ingestion platform with VLM/PDF parsing, chunk normalization, parser batching, custom-node compatibility, and provider administration.
-  \item Built document-review tooling and React console workflows for nested extraction, structured dataset views, and scoring-table filtering, sorting, and column selection.
-  \item Built customer-intelligence workflows for tenant-scoped RFM/persona segmentation, explainable product eligibility, structured ingestion, privacy-safe previews, and observability.
-  \item Hardened delivery paths with automated tests, Docker/Jenkins deployment updates, and server-side credential handling.
+  \item Built an enterprise RAG and document-intelligence platform: FastAPI job API on PostgreSQL + pgvector hybrid search, Redis, and MinIO, with Qwen3-VL PDF parsing, page-orientation correction, and LLM extraction.
+  \item Built its React + TypeScript console (Vite, shadcn/ui, TanStack Query) for document review, nested extraction, and approval gates, plus entity resolution (trigram search, rapidfuzz, Redis Streams).
+  \item Built an agentic AI assistant for multi-step reasoning, UI walkthroughs, and task execution: Pydantic AI and MCP tool-calling with scoped tokens, SSE streaming, cited answers, and evals.
+  \item Built AI-powered CRM workflows for tenant-scoped RFM/persona segmentation and explainable product eligibility, now integrated with both the RAG platform and the agentic assistant.
+  \item Delivered directly with clients and leads; shipped with tests, Docker, and GitHub Actions/Jenkins CI/CD.
 \end{itemize}
 
 \textbf{Research Assistant} \hfill Sep 2025 -- Dec 2025\\
@@ -95,7 +97,7 @@ Universitas Islam Indonesia, Yogyakarta, ID
 \section*{Selected Projects}
 \textbf{AssistX Suite Platform Engineering} \hfill 2026 -- Present
 \begin{itemize}
-  \item Engineering contributions across retrieval, document intelligence, customer-intelligence workflows, and delivery tooling at AssistX Enterprise. Public product diagrams distinguish product context from my work; implementation details remain confidential.
+  \item Backend and AI engineering across a RAG and document-intelligence platform, an agentic AI assistant, and an AI-powered CRM at AssistX Enterprise. Public product diagrams distinguish product context from my work; implementation details remain confidential.
   \item \href{https://shafri.pages.dev/projects/enterprise-ai-platform}{Case study: shafri.pages.dev/projects/enterprise-ai-platform}
 \end{itemize}
 

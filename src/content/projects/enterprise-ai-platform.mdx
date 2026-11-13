@@ -2,19 +2,19 @@
 title: "AssistX Suite Platform Engineering"
 eyebrow: "AssistX Enterprise · AI Engineering"
 contextLabel: "PUBLIC PRODUCT CONTEXT"
-summary: "Platform engineering across retrieval-augmented generation, intelligent document processing, and customer-intelligence workflows, with implementation details kept intentionally high level."
+summary: "Backend and AI engineering across three connected products: a RAG and document-intelligence platform, an agentic AI assistant, and an AI-powered CRM, built hands-on with clients and leads. Implementation details are kept intentionally high level."
 heroImage: "../../assets/images/assistx-suite-flow.png"
 heroImageAlt: "Public AssistX Suite flow routing documents into workflow automation, enterprise systems, analytics, and scanned-document processing"
 featured: true
 order: 0
 scope:
-  - "Retrieval and agent-ingestion workflows"
-  - "Document-intelligence operations"
-  - "Customer-intelligence services and tooling"
+  - "RAG and document-intelligence platform: retrieval, LLM pipeline, backend, and frontend"
+  - "Agentic AI assistant: multi-step reasoning, UI walkthroughs, and task execution"
+  - "AI-powered CRM, now running on the RAG platform and the agentic assistant"
 outcomes:
-  - "Made mixed RAG and PDF inputs easier to ingest, normalize, and operate."
-  - "Expanded document-review workflows with nested extraction and structured controls."
-  - "Made customer-intelligence views more explainable with tenant-scoped segmentation and privacy-safe previews."
+  - "Turned mixed PDFs and scans into searchable, structured data through VLM parsing, page-orientation correction, hybrid search, and LLM extraction."
+  - "Shipped an assistant that reasons across data services through MCP tools and answers with citations, scoped to each user's permissions."
+  - "Connected the CRM to both systems, adding explainable, tenant-scoped segmentation on top of document and agent capabilities."
 metrics: []
 links:
   - label: "Public AssistX Suite overview"
@@ -23,7 +23,7 @@ links:
 
 ## Brief
 
-Selected work at AssistX Enterprise spans three connected product areas: retrieval-augmented generation, intelligent document processing, and customer intelligence. This case study describes the engineering scope without exposing internal product names, customer information, private endpoints, or repository links.
+My work at AssistX Enterprise covers three connected products: a RAG and document-intelligence platform, an agentic AI assistant, and an AI-powered CRM that now runs on both. I work across the retrieval and LLM pipeline, backend services, and frontend, directly with clients and leads. This case study describes the engineering scope and stack without exposing internal product names, customer information, private endpoints, or repository links.
 
 ## Public product context
 
@@ -33,10 +33,30 @@ The public diagrams on the case-study page are product context from that same ov
 
 ## What I worked on
 
-- Extended enterprise RAG and agent-ingestion workflows with custom-node compatibility, VLM/PDF parsing, chunk normalization, parser batching, structured dataset views, and provider administration.
-- Contributed to document-intelligence services and their React operations console, including nested-list extraction, scoring-table sorting and filtering, column selection, and document-review tooling.
-- Built customer-intelligence services and console workflows for structured ingestion, tenant-scoped RFM/persona segmentation, explainable product eligibility, data operations, privacy-safe previews, and observability.
-- Hardened delivery paths with automated tests, Docker/Jenkins deployment updates, and server-side credential handling.
+**RAG and document-intelligence platform**
+
+- Async job API that parses, splits, chunks, classifies, extracts, tags, validates, and compares documents, with human approval gates between steps.
+- VLM/PDF ingestion with page-orientation detection and correction, chunk normalization, parser batching, and LLM-based structured and nested-list extraction.
+- Hybrid (full-text + vector) chunk search for retrieval, plus an entity-resolution service that deduplicates people and institutions across documents.
+- React operations console for document review, scoring-table sorting and filtering, column selection, extraction profiles, and resolved-entity curation.
+- **Stack:** Python, FastAPI, async SQLAlchemy, Alembic, PostgreSQL + pgvector, pg_trgm, Redis (queues and streams), MinIO, vLLM / LiteLLM (OpenAI-compatible), Qwen3-VL, PyMuPDF4LLM, RapidOCR (ONNX), OpenCV, rapidfuzz · React 19, TypeScript, Vite, Tailwind CSS, shadcn/ui, TanStack Query.
+
+**Agentic AI assistant**
+
+- Chat orchestrator that plans multi-step answers by calling the platform's data services as MCP tools on the user's behalf, using short-lived scoped tokens instead of the user's own credential.
+- Page-aware responses and guided UI walkthroughs that help users through the console, with tool calls, results, and tokens streamed live.
+- Every claim cited and checked against its source, with YAML-defined evaluation sets for regression testing.
+- **Stack:** Python, FastAPI, Pydantic AI, Model Context Protocol (MCP), LiteLLM, PostgreSQL, Server-Sent Events, JWT · driver.js tours in the React console.
+
+**AI-powered CRM**
+
+- Customer-intelligence services and console workflows for structured ingestion, tenant-scoped RFM/persona segmentation, explainable product eligibility, data operations, privacy-safe previews, and observability.
+- Now integrated with the RAG platform for document understanding and the agentic assistant for conversational access.
+
+**Delivery and client work**
+
+- Worked directly with clients and leads, from requirements and configuration for real document sets through to deployment.
+- Hardened delivery paths with automated tests (pytest, Vitest, Playwright), Docker, GitHub Actions and Jenkins CI/CD, Prometheus metrics, structured logging, and server-side credential handling.
 
 ## Confidentiality boundary
 

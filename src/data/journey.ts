@@ -10,7 +10,7 @@ export const journey: JourneyEntry[] = [
     period: "Jan 2026 - Present",
     title: "AI Engineer, AssistX Enterprise",
     description:
-      "Contribute to and harden enterprise AI workflows for retrieval, document intelligence, and customer analytics, spanning ingestion, structured extraction, evaluation, observability, and operator-facing React tools.",
+      "Build three connected AI products hands-on with clients and leads: a RAG and document-intelligence platform (FastAPI, PostgreSQL + pgvector hybrid search, Redis, vLLM/LiteLLM with Qwen3-VL for VLM/PDF ingestion and structured extraction, React + TypeScript console), an agentic AI assistant for multi-step reasoning, UI walkthroughs, and task execution (Pydantic AI, MCP tool-calling, streamed and cited answers), and an AI-powered CRM now running on both.",
     kind: "ROLE",
   },
   {
